@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
         std::string output_filename = arg_output_filename.getValue();
         float isovalue = arg_isovalue.getValue();
 
+        std::cout << "Using isovalue: " << isovalue << std::endl;
+
         auto start = std::chrono::system_clock::now();
 
         ScalarField sf(input_filename, false);
