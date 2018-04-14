@@ -32,9 +32,6 @@
 
 #define PRECISION_LIMIT 0.000000001
 
-/* each cube holds 8 pointers to values (at the vertices) and the starting
-location defined as the lowest i, j and k value for the cube */
-
 /*
  *            z
  *            |
@@ -57,12 +54,9 @@ private:
 
 public:
     Cube();
-    /* cube constructor takes the grid coordinate for the cube origin and extracts
-    the values for the vertices from the grids file */
-    Cube(unsigned int _i, unsigned int _j, unsigned int _k,
-             const ScalarField &_vp);
-    /* set the cubidx value by comparing the value at the vertices with the
-    supplied isovalue */
+
+    Cube(unsigned int _i, unsigned int _j, unsigned int _k, const ScalarField &_vp);
+
     void set_cube_index(float _isovalue);
 
     unsigned int get_cube_index() const;
@@ -91,23 +85,20 @@ public:
 
 class Tetrahedron{
 private:
-    unsigned int i,j,k;                                // starting position of the cube
+    unsigned int i,j,k;     //!< starting position of the cube
     float values[4];
-    unsigned int tetidx;                             // cubeindex (whether there is an intersection)
-    glm::vec3 pos[4];                                        // coordinates of the gridpoints
+    unsigned int tetidx;    //!< cubeindex (whether there is an intersection)
+    glm::vec3 pos[4];       //!< coordinates of the gridpoints
 
 public:
-    /* tetrahedron constructor takes the grid coordinate for the tetrahedron
-    origin and extracts the values for the vertices from the grids file */
-    Tetrahedron(unsigned int _i, unsigned int _j, unsigned int _k,
-             const ScalarField &_vp, unsigned int _pos);
-    /* set the cubidx value by comparing the value at the vertices with the
-    supplied isovalue */
+    Tetrahedron(unsigned int _i, unsigned int _j, unsigned int _k, const ScalarField &_vp, unsigned int _pos);
+
     void set_tetrahedron_index(float _isovalue);
 
     unsigned int get_tetrahedron_index() const;
 
     float get_value_from_vertex(unsigned int _p) const;
+
     const glm::vec3& get_position_from_vertex(unsigned int _p) const;
 };
 
@@ -116,16 +107,23 @@ public:
     glm::vec3 p1, p2, p3;
 
     Triangle();
+
     Triangle(const glm::vec3 &_p1, const glm::vec3 &_p2, const glm::vec3 &_p3);
+
     void transform_to_real(const ScalarField &_vp);
+
     float get_x(unsigned int i) const;
+
     float get_y(unsigned int i) const;
+
     float get_z(unsigned int i) const;
 };
 
-/* generates an isosurface using either the marching cubes or the marching
-tetrahedra algorithm, input is a (tabulated) scalar field */
-
+/**
+ * @brief      generates an isosurface using either the marching cubes or the
+ *             marching tetrahedra algorithm, input is a (tabulated) scalar
+ *             field
+ */
 class IsoSurface {
 private:
     std::vector<Cube> cube_table;
@@ -136,10 +134,33 @@ private:
     float isovalue;                     // isovalue setting
 
 public:
-    IsoSurface(ScalarField *_sf);                           // default constructor
-    void marching_cubes(float _isovalue);                   // generate isosurface
-    void marching_tetrahedra(float _isovalue);              // generate isosurface
-    const std::vector<Triangle>* get_triangles_ptr() const; // return pointer to the triangles vector
+    /**
+     * @brief      default constructor
+     *
+     * @param      _sf   pointer to ScalarField object
+     */
+    IsoSurface(ScalarField *_sf);
+
+    /**
+     * @brief      generate isosurface using marching cubes algorithm
+     *
+     * @param[in]  _isovalue  The isovalue
+     */
+    void marching_cubes(float _isovalue);
+
+    /**
+     * @brief      generate isosurface using marching tetrahedra algorithm
+     *
+     * @param[in]  _isovalue  The isovalue
+     */
+    void marching_tetrahedra(float _isovalue);
+
+    /**
+     * @brief      Gets the triangles pointer.
+     *
+     * @return     The triangles pointer.
+     */
+    const std::vector<Triangle>* get_triangles_ptr() const;
 
     inline float get_isovalue() const {
         return this->isovalue;
@@ -150,18 +171,12 @@ public:
     }
 
 private:
-    /* sample the grid and collect all voxels (cubes) where the cubidx
-    value is not 0 or 256 (i.e. all voxels which are intersected by the isovalue */
     void sample_grid_with_cubes(float _isovalue);
     void sample_grid_with_tetrahedra(float _isovalue);
-    /* extract the triangles from the list of voxels */
     void construct_triangles_from_cubes(float _isovalue);
     void construct_triangles_from_tetrahedra(float _isovalue);
-    /* construct the glm::vec3 coordinate of the triangle */
-    glm::vec3 interpolate_from_cubes(const Cube &_cub, unsigned int _p1,
-        unsigned int _p2, float _isovalue);
-    glm::vec3 interpolate_from_tetrahedra(const Tetrahedron &_cub, unsigned int _p1,
-        unsigned int _p2, float _isovalue);
+    glm::vec3 interpolate_from_cubes(const Cube &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
+    glm::vec3 interpolate_from_tetrahedra(const Tetrahedron &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
 };
 
 #endif //_ISOSURFACE_H

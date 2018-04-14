@@ -38,8 +38,6 @@
  *
  */
 
-/* cube constructor takes the grid coordinate for the cube origin and extracts
-the values for the vertices from the grids file */
 Cube::Cube(unsigned int _i, unsigned int _j, unsigned int _k, const ScalarField &_vp) {
 
     this->i = _i;
@@ -58,8 +56,6 @@ Cube::Cube(unsigned int _i, unsigned int _j, unsigned int _k, const ScalarField 
     values[7] = _vp.get_value(_i+1, _j, _k+1);
 }
 
-/* set the cubidx value by comparing the value at the vertices with the
-supplied isovalue */
 void Cube::set_cube_index(float _isovalue) {
     if (this->values[0] < _isovalue) this->cubidx |= (1 << 0);
     if (this->values[1] < _isovalue) this->cubidx |= (1 << 1);
@@ -291,12 +287,22 @@ float Triangle::get_z(unsigned int i) const {
  * ISOSURFACE *
  **************/
 
+/**
+ * @brief      default constructor
+ *
+ * @param      _sf   pointer to ScalarField object
+ */
 IsoSurface::IsoSurface(ScalarField* _vp) {
     this->isovalue = 0;
     this->vp_ptr = _vp;
     this->vp_ptr->copy_grid_dimensions(this->grid_dimensions);
 }
 
+/**
+ * @brief      generate isosurface using marching cubes algorithm
+ *
+ * @param[in]  _isovalue  The isovalue
+ */
 void IsoSurface::marching_cubes(float _isovalue) {
     this->isovalue = _isovalue;
     this->sample_grid_with_cubes(_isovalue);
@@ -308,6 +314,11 @@ void IsoSurface::marching_cubes(float _isovalue) {
     }
 }
 
+/**
+ * @brief      generate isosurface using marching tetrahedra algorithm
+ *
+ * @param[in]  _isovalue  The isovalue
+ */
 void IsoSurface::marching_tetrahedra(float _isovalue) {
     this->isovalue = _isovalue;
     this->sample_grid_with_tetrahedra(_isovalue);
@@ -318,6 +329,11 @@ void IsoSurface::marching_tetrahedra(float _isovalue) {
     }
 }
 
+/**
+ * @brief      Gets the triangles pointer.
+ *
+ * @return     The triangles pointer.
+ */
 const std::vector<Triangle>* IsoSurface::get_triangles_ptr() const {
     return &this->triangles;
 }
@@ -420,6 +436,8 @@ void IsoSurface::construct_triangles_from_cubes(float _isovalue) {
             push_back_mutex.unlock();
         }
     }
+
+    std::cout << "Identified " << this->triangles.size() << " faces." << std::endl;
 }
 
 void IsoSurface::construct_triangles_from_tetrahedra(float _isovalue) {

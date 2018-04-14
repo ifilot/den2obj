@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include <tclap/CmdLine.h>
+#include <boost/filesystem.hpp>
 
 #include "scalar_field.h"
 #include "config.h"
@@ -76,12 +77,16 @@ int main(int argc, char* argv[]) {
         IsoSurface is(&sf);
         is.marching_cubes(isovalue);
 
+        // store path to extract filename
+        boost::filesystem::path path(input_filename);
+
         IsoSurfaceMesh ism(&sf, &is);
         ism.construct_mesh(arg_c.getValue());
-        ism.write_obj(output_filename);
+        ism.write_obj(output_filename, path.filename().string(), path.filename().string());
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end-start;
+        std::cout << "--------------------------------------------------------------" << std::endl;
         std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl;
 
         return 0;

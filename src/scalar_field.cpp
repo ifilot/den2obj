@@ -40,45 +40,20 @@ ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot) {
     }
 }
 
-/*
- * void output()
+/**
+ * @brief      Gets the unitcell matrix.
  *
- * Outputs a summary of the ScalarField to std::cout.
- * Mainly used for debugging purposes.
- *
+ * @return     The unitcell matrix.
  */
-void ScalarField::output() const {
-    std::cout << "Scalar: "<< this->scalar << std::endl;
-    std::cout << std::endl;
-    std::cout << "Matrix: ";
-    for(unsigned i=0; i<3; i++) {
-        for(unsigned j=0; j<3; j++) {
-            std::cout << this->mat[i][j] << "\t";
+glm::mat3 ScalarField::get_unitcell_matrix() {
+    glm::mat3 out;
+    for(unsigned int i=0; i<3; i++) {
+        for(unsigned int j=0; j<3; j++) {
+            out[i][j] = mat[i][j];
         }
-        std::cout << std::endl;
-        std:: cout << "\t";
     }
-    std::cout << std::endl;
-    std::cout << "Inverse: ";
-    for(unsigned i=0; i<3; i++) {
-        for(unsigned j=0; j<3; j++) {
-            std::cout << this->imat[i][j] << "\t";
-        }
-        std::cout << std::endl;
-        std:: cout << "\t";
-    }
-    std::cout << std::endl;
-    std::cout << "ion types: " << this->nrat.size() << " ( ";
-    for(unsigned i=0; i<this->nrat.size(); i++) {
-        std::cout << this->nrat[i] << " ";
-    }
-    std::cout << ")" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Grid dimensions: ";
-    for(unsigned i=0; i<3; i++) {
-        std::cout << this->grid_dimensions[i] << "\t";
-    }
-    std::cout << std::endl;
+
+    return out;
 }
 
 /*

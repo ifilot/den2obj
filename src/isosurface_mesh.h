@@ -24,6 +24,7 @@
 #include <fstream>
 #include <set>
 #include <vector>
+#include <omp.h>
 
 #define GLM_FORCE_SWIZZLE
 #include <glm/glm.hpp>
@@ -82,8 +83,10 @@ public:
      * @brief      write wavefront file
      *
      * @param[in]  filename  The filename
+     * @param[in]  header    The header
+     * @param[in]  name      The name
      */
-    void write_obj(std::string filename);
+    void write_obj(const std::string& filename, const std::string& header, const std::string& name);
 
 private:
     /**

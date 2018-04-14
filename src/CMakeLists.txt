@@ -28,7 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "1")
+SET(VERSION_MINOR "2")
 SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
@@ -95,9 +95,6 @@ if(APPLE)
 else()
     target_link_libraries(den2obj ${Boost_LIBRARIES})
 endif()
-
-# add Wno-literal-suffix to suppress warning messages
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}")
 
 ###
 # Installing

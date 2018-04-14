@@ -80,18 +80,12 @@ public:
      */
     ScalarField(const std::string &_filename, bool _flag_is_locpot);
 
-    void output() const;
-
-    glm::mat3 get_unitcell_matrix() {
-        glm::mat3 out;
-        for(unsigned int i=0; i<3; i++) {
-            for(unsigned int j=0; j<3; j++) {
-                out[i][j] = mat[i][j];
-            }
-        }
-
-        return out;
-    }
+    /**
+     * @brief      Gets the unitcell matrix.
+     *
+     * @return     The unitcell matrix.
+     */
+    glm::mat3 get_unitcell_matrix();
 
     /**
      * @brief      determines if this Scalarfield is in LOCPOT-style

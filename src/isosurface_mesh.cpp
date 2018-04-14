@@ -74,8 +74,8 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
         double dz1 = sf->get_value_interp(this->vertices[i][0], this->vertices[i][1], this->vertices[i][2] + dev);
 
         glm::vec3 normal((dx1 - dx0) / (2.0 * dev),
-                    (dy1 - dy0) / (2.0 * dev),
-                    (dz1 - dz0) / (2.0 * dev));
+                         (dy1 - dy0) / (2.0 * dev),
+                         (dz1 - dz0) / (2.0 * dev));
         normal = glm::normalize(normal);
 
         this->normals[i] = normal;
@@ -96,30 +96,122 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
  * @brief      write wavefront file
  *
  * @param[in]  filename  The filename
+ * @param[in]  header    The header
+ * @param[in]  name      The name
  */
-void IsoSurfaceMesh::write_obj(std::string filename) {
+void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& header, const std::string& name) {
     std::cout << "Writing to " << filename << std::endl;
     std::ofstream myfile;
     myfile.open(filename.c_str());
 
-    myfile << "# IsoTron OBJ File" << std::endl;
-    myfile << "# www.ivofilot.nl" << std::endl;
-    myfile << "o isosurface" << std::endl;
+    myfile << "# " << header << std::endl;
+    myfile << "# Created by den2obj" << std::endl;
+    myfile << "# https://github.com/ifilot/den2obj" << std::endl;
+    myfile << "o " << name << std::endl;
 
-    for(unsigned int i=0; i<this->vertices.size(); i++) {
-        myfile << "v " << this->vertices[i][0] << " " << this->vertices[i][1] << " " << this->vertices[i][2] << std::endl;
+    // calculate number of threads
+
+    size_t nrthreads = omp_get_max_threads();
+    omp_set_num_threads(nrthreads); // always allocate max threads
+    std::stringstream local[nrthreads];
+
+    // parallel writing vertices
+
+    #pragma omp parallel
+    {
+        size_t threadnum = omp_get_thread_num();
+
+        // calculate size
+        size_t rem = this->vertices.size() % nrthreads;
+
+        // divide task
+        size_t start = this->vertices.size() / nrthreads * threadnum;
+        size_t stop = this->vertices.size() / nrthreads * (threadnum + 1);
+        if(threadnum == nrthreads - 1) {
+            stop += rem;
+        }
+
+        char buffer[100];
+        unsigned int cnt = 0;
+
+        for(size_t i=start; i<stop; i++) {
+
+            sprintf(buffer, "v %6.4f  %6.4f  %6.4f\n", this->vertices[i][0], this->vertices[i][1], this->vertices[i][2]);
+            local[threadnum] << buffer;
+        }
     }
 
-    for(unsigned int i=0; i<this->normals.size(); i++) {
-        myfile << "vn " << this->normals[i][0] << " " << this->normals[i][1] << " " << this->normals[i][2] << std::endl;
+    // merge results
+    for(unsigned int i=0; i<nrthreads; i++) {
+        myfile << local[i].str();
+        local[i].str(std::string());    // clear stringstream
+    }
+
+    // parallel writing normals
+
+    #pragma omp parallel
+    {
+        size_t threadnum = omp_get_thread_num();
+
+        // calculate size
+        size_t rem = this->normals.size() % nrthreads;
+
+        // divide task
+        size_t start = this->normals.size() / nrthreads * threadnum;
+        size_t stop = this->normals.size() / nrthreads * (threadnum + 1);
+        if(threadnum == nrthreads - 1) {
+            stop += rem;
+        }
+
+        char buffer[100];
+        unsigned int cnt = 0;
+
+        for(size_t i=start; i<stop; i++) {
+
+            sprintf(buffer, "vn %6.4f  %6.4f  %6.4f\n", this->normals[i][0], this->normals[i][1], this->normals[i][2]);
+            local[threadnum] << buffer;
+        }
+    }
+
+    // merge results
+    for(unsigned int i=0; i<nrthreads; i++) {
+        myfile << local[i].str();
+        local[i].str(std::string());    // clear stringstream
     }
 
     myfile << "s off" << std::endl;
 
-    for(unsigned int i=0; i<this->indices.size(); i+=3) {
-        myfile << "f " << this->indices[i]+1   << "//" << this->indices[i]+1
-               << " "  << this->indices[i+1]+1 << "//" << this->indices[i+1]+1
-               << " "  << this->indices[i+2]+1 << "//" << this->indices[i+2]+1 << std::endl;
+    // parallel writing faces
+
+    #pragma omp parallel
+    {
+        size_t threadnum = omp_get_thread_num();
+
+        // calculate size
+        size_t rem = (this->indices.size() / 3) % nrthreads;
+
+        // divide task
+        size_t start = (this->indices.size() / 3) / nrthreads * threadnum * 3;
+        size_t stop = (this->indices.size() / 3) / nrthreads * (threadnum+1) * 3;
+        if(threadnum == nrthreads - 1) {
+            stop += rem * 3;
+        }
+
+        char buffer[100];
+        unsigned int cnt = 0;
+
+        for(size_t i=start; i<stop; i+=3) {
+
+            sprintf(buffer, "f %i//%i %i//%i %i//%i\n", this->indices[i]+1,   this->indices[i]+1,
+                                                        this->indices[i+1]+1, this->indices[i+1]+1,
+                                                        this->indices[i+2]+1, this->indices[i+2]+1);
+            local[threadnum] << buffer;
+        }
+    }
+
+    // merge results
+    for(unsigned int i=0; i<nrthreads; i++) {
+        myfile << local[i].str();
     }
 
     myfile.close();
