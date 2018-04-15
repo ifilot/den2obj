@@ -83,11 +83,11 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
 
     // center structure
     if(center) {
-        glm::vec3 sum(-10, -10, -10);
+        glm::vec3 sum = this->sf->get_mat_unitcell() * glm::vec3(0.5f, 0.5f, 0.5f);
 
         #pragma omp parallel for
         for(unsigned int i=0; i<this->vertices.size(); i++) {
-           this->vertices[i] += sum;
+           this->vertices[i] -= sum;
         }
     }
 }

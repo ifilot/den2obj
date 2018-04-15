@@ -86,7 +86,10 @@ int main(int argc, char* argv[]) {
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end-start;
-        std::cout << "--------------------------------------------------------------" << std::endl;
+        std::cout << "-------------------------------------------------------------------------------" << std::endl;
+        std::cout << "You can directly import this file into blender using File > Import > Wavefront." << std::endl;
+        std::cout << "NOTE: Recommended Blender import settings: Z-UP and Y-FORWARD." << std::endl;
+        std::cout << "-------------------------------------------------------------------------------" << std::endl;
         std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl;
 
         return 0;
