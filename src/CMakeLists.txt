@@ -27,9 +27,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
-SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "2")
-SET(VERSION_MICRO "1")
+SET(VERSION_MAJOR "3")
+SET(VERSION_MINOR "0")
+SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
 # Enable release build
@@ -81,8 +81,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 file(GLOB_RECURSE SOURCES "*.cpp")
 add_executable(den2obj ${SOURCES})
 
-# Set C++14
-add_definitions(-std=c++14)
+# Set C++17
+add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 if(UNIX AND NOT APPLE)

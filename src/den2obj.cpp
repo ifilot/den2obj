@@ -50,6 +50,9 @@ int main(int argc, char* argv[]) {
         // whether to center the wavefront object
         TCLAP::SwitchArg arg_c("c","center","center structure", cmd, false);
 
+        // whether input file is binary
+        TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
+
         cmd.parse(argc, argv);
 
         //**************************************
@@ -71,7 +74,13 @@ int main(int argc, char* argv[]) {
 
         auto start = std::chrono::system_clock::now();
 
-        ScalarField sf(input_filename, false);
+        if(arg_b.getValue()) {
+            std::cout << "Opening " << input_filename << " as binary file." << std::endl;
+        } else {
+            std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+        }
+
+        ScalarField sf(input_filename, false, arg_b.getValue());
         sf.read();
 
         IsoSurface is(&sf);
@@ -94,7 +103,7 @@ int main(int argc, char* argv[]) {
 
         return 0;
 
-    }  catch (TCLAP::ArgException &e) {
+    } catch (TCLAP::ArgException &e) {
         std::cerr << "error: " << e.error() <<
                      " for arg " << e.argId() << std::endl;
         return -1;

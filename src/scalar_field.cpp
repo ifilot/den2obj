@@ -26,17 +26,21 @@
  * @param[in]  _filename   url to filename
  * @param[in]  _flag_is_locpot  whether this file is a locpot
  */
-ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot) {
+ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, bool _is_bin) {
     this->filename = _filename;
-    this->scalar = -1;
-    this->vasp5_input = false;
-    this->has_read = false;
-    this->header_read = false;
-    this->flag_is_locpot = _flag_is_locpot;
 
-    // test existence of file, else throw an error
     if (!boost::filesystem::exists(this->filename)) {
         throw std::runtime_error("Cannot open " + this->filename + "!");
+    }
+
+    if(_is_bin) {
+        this->load_binary();
+    } else {
+        this->scalar = -1;
+        this->vasp5_input = false;
+        this->has_read = false;
+        this->header_read = false;
+        this->flag_is_locpot = _flag_is_locpot;
     }
 }
 
@@ -470,12 +474,8 @@ float ScalarField::get_max_direction(unsigned int dim) {
     return sum;
 }
 
-/*
- * void calculate_inverse()
- *
- * Calculates the inverse of a 3x3 matrix. This is a convenience
- * function for the read_matrix() function.
- *
+/**
+ * @brief      Calculate the inverse of the unit cell matrix
  */
 void ScalarField::calculate_inverse() {
     float det = 0;
@@ -490,12 +490,8 @@ void ScalarField::calculate_inverse() {
      }
 }
 
-/*
- * void calculate_volume()
- *
- * Calculates the inverse of a 3x3 matrix. This is a convenience
- * function for the read_matrix() function.
- *
+/**
+ * @brief      Calculate volume of the unit cell
  */
 void ScalarField::calculate_volume() {
     for(unsigned int i=0; i<3; i++) {
@@ -601,4 +597,43 @@ glm::vec3 ScalarField::get_atom_position(unsigned int atid) const {
     } else {
         throw std::runtime_error("Requested atom id lies outside bounds");
     }
+}
+
+/**
+ * @brief      Load a binary file
+ */
+void ScalarField::load_binary() {
+    std::ifstream infile(filename, std::ios::binary);
+
+    // read data size
+    this->gridsize = 1.0;
+    for(unsigned int i=0; i<3; i++) {
+        for(unsigned int j=0; j<3; j++) {
+            this->mat[i][j] = 0.0;
+        }
+        uint16_t nx = 0;
+        infile.read((char*)&nx, sizeof(uint16_t));
+        this->mat[i][i] = nx;
+        this->grid_dimensions[i] = nx;
+        this->gridsize *= nx;
+    }
+
+    this->calculate_inverse();
+    this->calculate_volume();
+
+    // read values
+    this->gridptr.resize(this->gridsize);
+    double val = 0.0;
+    std::cout << "Reading " << this->gridsize << " values." << std::endl;
+    for(unsigned int i=0; i<this->gridsize; i++) {
+        infile.read((char*)&val, sizeof(double));
+        this->gridptr[i] = (float)val;
+    }
+
+    infile.close();
+
+    this->scalar = 1.0;
+
+    this->has_read = true;
+    this->header_read = true;
 }

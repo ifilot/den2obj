@@ -37,7 +37,7 @@ IsoSurfaceMesh::IsoSurfaceMesh(const ScalarField* _sf,
  *
  * @param[in]  center  whether to center structure
  */
-void IsoSurfaceMesh::construct_mesh(bool center) {
+void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
    // grab center
     this->center = this->sf->get_mat_unitcell() * glm::vec3(0.5, 0.5, 0.5);
 
@@ -52,6 +52,7 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
     }
 
     // build vertex vector from unordered map
+    std::cout << "Building vertices map" << std::endl;
     this->vertices.resize(this->vertices_map.size());
     for(auto it : this->vertices_map) {
         this->vertices[it.second] = it.first;
@@ -61,7 +62,8 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
     this->normals.resize(this->vertices.size());
 
     // calculate normal vectors
-    #pragma omp parallel for
+    std::cout << "Calculating normal vectors" << std::endl;
+    #pragma omp parallel for schedule(static)
     for(unsigned int i=0; i<this->vertices.size(); i++) {
         // get derivatives
         double dx0 = sf->get_value_interp(this->vertices[i][0] - dev, this->vertices[i][1], this->vertices[i][2]);
@@ -82,7 +84,8 @@ void IsoSurfaceMesh::construct_mesh(bool center) {
     }
 
     // center structure
-    if(center) {
+    if(center_mesh) {
+        std::cout << "Centering structure" << std::endl;
         glm::vec3 sum = this->sf->get_mat_unitcell() * glm::vec3(0.5f, 0.5f, 0.5f);
 
         #pragma omp parallel for

@@ -61,24 +61,25 @@ private:
     std::vector<unsigned int> atom_charges_exp;
 
     std::string gridline;
-    std::vector<float> gridptr;  //!< grid to first pos of float array
-    std::vector<float> gridptr2; //!< grid to first pos of float array
+    std::vector<float> gridptr;         //!< grid to first pos of float array
+    std::vector<float> gridptr2;        //!< grid to first pos of float array
     unsigned int gridsize;
-    bool vasp5_input;
-    bool has_read;
-    bool header_read;
+    bool vasp5_input = false;
+    bool has_read = false;
+    bool header_read = false;
     std::ifstream infile;
-    bool flag_is_locpot;         //!< whether scalar field is in LOCPOT style
+    bool flag_is_locpot = false;         //!< whether scalar field is in LOCPOT style
 
 public:
 
     /**
      * @brief      constructor
      *
-     * @param[in]  _filename   url to filename
+     * @param[in]  _filename        url to filename
      * @param[in]  _flag_is_locpot  whether this file is a locpot
+     * @param[in]  _is_bin          is binary file
      */
-    ScalarField(const std::string &_filename, bool _flag_is_locpot);
+    ScalarField(const std::string &_filename, bool _flag_is_locpot = false, bool _is_bin = false);
 
     /**
      * @brief      Gets the unitcell matrix.
@@ -170,8 +171,21 @@ private:
     void read_atom_positions();
     void read_grid();
     float get_max_direction(unsigned int dim);
+
+    /**
+     * @brief      Calculate the inverse of the unit cell matrix
+     */
     void calculate_inverse();
+
+    /**
+     * @brief      Calculate volume of the unit cell
+     */
     void calculate_volume();
+
+    /**
+     * @brief      Load a binary file
+     */
+    void load_binary();
 };
 
 #endif //_SCALAR_FIELD_H

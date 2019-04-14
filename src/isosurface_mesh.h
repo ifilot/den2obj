@@ -75,9 +75,9 @@ public:
     /**
      * @brief      construct surface mesh
      *
-     * @param[in]  center  whether to center structure
+     * @param[in]  center_mesh  whether to center structure
      */
-    void construct_mesh(bool center);
+    void construct_mesh(bool center_mesh);
 
     /**
      * @brief      write wavefront file
