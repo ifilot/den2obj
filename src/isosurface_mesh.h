@@ -30,6 +30,7 @@
 #include <glm/glm.hpp>
 
 #include "isosurface.h"
+#include "check_endian.h"
 
 /**
  * @brief      structure to put glm::vec3 in a map
@@ -87,6 +88,15 @@ public:
      * @param[in]  name      The name
      */
     void write_obj(const std::string& filename, const std::string& header, const std::string& name);
+
+    /**
+     * @brief      write as binary ply file
+     *
+     * @param[in]  filename  The filename
+     * @param[in]  header    The header
+     * @param[in]  name      The name
+     */
+    void write_ply(const std::string& filename, const std::string& header, const std::string& name);
 
 private:
     /**

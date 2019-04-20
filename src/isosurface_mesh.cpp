@@ -52,7 +52,6 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
     }
 
     // build vertex vector from unordered map
-    std::cout << "Building vertices map" << std::endl;
     this->vertices.resize(this->vertices_map.size());
     for(auto it : this->vertices_map) {
         this->vertices[it.second] = it.first;
@@ -62,7 +61,7 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
     this->normals.resize(this->vertices.size());
 
     // calculate normal vectors
-    std::cout << "Calculating normal vectors" << std::endl;
+    std::cout << "Calculating normal vectors using two-point stencil" << std::endl;
     #pragma omp parallel for schedule(static)
     for(unsigned int i=0; i<this->vertices.size(); i++) {
         // get derivatives
@@ -103,9 +102,8 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
  * @param[in]  name      The name
  */
 void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& header, const std::string& name) {
-    std::cout << "Writing to " << filename << std::endl;
-    std::ofstream myfile;
-    myfile.open(filename.c_str());
+    std::cout << "Writing as Wavefront (.obj) file: " << filename << std::endl;
+    std::ofstream myfile(filename);
 
     myfile << "# " << header << std::endl;
     myfile << "# Created by den2obj" << std::endl;
@@ -215,6 +213,52 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
     // merge results
     for(unsigned int i=0; i<nrthreads; i++) {
         myfile << local[i].str();
+    }
+
+    myfile.close();
+}
+
+/**
+ * @brief      write as binary ply file
+ *
+ * @param[in]  filename  The filename
+ * @param[in]  header    The header
+ * @param[in]  name      The name
+ */
+void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& header, const std::string& name) {
+    std::cout << "Writing as Stanford (.ply) file: " << filename << std::endl;
+    std::ofstream myfile(filename, std::ios::binary);
+
+    myfile << "ply" << std::endl;
+    if(is_big_endian()) {
+        myfile << "format binary_big_endian 1.0" << std::endl;
+    } else {
+        myfile << "format binary_little_endian 1.0" << std::endl;
+    }
+
+    myfile << "comment test" << std::endl;
+    myfile << "element vertex " << this->vertices.size() << std::endl;
+    myfile << "property float x" << std::endl;
+    myfile << "property float y" << std::endl;
+    myfile << "property float z" << std::endl;
+    myfile << "property float nx" << std::endl;
+    myfile << "property float ny" << std::endl;
+    myfile << "property float nz" << std::endl;
+    myfile << "element face " << (this->indices.size() / 3) << std::endl;
+    myfile << "property list uchar uint vertex_indices" << std::endl;
+    myfile << "end_header" << std::endl;
+
+    // output vertex positions and normals
+    for(unsigned int i=0; i<this->vertices.size(); i++) {
+        myfile.write((char*)&this->vertices[i][0], sizeof(float) * 3);
+        myfile.write((char*)&this->normals[i][0], sizeof(float) * 3);
+    }
+
+    // write indices
+    static const uint8_t uchar_three = 3;
+    for(unsigned int i=0; i<this->indices.size(); i+=3) {
+        myfile.write((char*)&uchar_three, sizeof(uint8_t));
+        myfile.write((char*)&this->indices[i], sizeof(unsigned int) * 3);
     }
 
     myfile.close();

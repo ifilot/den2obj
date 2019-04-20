@@ -27,8 +27,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
-SET(VERSION_MAJOR "3")
-SET(VERSION_MINOR "0")
+SET(VERSION_MAJOR "0")
+SET(VERSION_MINOR "4")
 SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 

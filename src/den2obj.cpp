@@ -53,6 +53,9 @@ int main(int argc, char* argv[]) {
         // whether input file is binary
         TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
 
+        // whether to write to ply or to wavefront file
+        TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
+
         cmd.parse(argc, argv);
 
         //**************************************
@@ -61,6 +64,7 @@ int main(int argc, char* argv[]) {
         std::cout << "--------------------------------------------------------------" << std::endl;
         std::cout << "Executing "<< PROGRAM_NAME << " v." << PROGRAM_VERSION << std::endl;
         std::cout << "Author: Ivo Filot <i.a.w.filot@tue.nl>" << std::endl;
+        std::cout << "Website: https://github.com/ifilot/den2obj" << std::endl;
         std::cout << "--------------------------------------------------------------" << std::endl;
 
         //**************************************
@@ -91,15 +95,28 @@ int main(int argc, char* argv[]) {
 
         IsoSurfaceMesh ism(&sf, &is);
         ism.construct_mesh(arg_c.getValue());
-        ism.write_obj(output_filename, path.filename().string(), path.filename().string());
+
+        if(arg_p.getValue()) {
+            ism.write_ply(output_filename, path.filename().string(), path.filename().string());
+        } else {
+            ism.write_obj(output_filename, path.filename().string(), path.filename().string());
+        }
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end-start;
+
+        if(arg_p.getValue()) {
+            std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+            std::cout << "You can directly import this file into blender using File > Import > Wavefront (.obj)." << std::endl;
+            std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+        } else {
+            std::cout << "-------------------------------------------------------------------------------------" << std::endl;
+            std::cout << "You can directly import this file into blender using File > Import > Stanford (.ply)." << std::endl;
+            std::cout << "NOTE: Recommended Blender import settings: Z-UP and Y-FORWARD." << std::endl;
+            std::cout << "-------------------------------------------------------------------------------------" << std::endl;
+        }
         std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << "You can directly import this file into blender using File > Import > Wavefront." << std::endl;
-        std::cout << "NOTE: Recommended Blender import settings: Z-UP and Y-FORWARD." << std::endl;
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl;
+        std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl << std::endl;
 
         return 0;
 
