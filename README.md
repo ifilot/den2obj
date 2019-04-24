@@ -57,4 +57,9 @@ Done in 0.0177371 seconds.
 * `-b`: Read from binary source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
 
 ## Binary source
-Instead of a `CHGCAR` or `PARCHG` file, a binary file can be supplied which should be formatted by first stating the number of grid points in x, y and z direction followed by a list of 64 bit floats for the value at each grid point. Herein, it assumed that "z" is the slowest index and "x" the fastest index.
+Instead of a `CHGCAR` or `PARCHG` file, a binary file can be supplied which should be formatted by first stating the number of grid points in x, y and z direction and the size of the floating point variable (only float and double are currently supported) followed by a list of 64 bit floats for the value at each grid point. Herein, it assumed that "z" is the slowest index and "x" the fastest index.
+
+In short:
+```
+<size x><size y><size z><size float><...data...>
+```

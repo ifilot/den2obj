@@ -621,13 +621,23 @@ void ScalarField::load_binary() {
     this->calculate_inverse();
     this->calculate_volume();
 
-    // read values
+    // prepare vector
     this->gridptr.resize(this->gridsize);
-    double val = 0.0;
-    std::cout << "Reading " << this->gridsize << " values." << std::endl;
-    for(unsigned int i=0; i<this->gridsize; i++) {
-        infile.read((char*)&val, sizeof(double));
-        this->gridptr[i] = (float)val;
+
+    // read float type
+    uint16_t nx = 0;
+    infile.read((char*)&nx, sizeof(uint16_t));
+    if(nx == sizeof(float)) {   // directly load into vector
+        infile.read((char*)&this->gridptr[0], sizeof(float) * this->gridsize);
+    } else if(nx == sizeof(double)) {   // convert to double and load
+        double val = 0.0;
+        std::cout << "Reading " << this->gridsize << " values." << std::endl;
+        for(unsigned int i=0; i<this->gridsize; i++) {
+            infile.read((char*)&val, sizeof(double));
+            this->gridptr[i] = (float)val;
+        }
+    } else {    // throw error
+        throw std::runtime_error("Invalid data type when reading binary file.");
     }
 
     infile.close();
