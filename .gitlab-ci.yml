@@ -2,6 +2,8 @@ image: generic-package-build-debian:v1
 
 build:
   stage: build
+  tags:
+    - debian
   before_script: 
     - apt update && apt -y install build-essential libboost-all-dev cmake libtclap-dev libglm-dev pkg-config
   script: 
