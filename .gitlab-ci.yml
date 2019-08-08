@@ -1,4 +1,4 @@
-image: debian:stable
+image: generic-package-build-debian:v1
 
 build:
   stage: build
