@@ -1,0 +1,11 @@
+image: debian:stable
+
+build:
+  stage: build
+  before_script: 
+    - apt update && apt -y install build-essential libboost-all-dev cmake libtclap-dev libglm-dev pkg-config
+  script: 
+    - mkdir build
+    - cd build
+    - cmake ../src
+    - make -j3
