@@ -10,10 +10,10 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a (custom-format) [binary 
 
 ## Compilation instructions
 
-Den2Obj has the following dependencies:
-* Boost
-* GLM
-* TCLAP
+Getting the dependencies
+```
+sudo apt install build-essential cmake libglm-dev libtclap-dev libboost-all-dev
+```
 
 To compile, run the following commands:
 ```
