@@ -81,7 +81,11 @@ int main(int argc, char* argv[]) {
         if(arg_b.getValue()) {
             std::cout << "Opening " << input_filename << " as binary file." << std::endl;
         } else {
-            std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+            if(input_filename.substr(input_filename.size()-4) == ".cub") {
+                std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
+            } else {
+                std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+            }
         }
 
         ScalarField sf(input_filename, false, arg_b.getValue());

@@ -186,6 +186,11 @@ private:
      * @brief      Load a binary file
      */
     void load_binary();
+
+    /**
+     * @brief      Load a cube file
+     */
+    void load_cube_file();
 };
 
 #endif //_SCALAR_FIELD_H

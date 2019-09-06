@@ -33,7 +33,9 @@ ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, boo
         throw std::runtime_error("Cannot open " + this->filename + "!");
     }
 
-    if(_is_bin) {
+    if(this->filename.substr(this->filename.size()-4) == ".cub") {
+        this->load_cube_file();
+    } else if(_is_bin) {
         this->load_binary();
     } else {
         this->scalar = -1;
@@ -646,4 +648,101 @@ void ScalarField::load_binary() {
 
     this->has_read = true;
     this->header_read = true;
+}
+
+/**
+ * @brief      Load a binary file
+ */
+void ScalarField::load_cube_file() {
+    std::ifstream infile(filename);
+
+    // string to read lines to
+    std::string line;
+    
+    // skip the first two line
+    for(unsigned int i=0; i<2; i++) {
+        std::getline(infile, line);
+    }
+
+    //read number of atoms
+    std::getline(infile, line);
+    std::vector<std::string> pieces;
+    boost::trim(line);
+    unsigned nr_atoms = 0;
+    try {
+        boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
+        nr_atoms = boost::lexical_cast<unsigned int>(pieces[0]);
+    } catch(const std::exception& e) {
+        std::cerr << "Cannot read number of atoms from " << pieces[0] << std::endl;
+        std::cerr << "Line reads: \"" << line << "\"" << std::endl;
+        exit(-1);
+    }
+
+    // grab size of box
+    for(unsigned int i=0; i<3; i++) {
+        // set matrix to zero
+        for(unsigned int j=0; j<3; j++) {
+            this->mat[i][j] = 0.0;
+        }
+
+        std::getline(infile, line);
+        try {
+            boost::trim(line);
+            boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
+            this->mat[i][i] = (boost::lexical_cast<float>(pieces[0])-1.0) * boost::lexical_cast<float>(pieces[i+1]);
+            this->grid_dimensions[i] = boost::lexical_cast<unsigned int>(pieces[0]);
+            this->gridsize *= this->grid_dimensions[i];
+        } catch(const std::exception& e) {
+            std::cerr << "Cannot extract box size." << std::endl;
+            std::cerr << "Line reads: \"" << line << "\"" << std::endl;
+            exit(-1);
+        }
+    }
+
+    this->calculate_inverse();
+    this->calculate_volume();
+
+    // prepare vector
+    this->gridptr.reserve(this->gridsize);
+
+    // skip atom lines
+    for(unsigned int i=0; i<nr_atoms; i++) {
+        // std::cout << "Skipping lines" << std::endl;
+        std::getline(infile, line);
+    }
+
+    float_parser p;
+
+    /* read spin up */
+    unsigned int linecounter=0; // for the counter
+
+    while(std::getline(infile, line)) {
+        // set iterators
+        std::string::const_iterator b = line.begin();
+        std::string::const_iterator e = line.end();
+
+        // parse
+        std::vector<float> floats;
+        boost::spirit::qi::phrase_parse(b, e, p, boost::spirit::ascii::space, floats);
+
+        // expand gridptr with the new size
+        unsigned int cursize = this->gridptr.size();
+        this->gridptr.resize(cursize + floats.size());
+
+        for(unsigned int j=0; j<floats.size(); j++) {
+            this->gridptr[cursize + j] = floats[j];
+        }
+
+        linecounter++;
+    }
+
+    infile.close();
+
+    this->scalar = 1.0;
+
+    this->has_read = true;
+    this->header_read = true;
+
+    std::cout << "Done reading Gaussian Cube file" << std::endl;
+    std::cout << "Read " << this->gridptr.size() << " values." << std::endl;
 }
