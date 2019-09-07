@@ -28,6 +28,9 @@
  */
 ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, bool _is_bin) {
     this->filename = _filename;
+    this->trans[0] = 0.0;
+    this->trans[1] = 0.0;
+    this->trans[2] = 0.0;
 
     if (!boost::filesystem::exists(this->filename)) {
         throw std::runtime_error("Cannot open " + this->filename + "!");
@@ -651,14 +654,20 @@ void ScalarField::load_binary() {
 }
 
 /**
- * @brief      Load a binary file
+ * @brief      Load a cube file
+ *
+ * Technical details taken from:
+ * http://paulbourke.net/dataformats/cube/
  */
 void ScalarField::load_cube_file() {
     std::ifstream infile(filename);
 
+    // convert bohr to angstrom
+    static const float bohr_to_angstrom = 0.529177249;
+
     // string to read lines to
     std::string line;
-    
+
     // skip the first two line
     for(unsigned int i=0; i<2; i++) {
         std::getline(infile, line);
@@ -672,6 +681,9 @@ void ScalarField::load_cube_file() {
     try {
         boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
         nr_atoms = boost::lexical_cast<unsigned int>(pieces[0]);
+        trans[0] = boost::lexical_cast<float>(pieces[1]) * bohr_to_angstrom;
+        trans[1] = boost::lexical_cast<float>(pieces[2]) * bohr_to_angstrom;
+        trans[2] = boost::lexical_cast<float>(pieces[3]) * bohr_to_angstrom;
     } catch(const std::exception& e) {
         std::cerr << "Cannot read number of atoms from " << pieces[0] << std::endl;
         std::cerr << "Line reads: \"" << line << "\"" << std::endl;
@@ -689,7 +701,7 @@ void ScalarField::load_cube_file() {
         try {
             boost::trim(line);
             boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
-            this->mat[i][i] = (boost::lexical_cast<float>(pieces[0])-1.0) * boost::lexical_cast<float>(pieces[i+1]);
+            this->mat[i][i] = boost::lexical_cast<float>(pieces[0]) * boost::lexical_cast<float>(pieces[i+1]) * bohr_to_angstrom;
             this->grid_dimensions[i] = boost::lexical_cast<unsigned int>(pieces[0]);
             this->gridsize *= this->grid_dimensions[i];
         } catch(const std::exception& e) {
@@ -707,7 +719,6 @@ void ScalarField::load_cube_file() {
 
     // skip atom lines
     for(unsigned int i=0; i<nr_atoms; i++) {
-        // std::cout << "Skipping lines" << std::endl;
         std::getline(infile, line);
     }
 
@@ -735,6 +746,20 @@ void ScalarField::load_cube_file() {
 
         linecounter++;
     }
+
+    // Cube files are written in NX > NY > NZ ordering, whereas ScalarField requires NZ > NY > NX
+    // thus we need to reorder the grid
+    std::vector<float> newgrid(this->gridptr.size());
+    for(unsigned int i=0; i<this->grid_dimensions[0]; i++) {    // x
+        for(unsigned int j=0; j<this->grid_dimensions[1]; j++) {    // y
+            for(unsigned int k=0; k<this->grid_dimensions[2]; k++) {    // z
+                unsigned int idx_sf = k * this->grid_dimensions[0] * this->grid_dimensions[1] + j * this->grid_dimensions[0] + i;
+                unsigned int idx_cub = i * this->grid_dimensions[1] * this->grid_dimensions[2] + j * this->grid_dimensions[2] + k;
+                newgrid[idx_sf] = this->gridptr[idx_cub];
+            }
+        }
+    }
+    this->gridptr = newgrid;
 
     infile.close();
 

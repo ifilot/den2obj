@@ -82,7 +82,7 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
         this->normals[i] = normal;
     }
 
-    // center structure
+    // center structure if boolean is set
     if(center_mesh) {
         std::cout << "Centering structure" << std::endl;
         glm::vec3 sum = this->sf->get_mat_unitcell() * glm::vec3(0.5f, 0.5f, 0.5f);
@@ -90,6 +90,20 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
         #pragma omp parallel for
         for(unsigned int i=0; i<this->vertices.size(); i++) {
            this->vertices[i] -= sum;
+        }
+    } else { // if not, use translation settings in Scalar Field (used in Cube files)
+
+        // obtain translation values from ScalarField
+        glm::vec3 sum;
+        const float* trans = this->sf->get_trans();
+        #pragma unroll
+        for(unsigned int i=0; i<3; i++) {
+            sum[i] = trans[i];
+        }
+
+        #pragma omp parallel for
+        for(unsigned int i=0; i<this->vertices.size(); i++) {
+           this->vertices[i] += sum;
         }
     }
 }

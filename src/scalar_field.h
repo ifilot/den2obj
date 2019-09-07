@@ -70,6 +70,8 @@ private:
     std::ifstream infile;
     bool flag_is_locpot = false;         //!< whether scalar field is in LOCPOT style
 
+    float trans[3];                      //!< translation vector for cube files
+
 public:
 
     /**
@@ -150,16 +152,40 @@ public:
         return this->imat33;
     }
 
+    /**
+     * @brief      Gets the grid pointer.
+     *
+     * @return     The grid pointer.
+     */
     inline const float* get_grid_ptr() const {
         return &this->gridptr[0];
     }
 
+    /**
+     * @brief      Gets the number of data points in the grid
+     *
+     * @return     Number of data points
+     */
     unsigned int get_size() const {
         return this->gridptr.size();
     }
 
+    /**
+     * @brief      Gets the filename.
+     *
+     * @return     The filename.
+     */
     inline const std::string& get_filename() const {
         return this->filename;
+    }
+
+    /**
+     * @brief      Gets the translation vector
+     *
+     * @return     Translation vector
+     */
+    inline const float* get_trans() const {
+        return this->trans;
     }
 
 private:
