@@ -604,6 +604,37 @@ glm::vec3 ScalarField::get_atom_position(unsigned int atid) const {
     }
 }
 
+void ScalarField::write_to_vdb(const std::string& filename) const {
+    openvdb::initialize();
+
+    openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
+
+    const openvdb::Vec3f c(0.0f, 0.0f, 0.0f);
+
+    openvdb::Coord ijk;
+    openvdb::FloatGrid::Accessor accessor = grid->getAccessor();
+
+    for(unsigned int i=0; i<this->grid_dimensions[0]; i++) {    // x
+        ijk[0] = i - this->grid_dimensions[0] / 2;
+        for(unsigned int j=0; j<this->grid_dimensions[1]; j++) {    // y
+            ijk[1] = j - this->grid_dimensions[1] / 2;
+            for(unsigned int k=0; k<this->grid_dimensions[2]; k++) {    // z
+                ijk[2] = k - this->grid_dimensions[2] / 2;
+                unsigned int idx = k * this->grid_dimensions[0] * this->grid_dimensions[1] + j * this->grid_dimensions[0] + i;
+                accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
+            }
+        }
+    }
+
+    // Identify the grid as a level set.
+    grid->setGridClass(openvdb::GRID_LEVEL_SET);
+
+    grid->setName("Density");
+
+    // Create a VDB file object and write out the grid
+    openvdb::io::File(filename).write({grid});
+}
+
 /**
  * @brief      Load a binary file
  */

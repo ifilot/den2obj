@@ -1,7 +1,7 @@
 # Den2Obj
 
 ## Purpose
-Converts VASP density files (i.e. CHGCAR / PARCHG) or a (custom-format) [binary file](#binary-source) to a [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file) or a [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format)).
+Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file), [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format)) or [OpenVDB format](https://www.openvdb.org/).
 
 ## Example image
 ![3D Reaction-Diffusion system](img/reac_diff_3d_network_small.png)
@@ -12,7 +12,7 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a (custom-format) [binary 
 
 Getting the dependencies
 ```
-sudo apt install build-essential cmake libglm-dev libtclap-dev libboost-all-dev
+sudo apt install build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev
 ```
 
 To compile, run the following commands:
@@ -54,12 +54,5 @@ Done in 0.0177371 seconds.
 
 * `-c`: Center the structure, i.e. the center of the structure is placed at the origin of the coordinate system.
 * `-p`: Write output as a binary `.ply` file rather than `.obj` file. The program automatically detects the [endianness](https://en.wikipedia.org/wiki/Endianness) of your system.
-* `-b`: Read from binary source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
-
-## Binary source
-Instead of a `CHGCAR` or `PARCHG` file, a binary file can be supplied which should be formatted by first stating the number of grid points in x, y and z direction and the size of the floating point variable (only float and double are currently supported) followed by a list of 64 bit floats for the value at each grid point. Herein, it assumed that "z" is the slowest index and "x" the fastest index.
-
-In short:
-```
-<size x><size y><size z><size float><...data...>
-```
+* `-d`: Write output as an OpenVDB file. This directive overrules the `p` directive.
+* `-b`: Read from cube source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).

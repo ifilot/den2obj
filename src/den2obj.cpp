@@ -53,6 +53,9 @@ int main(int argc, char* argv[]) {
         // whether input file is binary
         TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
 
+        // whether to write to vdb file
+        TCLAP::SwitchArg arg_d("d","vdb","vdb file", cmd, false);
+
         // whether to write to ply or to wavefront file
         TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
 
@@ -90,6 +93,12 @@ int main(int argc, char* argv[]) {
 
         ScalarField sf(input_filename, false, arg_b.getValue());
         sf.read();
+
+        if(arg_d.getValue()) {
+            std::cout << "Creating OpenVDB file" << std::endl;
+            sf.write_to_vdb(output_filename);
+            return 0;
+        }
 
         IsoSurface is(&sf);
         is.marching_cubes(isovalue);

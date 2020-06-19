@@ -36,6 +36,9 @@
 #include <boost/filesystem.hpp>
 #include <glm/glm.hpp>
 
+#include <openvdb/openvdb.h>
+#include <openvdb/tools/Interpolation.h>
+
 #include "float_parser.h"
 #include "periodic_table.h"
 
@@ -187,6 +190,8 @@ public:
     inline const float* get_trans() const {
         return this->trans;
     }
+
+    void write_to_vdb(const std::string& filename) const;
 
 private:
     void test_vasp5();

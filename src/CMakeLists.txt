@@ -28,8 +28,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "4")
-SET(VERSION_MICRO "2")
+SET(VERSION_MINOR "5")
+SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
 # Enable release build
@@ -93,7 +93,7 @@ if(APPLE)
     SET_TARGET_PROPERTIES(den2obj PROPERTIES INSTALL_RPATH "@executable_path/lib")
     target_link_libraries(den2obj ${Boost_LIBRARIES})
 else()
-    target_link_libraries(den2obj ${Boost_LIBRARIES})
+    target_link_libraries(den2obj ${Boost_LIBRARIES} openvdb tbb Half)
 endif()
 
 ###
