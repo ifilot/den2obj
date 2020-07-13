@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
         cmd.add(arg_output_filename);
 
         // isovalue
-        TCLAP::ValueArg<float> arg_isovalue("v","isovalue","Isovalue",true,0.1,"float");
+        TCLAP::ValueArg<float> arg_isovalue("v", "isovalue", "Isovalue",false, 0.01, "float");
         cmd.add(arg_isovalue);
 
         // whether to center the wavefront object
@@ -58,6 +58,10 @@ int main(int argc, char* argv[]) {
 
         // whether to write to ply or to wavefront file
         TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
+
+        // which openVDB method to use
+        TCLAP::ValueArg<std::string> arg_method("m","method","Which OpenVDB method to use",false,"absolute","string");
+        cmd.add(arg_method);
 
         cmd.parse(argc, argv);
 
@@ -96,7 +100,26 @@ int main(int argc, char* argv[]) {
 
         if(arg_d.getValue()) {
             std::cout << "Creating OpenVDB file" << std::endl;
-            sf.write_to_vdb(output_filename);
+            std::cout << "Using method flag: " << arg_method.getValue() << std::endl;
+
+            if(arg_method.getValue() == "absolute") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+            } else if(arg_method.getValue() == "absolute_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE_LOG);
+            }  else if(arg_method.getValue() == "positive") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::POSITIVE);
+            }  else if(arg_method.getValue() == "negative") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::NEGATIVE);
+            }  else if(arg_method.getValue() == "positive_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::POSITIVE_LOG);
+            }  else if(arg_method.getValue() == "negative_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::NEGATIVE_LOG);
+            } else {
+                throw std::runtime_error("Invalid method supplied: " + arg_method.getValue());
+            }
+
+            std::cout << "Output has been written to: " << arg_output_filename.getValue() << std::endl;
+
             return 0;
         }
 

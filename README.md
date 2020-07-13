@@ -27,6 +27,8 @@ make -j5
 
 ## Usage
 
+### Isosurfaces
+
 ```
 <path to>/den2obj -i CHGCAR -o <filename.obj> -v <isovalue>
 ```
@@ -56,3 +58,20 @@ Done in 0.0177371 seconds.
 * `-p`: Write output as a binary `.ply` file rather than `.obj` file. The program automatically detects the [endianness](https://en.wikipedia.org/wiki/Endianness) of your system.
 * `-d`: Write output as an OpenVDB file. This directive overrules the `p` directive.
 * `-b`: Read from cube source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
+
+### OpenVDB files
+
+Example:
+```
+./den2obj -i <CUBFILE> -d -m <METHOD> -o <OUTFILE>
+```
+
+Use one of the following methods:
+* absolute
+* absolute_log
+* positive
+* negative
+* positive_log
+* negative_log
+
+Recommended settings for molecular orbitals are using `positive` and `negative` for the two lobes. When rendering purely the electron density, it is recommended to use `absolute`.

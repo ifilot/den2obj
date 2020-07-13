@@ -42,6 +42,19 @@
 #include "float_parser.h"
 #include "periodic_table.h"
 
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+enum class OpenVDB_METHOD {
+    ABSOLUTE,
+    ABSOLUTE_LOG,
+    POSITIVE,
+    NEGATIVE,
+    POSITIVE_LOG,
+    NEGATIVE_LOG
+};
+
 class ScalarField{
 private:
     std::string filename;
@@ -191,7 +204,13 @@ public:
         return this->trans;
     }
 
-    void write_to_vdb(const std::string& filename) const;
+    /**
+     * @brief      Writes to an OpenVDB file
+     *
+     * @param[in]  filename  The filename
+     * @param[in]  method    The method (absolute value, positive, negative, log)
+     */
+    void write_to_vdb(const std::string& filename, OpenVDB_METHOD method) const;
 
 private:
     void test_vasp5();

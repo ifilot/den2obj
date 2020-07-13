@@ -604,7 +604,13 @@ glm::vec3 ScalarField::get_atom_position(unsigned int atid) const {
     }
 }
 
-void ScalarField::write_to_vdb(const std::string& filename) const {
+/**
+ * @brief      Writes to an OpenVDB file
+ *
+ * @param[in]  filename  The filename
+ * @param[in]  method    The method (absolute value, positive, negative, log)
+ */
+void ScalarField::write_to_vdb(const std::string& filename, OpenVDB_METHOD method) const {
     openvdb::initialize();
 
     openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
@@ -621,7 +627,27 @@ void ScalarField::write_to_vdb(const std::string& filename) const {
             for(unsigned int k=0; k<this->grid_dimensions[2]; k++) {    // z
                 ijk[2] = k - this->grid_dimensions[2] / 2;
                 unsigned int idx = k * this->grid_dimensions[0] * this->grid_dimensions[1] + j * this->grid_dimensions[0] + i;
-                accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
+
+                switch(method) {
+                    case OpenVDB_METHOD::ABSOLUTE:
+                        accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
+                    break;
+                    case OpenVDB_METHOD::ABSOLUTE_LOG:
+                        accessor.setValue(ijk, std::log(this->gridptr[idx] * this->gridptr[idx]));
+                    break;
+                    case OpenVDB_METHOD::POSITIVE:
+                        accessor.setValue(ijk, std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]));
+                    break;
+                    case OpenVDB_METHOD::NEGATIVE:
+                        accessor.setValue(ijk, std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                    break;
+                    case OpenVDB_METHOD::POSITIVE_LOG:
+                        accessor.setValue(ijk, std::log(std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                    break;
+                    case OpenVDB_METHOD::NEGATIVE_LOG:
+                        accessor.setValue(ijk, std::log(std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]))));
+                    break;
+                }
             }
         }
     }
@@ -629,7 +655,7 @@ void ScalarField::write_to_vdb(const std::string& filename) const {
     // Identify the grid as a level set.
     grid->setGridClass(openvdb::GRID_LEVEL_SET);
 
-    grid->setName("Density");
+    grid->setName("density");
 
     // Create a VDB file object and write out the grid
     openvdb::io::File(filename).write({grid});
