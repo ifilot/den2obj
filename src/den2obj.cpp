@@ -98,6 +98,9 @@ int main(int argc, char* argv[]) {
         ScalarField sf(input_filename, false, arg_b.getValue());
         sf.read();
 
+        std::cout << "Lowest value in scalar field: " << sf.get_min() << std::endl;
+        std::cout << "Highest value in scalar field: " << sf.get_max() << std::endl;
+
         if(arg_d.getValue()) {
             std::cout << "Creating OpenVDB file" << std::endl;
             std::cout << "Using method flag: " << arg_method.getValue() << std::endl;

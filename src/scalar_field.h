@@ -154,8 +154,18 @@ public:
 
     void copy_grid_dimensions(unsigned int _grid_dimensions[]) const;
 
+    /**
+     * @brief      Gets the maximum value in scalar field.
+     *
+     * @return     The maximum.
+     */
     float get_max() const;
 
+    /**
+     * @brief      Gets the minimum value in scalar field.
+     *
+     * @return     The minimum.
+     */
     float get_min() const;
 
     glm::vec3 get_atom_position(unsigned int atid) const;

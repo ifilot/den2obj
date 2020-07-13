@@ -588,10 +588,20 @@ void ScalarField::copy_grid_dimensions(unsigned int _grid_dimensions[]) const {
     }
 }
 
+/**
+ * @brief      Gets the maximum value in scalar field.
+ *
+ * @return     The maximum.
+ */
 float ScalarField::get_max() const {
     return *std::max_element(this->gridptr.begin(), this->gridptr.end());
 }
 
+/**
+ * @brief      Gets the minimum value in scalar field.
+ *
+ * @return     The minimum.
+ */
 float ScalarField::get_min() const {
     return *std::min_element(this->gridptr.begin(), this->gridptr.end());
 }
