@@ -41,14 +41,22 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
    // grab center
     this->center = this->sf->get_mat_unitcell() * glm::vec3(0.5, 0.5, 0.5);
 
+    // build texture coordinates
     for(unsigned int i=0; i<this->is->get_triangles_ptr()->size(); i++) {
         this->texcoords.push_back(glm::vec2(0,0));
         this->texcoords.push_back(glm::vec2(0,1));
         this->texcoords.push_back(glm::vec2(1,0));
 
-        this->indices.push_back(this->get_index_vertex(is->get_triangles_ptr()->at(i).p1));
-        this->indices.push_back(this->get_index_vertex(is->get_triangles_ptr()->at(i).p2));
-        this->indices.push_back(this->get_index_vertex(is->get_triangles_ptr()->at(i).p3));
+        // load all index vertices in a map; this operation needs to be done, else a SEGFAULT
+        // will be thrown further down the lines
+        this->get_index_vertex(is->get_triangles_ptr()->at(i).p1);
+        this->get_index_vertex(is->get_triangles_ptr()->at(i).p2);
+        this->get_index_vertex(is->get_triangles_ptr()->at(i).p3);
+    }
+
+    // check that 'get_index_vertex()' is being called for all vertices
+    if(this->vertices_map.size() == 0 && this->is->get_triangles_ptr()->size() != 0) {
+        throw std::runtime_error("Vertices map is empty, this is probably the result of the index vertices not being parsed. 'get_index_vertex() needs to be called for all vertices.");
     }
 
     // build vertex vector from unordered map
@@ -59,6 +67,7 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
 
     double dev = 0.01;
     this->normals.resize(this->vertices.size());
+    std::cout << this->normals.size() << std::endl;
 
     // calculate normal vectors
     std::cout << "Calculating normal vectors using two-point stencil" << std::endl;
@@ -77,9 +86,33 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
         glm::vec3 normal((dx1 - dx0) / (2.0 * dev),
                          (dy1 - dy0) / (2.0 * dev),
                          (dz1 - dz0) / (2.0 * dev));
-        normal = glm::normalize(normal);
+        normal = -glm::normalize(normal); // the negative of the gradient is the correct normal
 
-        this->normals[i] = normal;
+        this->normals[i] = normal * sgn(sf->get_value_interp(this->vertices[i][0], this->vertices[i][1], this->vertices[i][2]));
+    }
+
+    // build indices in right orientation based on face normal
+    for(unsigned int i=0; i<this->is->get_triangles_ptr()->size(); i++) {
+        // calculate face normal
+        unsigned int id1 = this->get_index_vertex(is->get_triangles_ptr()->at(i).p1);
+        unsigned int id2 = this->get_index_vertex(is->get_triangles_ptr()->at(i).p2);
+        unsigned int id3 = this->get_index_vertex(is->get_triangles_ptr()->at(i).p3);
+
+        // calculate the orientation of the face with respect to the normal
+        const glm::vec3 face_normal = (this->normals[id1] + this->normals[id2] + this->normals[id3]) / 3.0f;
+        const glm::vec3 orientation_face = glm::normalize(glm::cross(this->vertices[id2] - this->vertices[id1], this->vertices[id3] - this->vertices[id1]));
+        const float orientation = glm::dot(face_normal, orientation_face);
+
+        // if orientation is positive, the orientation is correct, if it is negative, the orientation is incorrect and two indices should be swapped
+        if(orientation > 0.0f) {
+            this->indices.push_back(id1);
+            this->indices.push_back(id2);
+            this->indices.push_back(id3);
+        } else {
+            this->indices.push_back(id2);
+            this->indices.push_back(id1);
+            this->indices.push_back(id3);
+        }
     }
 
     // center structure if boolean is set
@@ -125,13 +158,11 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
     myfile << "o " << name << std::endl;
 
     // calculate number of threads
-
     size_t nrthreads = omp_get_max_threads();
     omp_set_num_threads(nrthreads); // always allocate max threads
     std::stringstream local[nrthreads];
 
     // parallel writing vertices
-
     #pragma omp parallel
     {
         size_t threadnum = omp_get_thread_num();
