@@ -1,5 +1,9 @@
 # Den2Obj
 
+[![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build.yml)
+[![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Purpose
 Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file), [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format)) or [OpenVDB format](https://www.openvdb.org/).
 

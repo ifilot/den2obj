@@ -1,4 +1,4 @@
-name: build with OpenVDB module
+name: OpenVDB module
 
 on:
   push:
@@ -18,10 +18,10 @@ jobs:
     - name: Get sources OpenVDB 8.2
       run: wget https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
     - name: Compile and install OpenVDB 8.02
-      run: mkdir openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && sudo make install
+      run: mkdir openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && make -j3 && sudo make install
     - name: Configure CMake
-      run: mkdir build && cd build && cmake ../src -DMOD_OPENVDB
+      run: mkdir build && cd build && cmake -DMOD_OPENVDB=1 ../src
     - name: Build
-      run: cd build && make
+      run: cd build && make -j3
     - name: Perform unit tests
       run: cd build && make test
