@@ -73,6 +73,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${Boost_INCLUDE_DIRS}
                     ${CPPUNIT_INCLUDE_DIR})
 
+# enable OpenVDB support
+if(MOD_OPENVDB)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMOD_OPENVDB -I/opt/openvdb/include")
+    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "Half" "blosc" "-lz")
+    MESSAGE("Compiling with OpenVDB module")
+endif()
+
 # Add sources
 file(GLOB SOURCES "*.cpp")
 add_executable(den2obj ${SOURCES})
@@ -83,7 +90,7 @@ add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj ${Boost_LIBRARIES} openvdb tbb Half)
+target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES})
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

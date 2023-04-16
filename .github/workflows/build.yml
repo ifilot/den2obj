@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
-      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev
+      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev
     - name: Configure CMake
       run: mkdir build && cd build && cmake ../src
     - name: Build
