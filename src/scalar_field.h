@@ -106,6 +106,10 @@ public:
      */
     glm::mat3 get_unitcell_matrix();
 
+    inline double get_volume() const {
+        return this->volume;
+    }
+
     /**
      * @brief      determines if this Scalarfield is in LOCPOT-style
      *

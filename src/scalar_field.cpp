@@ -409,16 +409,20 @@ float ScalarField::get_value_interp(float x, float y, float z) const {
 
     // cast the input to the nearest grid point
     glm::vec3 r = this->realspace_to_grid(x,y,z);
-    glm::vec3 d = this->realspace_to_direct(x,y,z);
+
+    // recast
+    if(r[0] < 0) r[0] += (float)this->grid_dimensions[0];
+    if(r[1] < 0) r[1] += (float)this->grid_dimensions[1];
+    if(r[2] < 0) r[2] += (float)this->grid_dimensions[2];
 
     // calculate value using trilinear interpolation
     float xd = remainderf(r[0], 1.0);
     float yd = remainderf(r[1], 1.0);
     float zd = remainderf(r[2], 1.0);
 
-    if(xd < 0) xd += 1.0;
-    if(yd < 0) yd += 1.0;
-    if(zd < 0) zd += 1.0;
+    if(xd < 0.0f) xd += 1.0f;
+    if(yd < 0.0f) yd += 1.0f;
+    if(zd < 0.0f) zd += 1.0f;
 
     float x0 = floor(r[0]);
     float x1 = ceil(r[0]);
