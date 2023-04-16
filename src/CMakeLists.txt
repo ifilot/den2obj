@@ -28,8 +28,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "5")
-SET(VERSION_MICRO "3")
+SET(VERSION_MINOR "6")
+SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
 # Enable release build
@@ -41,14 +41,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # add OS specific
-if(APPLE)
-    add_definitions(-D_APPLE)
-    SET(BOOST_INCLUDEDIR "/usr/local/include")
-    SET(BOOST_LIBRARYDIR "/usr/local/lib")
-else()
-    SET(BOOST_INCLUDEDIR "/usr/include")
-    SET(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
-endif()
+SET(BOOST_INCLUDEDIR "/usr/include")
+SET(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -66,15 +60,15 @@ set (BOOST_ALL_DYN_LINK OFF)
 
 # Include libraries
 find_package(PkgConfig REQUIRED)
-find_package(GLM REQUIRED)
 find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
 find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
+pkg_check_modules(EIGEN eigen3 REQUIRED)
 
 # Set include folders
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_BINARY_DIR}
-                    ${GLM_INCLUDE_DIRS}
+                    ${EIGEN_INCLUDE_DIRS}
                     ${TCLAP_INCLUDE_DIR}
                     ${Boost_INCLUDE_DIRS}
                     ${CPPUNIT_INCLUDE_DIR})

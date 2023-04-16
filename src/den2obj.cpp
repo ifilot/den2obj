@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
         cmd.add(arg_output_filename);
 
         // isovalue
-        TCLAP::ValueArg<float> arg_isovalue("v", "isovalue", "Isovalue",false, 0.01, "float");
+        TCLAP::ValueArg<double> arg_isovalue("v", "isovalue", "Isovalue",false, 0.01, "double");
         cmd.add(arg_isovalue);
 
         // whether to center the wavefront object
@@ -53,8 +53,10 @@ int main(int argc, char* argv[]) {
         // whether input file is binary
         TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
 
+        #ifdef MOD_OPENVDB
         // whether to write to vdb file
         TCLAP::SwitchArg arg_d("d","vdb","vdb file", cmd, false);
+        #endif
 
         // whether to write to ply or to wavefront file
         TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
@@ -79,7 +81,7 @@ int main(int argc, char* argv[]) {
         //**************************************
         std::string input_filename = arg_input_filename.getValue();
         std::string output_filename = arg_output_filename.getValue();
-        float isovalue = arg_isovalue.getValue();
+        double isovalue = arg_isovalue.getValue();
 
         std::cout << "Using isovalue: " << isovalue << std::endl;
 
@@ -101,6 +103,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Lowest value in scalar field: " << sf.get_min() << std::endl;
         std::cout << "Highest value in scalar field: " << sf.get_max() << std::endl;
 
+        #ifdef MOD_OPENVDB
         if(arg_d.getValue()) {
             std::cout << "Creating OpenVDB file" << std::endl;
             std::cout << "Using method flag: " << arg_method.getValue() << std::endl;
@@ -125,6 +128,7 @@ int main(int argc, char* argv[]) {
 
             return 0;
         }
+        #endif
 
         IsoSurface is(&sf);
         is.marching_cubes(isovalue);

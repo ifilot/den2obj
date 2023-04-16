@@ -2,13 +2,13 @@
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
- *   DEN2OBJ is free software:                                            *
+ *   EDP is free software:                                                *
  *   you can redistribute it and/or modify it under the terms of the      *
  *   GNU General Public License as published by the Free Software         *
  *   Foundation, either version 3 of the License, or (at your option)     *
  *   any later version.                                                   *
  *                                                                        *
- *   DEN2OBJ is distributed in the hope that it will be useful,           *
+ *   EDP is distributed in the hope that it will be useful,               *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -23,15 +23,14 @@
 /**
  * @brief      constructor
  *
- * @param[in]  _filename   url to filename
+ * @param[in]  _filename        url to filename
  * @param[in]  _flag_is_locpot  whether this file is a locpot
+ * @param[in]  _is_bin          is binary file
  */
-ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, bool _is_bin) {
-    this->filename = _filename;
-    this->trans[0] = 0.0;
-    this->trans[1] = 0.0;
-    this->trans[2] = 0.0;
-
+ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, bool _is_bin) :
+    filename(_filename),
+    trans(0.0, 0.0, 0.0)
+{
     if (!boost::filesystem::exists(this->filename)) {
         throw std::runtime_error("Cannot open " + this->filename + "!");
     }
@@ -49,20 +48,104 @@ ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, boo
     }
 }
 
+#ifdef MOD_OPENVDB
 /**
- * @brief      Gets the unitcell matrix.
+ * @brief      Writes to an OpenVDB file
  *
- * @return     The unitcell matrix.
+ * @param[in]  filename  The filename
+ * @param[in]  method    The method (absolute value, positive, negative, log)
  */
-glm::mat3 ScalarField::get_unitcell_matrix() {
-    glm::mat3 out;
-    for(unsigned int i=0; i<3; i++) {
-        for(unsigned int j=0; j<3; j++) {
-            out[i][j] = mat[i][j];
+void ScalarField::write_to_vdb(const std::string& filename, OpenVDB_METHOD method) const {
+    openvdb::initialize();
+
+    openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
+
+    const openvdb::Vec3f c(0.0f, 0.0f, 0.0f);
+
+    openvdb::Coord ijk;
+    openvdb::FloatGrid::Accessor accessor = grid->getAccessor();
+
+    for(unsigned int i=0; i<this->grid_dimensions[0]; i++) {    // x
+        ijk[0] = i - this->grid_dimensions[0] / 2;
+        for(unsigned int j=0; j<this->grid_dimensions[1]; j++) {    // y
+            ijk[1] = j - this->grid_dimensions[1] / 2;
+            for(unsigned int k=0; k<this->grid_dimensions[2]; k++) {    // z
+                ijk[2] = k - this->grid_dimensions[2] / 2;
+                unsigned int idx = k * this->grid_dimensions[0] * this->grid_dimensions[1] + j * this->grid_dimensions[0] + i;
+
+                switch(method) {
+                    case OpenVDB_METHOD::ABSOLUTE:
+                        accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
+                    break;
+                    case OpenVDB_METHOD::ABSOLUTE_LOG:
+                        accessor.setValue(ijk, std::log(this->gridptr[idx] * this->gridptr[idx]));
+                    break;
+                    case OpenVDB_METHOD::POSITIVE:
+                        accessor.setValue(ijk, std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]));
+                    break;
+                    case OpenVDB_METHOD::NEGATIVE:
+                        accessor.setValue(ijk, std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                    break;
+                    case OpenVDB_METHOD::POSITIVE_LOG:
+                        accessor.setValue(ijk, std::log(std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                    break;
+                    case OpenVDB_METHOD::NEGATIVE_LOG:
+                        accessor.setValue(ijk, std::log(std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]))));
+                    break;
+                }
+            }
         }
     }
 
-    return out;
+    // Identify the grid as a level set.
+    grid->setGridClass(openvdb::GRID_LEVEL_SET);
+
+    grid->setName("density");
+
+    // Create a VDB file object and write out the grid
+    openvdb::io::File(filename).write({grid});
+}
+#endif // MOD_OPENVDB
+
+/*
+ * void output()
+ *
+ * Outputs a summary of the ScalarField to std::cout.
+ * Mainly used for debugging purposes.
+ *
+ */
+void ScalarField::output() const {
+    std::cout << "Scalar: "<< this->scalar << std::endl;
+    std::cout << std::endl;
+    std::cout << "Matrix: ";
+    for(unsigned i=0; i<3; i++) {
+        for(unsigned j=0; j<3; j++) {
+            std::cout << this->mat(i,j) << "\t";
+        }
+        std::cout << std::endl;
+        std:: cout << "\t";
+    }
+    std::cout << std::endl;
+    std::cout << "Inverse: ";
+    for(unsigned i=0; i<3; i++) {
+        for(unsigned j=0; j<3; j++) {
+            std::cout << this->imat(i,j) << "\t";
+        }
+        std::cout << std::endl;
+        std:: cout << "\t";
+    }
+    std::cout << std::endl;
+    std::cout << "ion types: " << this->nrat.size() << " ( ";
+    for(unsigned i=0; i<this->nrat.size(); i++) {
+        std::cout << this->nrat[i] << " ";
+    }
+    std::cout << ")" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Grid dimensions: ";
+    for(unsigned i=0; i<3; i++) {
+        std::cout << this->grid_dimensions[i] << "\t";
+    }
+    std::cout << std::endl;
 }
 
 /*
@@ -79,11 +162,48 @@ void ScalarField::read_header_and_atoms() {
     }
 
     this->test_vasp5();
-    this->read_scalar();
-    this->read_matrix();
-    this->read_nr_atoms();
-    this->read_atom_positions();
-    this->read_grid_dimensions();
+
+    // read scalar multiplication value
+    try {
+        this->read_scalar();
+    } catch(const std::exception& e) {
+        std::cout << "Error encountered in reading scalar value from CHGCAR" << std::endl;
+        throw e;
+    }
+
+    // read matrix
+    try {
+        this->read_matrix();
+    } catch(const std::exception& e) {
+        std::cout << "Error encountered in reading unitcell matrix from CHGCAR" << std::endl;
+        throw e;
+    }
+
+    // read number of atoms
+    try {
+        this->read_nr_atoms();
+    } catch(const std::exception& e) {
+        std::cout << "Error encountered in reading number of atoms from CHGCAR" << std::endl;
+        throw e;
+    }
+
+    // read atomic positions
+    try {
+        this->read_atom_positions();
+    } catch(const std::exception& e) {
+        std::cout << "Error encountered in reading atomic positions from CHGCAR" << std::endl;
+        std::cout << "ERROR: " << e.what() << std::endl;
+        throw e;
+    }
+
+    // read grid dimensions
+    try {
+        this->read_grid_dimensions();
+    } catch(const std::exception& e) {
+        std::cout << "Error encountered in reading grid dimensions from CHGCAR" << std::endl;
+        throw e;
+    }
+
 }
 
 /*
@@ -144,7 +264,7 @@ void ScalarField::read_scalar() {
     boost::regex regex_scalar("^\\s*([0-9.-]+)\\s*$");
     boost::smatch what;
     if(boost::regex_match(line, what, regex_scalar)) {
-        this->scalar = boost::lexical_cast<float>(what[1]);
+        this->scalar = boost::lexical_cast<fpt>(what[1]);
     } else {
         this->scalar = -1;
     }
@@ -178,22 +298,14 @@ void ScalarField::read_matrix() {
         boost::smatch what;
         if(boost::regex_match(line, what, regex_vasp_matrix_line)) {
             for(unsigned int j=0; j<3; j++) {
-                mat[i][j] = boost::lexical_cast<float>(what[j+1]);
+                mat(i,j) = boost::lexical_cast<fpt>(what[j+1]) * this->scalar;
             }
         }
     }
 
-    for(unsigned int i=0; i<3; i++) {
-        for(unsigned int j=0; j<3; j++) {
-            this->mat[i][j] *= this->scalar;
-        }
-    }
-
-    // also construct inverse matrix
-    this->calculate_inverse();
-
-    // calculate matrix volume
-    this->calculate_volume();
+    // calculate matrix inverse and volume of unit cell
+    this->imat = mat.inverse();
+    this->volume = mat.determinant();
 }
 
 /*
@@ -253,10 +365,20 @@ void ScalarField::read_atom_positions() {
     // read the atom positions
     for(unsigned int i=0; i<this->nrat.size(); i++) {
         for(unsigned int j=0; j<this->nrat[i]; j++) {
-                std::getline(infile, line);
-                std::vector<std::string> pieces;
-                boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
-                this->atom_pos.push_back(glm::vec3(boost::lexical_cast<float>(pieces[1]), boost::lexical_cast<float>(pieces[2]), boost::lexical_cast<float>(pieces[3])));
+            std::getline(infile, line);
+            boost::trim(line);
+            // std::cout << line << std::endl;
+            std::vector<std::string> pieces;
+            boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
+            // std::cout << pieces[0] << std::endl;
+            // std::cout << pieces[1] << std::endl;
+            // std::cout << pieces[2] << std::endl;
+
+            fpt x = boost::lexical_cast<fpt>(pieces[0]);
+            fpt y = boost::lexical_cast<fpt>(pieces[1]);
+            fpt z = boost::lexical_cast<fpt>(pieces[2]);
+
+            this->atom_pos.push_back(Vec3(x,y,z));
         }
     }
 
@@ -358,12 +480,12 @@ void ScalarField::read_grid() {
         std::string::const_iterator e = line.end();
 
         // parse
-        std::vector<float> floats;
-        boost::spirit::qi::phrase_parse(b, e, p, boost::spirit::ascii::space, floats);
+        std::vector<fpt> fpts;
+        boost::spirit::qi::phrase_parse(b, e, p, boost::spirit::ascii::space, fpts);
 
         // expand gridptr with the new size
         unsigned int cursize = this->gridptr.size();
-        this->gridptr.resize(cursize + floats.size());
+        this->gridptr.resize(cursize + fpts.size());
 
         // For CHGCAR type files, the electron density is multiplied by the cell volume
         // as described by the link below:
@@ -371,12 +493,12 @@ void ScalarField::read_grid() {
         // Hence, for these files, we have to divide the value at the grid point by the
         // cell volume. For LOCPOT files, we should *not* do this.
         if(this->flag_is_locpot) {      // LOCPOT type files
-            for(unsigned int j=0; j<floats.size(); j++) {
-                this->gridptr[cursize + j] = floats[j];
+            for(unsigned int j=0; j<fpts.size(); j++) {
+                this->gridptr[cursize + j] = fpts[j];
             }
         } else {    // CHGCAR type files
-            for(unsigned int j=0; j<floats.size(); j++) {
-                this->gridptr[cursize + j] = floats[j] / this->volume;
+            for(unsigned int j=0; j<fpts.size(); j++) {
+                this->gridptr[cursize + j] = fpts[j] / this->volume;
             }
         }
 
@@ -391,7 +513,7 @@ void ScalarField::read_grid() {
 }
 
 /*
- * float get_value_interp(x,y,z)
+ * fpt get_value_interp(x,y,z)
  *
  * Grabs a value from the 3D scalar field. Calculate the value
  * by using a trilinear interpolation.
@@ -402,34 +524,34 @@ void ScalarField::read_grid() {
  * Future algorithm can make use of a cubic interpolation.
  *
  */
-float ScalarField::get_value_interp(float x, float y, float z) const {
+fpt ScalarField::get_value_interp(fpt x, fpt y, fpt z) const {
     if(!this->is_inside(x,y,z)) {
         return 0.0f;
     }
 
-    // cast the input to the nearest grid point
-    glm::vec3 r = this->realspace_to_grid(x,y,z);
+    // cast the input to grid space
+    Vec3 r = this->realspace_to_grid(x,y,z);// - Vec3(0.5f, 0.5f, 0.5f);
 
     // recast
-    if(r[0] < 0) r[0] += (float)this->grid_dimensions[0];
-    if(r[1] < 0) r[1] += (float)this->grid_dimensions[1];
-    if(r[2] < 0) r[2] += (float)this->grid_dimensions[2];
+    if(r[0] < 0) r[0] += (fpt)this->grid_dimensions[0];
+    if(r[1] < 0) r[1] += (fpt)this->grid_dimensions[1];
+    if(r[2] < 0) r[2] += (fpt)this->grid_dimensions[2];
 
     // calculate value using trilinear interpolation
-    float xd = remainderf(r[0], 1.0);
-    float yd = remainderf(r[1], 1.0);
-    float zd = remainderf(r[2], 1.0);
+    fpt xd = remainderf(r[0], 1.0);
+    fpt yd = remainderf(r[1], 1.0);
+    fpt zd = remainderf(r[2], 1.0);
 
     if(xd < 0.0f) xd += 1.0f;
     if(yd < 0.0f) yd += 1.0f;
     if(zd < 0.0f) zd += 1.0f;
 
-    float x0 = floor(r[0]);
-    float x1 = ceil(r[0]);
-    float y0 = floor(r[1]);
-    float y1 = ceil(r[1]);
-    float z0 = floor(r[2]);
-    float z1 = ceil(r[2]);
+    fpt x0 = fmod(floor(r[0]), this->grid_dimensions[0]);
+    fpt x1 = fmod(ceil(r[0]), this->grid_dimensions[0]);
+    fpt y0 = fmod(floor(r[1]), this->grid_dimensions[1]);
+    fpt y1 = fmod(ceil(r[1]), this->grid_dimensions[1]);
+    fpt z0 = fmod(floor(r[2]), this->grid_dimensions[2]);
+    fpt z1 = fmod(ceil(r[2]), this->grid_dimensions[2]);
 
     return
     this->get_value(x0, y0, z0) * (1.0 - xd) * (1.0 - yd) * (1.0 - zd) +
@@ -451,9 +573,9 @@ float ScalarField::get_value_interp(float x, float y, float z) const {
  *
  * @return     True if inside, False otherwise.
  */
-bool ScalarField::is_inside(float x, float y, float z) const {
+bool ScalarField::is_inside(fpt x, fpt y, fpt z) const {
     // cast the input to the nearest grid point
-    glm::vec3 d = this->realspace_to_direct(x,y,z);
+    Vec3 d = this->realspace_to_direct(x,y,z);
 
     if(d[0] < 0 || d[0] > 1.0) {
         return false;
@@ -469,60 +591,29 @@ bool ScalarField::is_inside(float x, float y, float z) const {
 }
 
 /*
- * float get_max_direction(dim)
+ * fpt get_max_direction(dim)
  *
  * Get the maximum value in a particular dimension. This is a convenience
  * function for the get_value_interp() function.
  *
  */
-float ScalarField::get_max_direction(unsigned int dim) {
-    float sum = 0;
+fpt ScalarField::get_max_direction(unsigned int dim) {
+    fpt sum = 0;
     for(unsigned int i=0; i<3; i++) {
-        sum += this->mat[i][dim];
+        sum += this->mat(i,dim);
     }
     return sum;
 }
 
-/**
- * @brief      Calculate the inverse of the unit cell matrix
- */
-void ScalarField::calculate_inverse() {
-    float det = 0;
-    for(unsigned int i=0;i<3;i++) {
-        det += (this->mat[0][i]*(this->mat[1][(i+1)%3]*this->mat[2][(i+2)%3] - this->mat[1][(i+2)%3]*this->mat[2][(i+1)%3]));
-    }
-
-    for(unsigned int i=0;i<3;i++){
-            for(unsigned int j=0;j<3;j++) {
-                     this->imat[i][j] = ((this->mat[(i+1)%3][(j+1)%3] * this->mat[(i+2)%3][(j+2)%3]) - (this->mat[(i+1)%3][(j+2)%3]*this->mat[(i+2)%3][(j+1)%3]))/ det;
-            }
-     }
-}
-
-/**
- * @brief      Calculate volume of the unit cell
- */
-void ScalarField::calculate_volume() {
-    for(unsigned int i=0; i<3; i++) {
-        for(unsigned int j=0; j<3; j++) {
-            this->mat33[i][j] = this->mat[i][j];
-        }
-    }
-
-    this->imat33 = glm::inverse(mat33);
-
-    this->volume = glm::dot(glm::cross(this->mat33[0], this->mat33[1]), this->mat33[2]);
-}
-
 /*
- * float get_value(i,j,k)
+ * fpt get_value(i,j,k)
  *
  * Grabs the value at a particular grid point.
  *
  * This is a convenience function for the get_value_interp() function
  *
  */
-float ScalarField::get_value(unsigned int i, unsigned int j, unsigned int k) const {
+fpt ScalarField::get_value(unsigned int i, unsigned int j, unsigned int k) const {
     unsigned int idx = k * this->grid_dimensions[0] * this->grid_dimensions[1] +
                        j * this->grid_dimensions[0] +
                        i;
@@ -530,149 +621,73 @@ float ScalarField::get_value(unsigned int i, unsigned int j, unsigned int k) con
 }
 
 /*
- * glm::vec3 grid_to_realspace(i,j,k)
+ * Vec3 grid_to_realspace(i,j,k)
  *
  * Converts a grid point to a realspace vector. This function
  * is not being used at the moment.
  *
  */
-glm::vec3 ScalarField::grid_to_realspace(float i, float j, float k) const {
-    float dx = (float)i / (float)grid_dimensions[0];
-    float dy = (float)j / (float)grid_dimensions[1];
-    float dz = (float)k / (float)grid_dimensions[2];
+Vec3 ScalarField::grid_to_realspace(fpt i, fpt j, fpt k) const {
+    fpt dx = (fpt)i / (fpt)grid_dimensions[0];
+    fpt dy = (fpt)j / (fpt)grid_dimensions[1];
+    fpt dz = (fpt)k / (fpt)grid_dimensions[2];
 
-    glm::vec3 r;
-    r[0] = mat[0][0] * dx + mat[1][0] * dy + mat[2][0] * dz;
-    r[1] = mat[0][1] * dx + mat[1][1] * dy + mat[2][1] * dz;
-    r[2] = mat[0][2] * dx + mat[1][2] * dy + mat[2][2] * dz;
+    Vec3 r;
+    r[0] = this->mat(0,0) * dx + this->mat(1,0) * dy + this->mat(2,0) * dz;
+    r[1] = this->mat(0,1) * dx + this->mat(1,1) * dy + this->mat(2,1) * dz;
+    r[2] = this->mat(0,2) * dx + this->mat(1,2) * dy + this->mat(2,2) * dz;
 
     return r;
 }
 
 /*
- * glm::vec3 realspace_to_grid(i,j,k)
+ * Vec3 realspace_to_grid(i,j,k)
  *
  * Convert 3d realspace vector to a position on the grid. Non-integer
- * values (i.e. floating point) are given as the result.
+ * values (i.e. fpting point) are given as the result.
  *
  * This is a convenience function for the get_value_interp() function
  *
  */
-glm::vec3 ScalarField::realspace_to_grid(float i, float j, float k) const {
-    glm::vec3 r;
-    r[0] = imat[0][0] * i + imat[0][1] * j + imat[0][2] * k;
-    r[1] = imat[1][0] * i + imat[1][1] * j + imat[1][2] * k;
-    r[2] = imat[2][0] * i + imat[2][1] * j + imat[2][2] * k;
+Vec3 ScalarField::realspace_to_grid(fpt i, fpt j, fpt k) const {
+    Vec3 r = this->realspace_to_direct(i,j,k);
 
-    r[0] *= float(this->grid_dimensions[0]-1);
-    r[1] *= float(this->grid_dimensions[1]-1);
-    r[2] *= float(this->grid_dimensions[2]-1);
+    r[0] *= fpt(this->grid_dimensions[0]);
+    r[1] *= fpt(this->grid_dimensions[1]);
+    r[2] *= fpt(this->grid_dimensions[2]);
 
     return r;
 }
 
 /*
- * glm::vec3 realspace_to_direct(i,j,k)
+ * Vec3 realspace_to_direct(i,j,k)
  *
  * Convert 3d realspace vector to direct position.
  *
  */
-glm::vec3 ScalarField::realspace_to_direct(float i, float j, float k) const {
-    glm::vec3 r;
-    r[0] = imat[0][0] * i + imat[0][1] * j + imat[0][2] * k;
-    r[1] = imat[1][0] * i + imat[1][1] * j + imat[1][2] * k;
-    r[2] = imat[2][0] * i + imat[2][1] * j + imat[2][2] * k;
+Vec3 ScalarField::realspace_to_direct(fpt i, fpt j, fpt k) const {
+    Vec3 r;
+    r[0] = this->imat(0,0) * i + this->imat(0,1) * j + this->imat(0,2) * k;
+    r[1] = this->imat(1,0) * i + this->imat(1,1) * j + this->imat(1,2) * k;
+    r[2] = this->imat(2,0) * i + this->imat(2,1) * j + this->imat(2,2) * k;
 
     return r;
 }
 
-void ScalarField::copy_grid_dimensions(unsigned int _grid_dimensions[]) const {
-    for(unsigned int i=0; i<3; i++) {
-        _grid_dimensions[i] = this->grid_dimensions[i];
-    }
-}
-
-/**
- * @brief      Gets the maximum value in scalar field.
- *
- * @return     The maximum.
- */
-float ScalarField::get_max() const {
+fpt ScalarField::get_max() const {
     return *std::max_element(this->gridptr.begin(), this->gridptr.end());
 }
 
-/**
- * @brief      Gets the minimum value in scalar field.
- *
- * @return     The minimum.
- */
-float ScalarField::get_min() const {
+fpt ScalarField::get_min() const {
     return *std::min_element(this->gridptr.begin(), this->gridptr.end());
 }
 
-glm::vec3 ScalarField::get_atom_position(unsigned int atid) const {
+Vec3 ScalarField::get_atom_position(unsigned int atid) const {
     if(atid < this->atom_pos.size()) {
-        return this->mat33 * this->atom_pos[atid];
+        return this->mat * this->atom_pos[atid];
     } else {
         throw std::runtime_error("Requested atom id lies outside bounds");
     }
-}
-
-/**
- * @brief      Writes to an OpenVDB file
- *
- * @param[in]  filename  The filename
- * @param[in]  method    The method (absolute value, positive, negative, log)
- */
-void ScalarField::write_to_vdb(const std::string& filename, OpenVDB_METHOD method) const {
-    openvdb::initialize();
-
-    openvdb::FloatGrid::Ptr grid = openvdb::FloatGrid::create();
-
-    const openvdb::Vec3f c(0.0f, 0.0f, 0.0f);
-
-    openvdb::Coord ijk;
-    openvdb::FloatGrid::Accessor accessor = grid->getAccessor();
-
-    for(unsigned int i=0; i<this->grid_dimensions[0]; i++) {    // x
-        ijk[0] = i - this->grid_dimensions[0] / 2;
-        for(unsigned int j=0; j<this->grid_dimensions[1]; j++) {    // y
-            ijk[1] = j - this->grid_dimensions[1] / 2;
-            for(unsigned int k=0; k<this->grid_dimensions[2]; k++) {    // z
-                ijk[2] = k - this->grid_dimensions[2] / 2;
-                unsigned int idx = k * this->grid_dimensions[0] * this->grid_dimensions[1] + j * this->grid_dimensions[0] + i;
-
-                switch(method) {
-                    case OpenVDB_METHOD::ABSOLUTE:
-                        accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
-                    break;
-                    case OpenVDB_METHOD::ABSOLUTE_LOG:
-                        accessor.setValue(ijk, std::log(this->gridptr[idx] * this->gridptr[idx]));
-                    break;
-                    case OpenVDB_METHOD::POSITIVE:
-                        accessor.setValue(ijk, std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]));
-                    break;
-                    case OpenVDB_METHOD::NEGATIVE:
-                        accessor.setValue(ijk, std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
-                    break;
-                    case OpenVDB_METHOD::POSITIVE_LOG:
-                        accessor.setValue(ijk, std::log(std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
-                    break;
-                    case OpenVDB_METHOD::NEGATIVE_LOG:
-                        accessor.setValue(ijk, std::log(std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]))));
-                    break;
-                }
-            }
-        }
-    }
-
-    // Identify the grid as a level set.
-    grid->setGridClass(openvdb::GRID_LEVEL_SET);
-
-    grid->setName("density");
-
-    // Create a VDB file object and write out the grid
-    openvdb::io::File(filename).write({grid});
 }
 
 /**
@@ -685,17 +700,18 @@ void ScalarField::load_binary() {
     this->gridsize = 1.0;
     for(unsigned int i=0; i<3; i++) {
         for(unsigned int j=0; j<3; j++) {
-            this->mat[i][j] = 0.0;
+            this->mat(i,j) = 0.0;
         }
         uint16_t nx = 0;
         infile.read((char*)&nx, sizeof(uint16_t));
-        this->mat[i][i] = nx;
+        this->mat(i,i) = nx;
         this->grid_dimensions[i] = nx;
         this->gridsize *= nx;
     }
 
-    this->calculate_inverse();
-    this->calculate_volume();
+    // create inverse and calculate volume
+    this->imat = this->mat.inverse();
+    this->volume = this->mat.determinant();
 
     // prepare vector
     this->gridptr.resize(this->gridsize);
@@ -765,14 +781,14 @@ void ScalarField::load_cube_file() {
     for(unsigned int i=0; i<3; i++) {
         // set matrix to zero
         for(unsigned int j=0; j<3; j++) {
-            this->mat[i][j] = 0.0;
+            this->mat(i,j) = 0.0;
         }
 
         std::getline(infile, line);
         try {
             boost::trim(line);
             boost::split(pieces, line, boost::is_any_of("\t "), boost::token_compress_on);
-            this->mat[i][i] = boost::lexical_cast<float>(pieces[0]) * boost::lexical_cast<float>(pieces[i+1]) * bohr_to_angstrom;
+            this->mat(i,i) = boost::lexical_cast<float>(pieces[0]) * boost::lexical_cast<float>(pieces[i+1]) * bohr_to_angstrom;
             this->grid_dimensions[i] = boost::lexical_cast<unsigned int>(pieces[0]);
             this->gridsize *= this->grid_dimensions[i];
         } catch(const std::exception& e) {
@@ -782,8 +798,9 @@ void ScalarField::load_cube_file() {
         }
     }
 
-    this->calculate_inverse();
-    this->calculate_volume();
+    // create inverse and calculate volume
+    this->imat = this->mat.inverse();
+    this->volume = this->mat.determinant();
 
     // prepare vector
     this->gridptr.reserve(this->gridsize);
