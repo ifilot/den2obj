@@ -3,17 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Den2Obj's documentation!
-===================================
+Den2Obj - A command line program for producing isosurfaces from density files
+=============================================================================
+
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
+   installation
+   background
+   examples
+   user_interface
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
