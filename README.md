@@ -14,9 +14,11 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a 
 
 ## Compilation instructions
 
+### Debian Latest
+
 Getting the dependencies
 ```
-sudo apt install build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev
+sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev
 ```
 
 To compile, run the following commands:
@@ -25,7 +27,27 @@ git clone https://github.com/ifilot/den2obj.git
 cd den2obj
 mkdir build
 cd build
-cmake ../src
+cmake -DMOD_OPENVDB=1 ../src
+make -j5
+```
+
+### Ubuntu Latest
+
+The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the Threading Building Blocks (`libtbb`) library. To solve this, manually compile and install OpenVDB 8.2 using the following instructions.
+
+```
+get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
+mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && make -j9 && sudo make install
+```
+
+Thereafter, clone, configure and compile Den2Obj and link against OpenVDB 8.2.
+
+```
+git clone https://github.com/ifilot/den2obj.git
+cd den2obj
+mkdir build
+cd build
+cmake -DMOD_OPENVDB=1 ../src
 make -j5
 ```
 

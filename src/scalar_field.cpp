@@ -75,22 +75,25 @@ void ScalarField::write_to_vdb(const std::string& filename, OpenVDB_METHOD metho
 
                 switch(method) {
                     case OpenVDB_METHOD::ABSOLUTE:
+                        accessor.setValue(ijk, std::abs(this->gridptr[idx]));
+                    break;
+                    case OpenVDB_METHOD::SQUARED:
                         accessor.setValue(ijk, this->gridptr[idx] * this->gridptr[idx]);
                     break;
                     case OpenVDB_METHOD::ABSOLUTE_LOG:
-                        accessor.setValue(ijk, std::log(this->gridptr[idx] * this->gridptr[idx]));
+                        accessor.setValue(ijk, std::log(std::abs(this->gridptr[idx])));
                     break;
                     case OpenVDB_METHOD::POSITIVE:
-                        accessor.setValue(ijk, std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]));
+                        accessor.setValue(ijk, std::max((fpt)0.0, this->gridptr[idx]));
                     break;
                     case OpenVDB_METHOD::NEGATIVE:
-                        accessor.setValue(ijk, std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                        accessor.setValue(ijk, -std::min((fpt)0.0, this->gridptr[idx]));
                     break;
                     case OpenVDB_METHOD::POSITIVE_LOG:
-                        accessor.setValue(ijk, std::log(std::max(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx])));
+                        accessor.setValue(ijk, std::log(std::max((fpt)1e-12, this->gridptr[idx])));
                     break;
                     case OpenVDB_METHOD::NEGATIVE_LOG:
-                        accessor.setValue(ijk, std::log(std::fabs(std::min(0.0f, sgn(this->gridptr[idx]) * this->gridptr[idx] * this->gridptr[idx]))));
+                        accessor.setValue(ijk, -std::log(std::min((fpt)-1e-12, this->gridptr[idx])));
                     break;
                 }
             }

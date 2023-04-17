@@ -47,6 +47,7 @@
 #ifdef MOD_OPENVDB
 enum class OpenVDB_METHOD {
     ABSOLUTE,
+    SQUARED,
     ABSOLUTE_LOG,
     POSITIVE,
     NEGATIVE,

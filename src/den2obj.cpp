@@ -110,6 +110,8 @@ int main(int argc, char* argv[]) {
 
             if(arg_method.getValue() == "absolute") {
                 sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+            } else if(arg_method.getValue() == "squared") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::SQUARED);
             } else if(arg_method.getValue() == "absolute_log") {
                 sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE_LOG);
             }  else if(arg_method.getValue() == "positive") {
