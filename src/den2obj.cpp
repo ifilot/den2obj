@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
         cmd.add(arg_output_filename);
 
         // isovalue
-        TCLAP::ValueArg<float> arg_isovalue("v","isovalue","Isovalue",true,0.1,"float");
+        TCLAP::ValueArg<double> arg_isovalue("v", "isovalue", "Isovalue",false, 0.01, "double");
         cmd.add(arg_isovalue);
 
         // whether to center the wavefront object
@@ -53,8 +53,17 @@ int main(int argc, char* argv[]) {
         // whether input file is binary
         TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
 
+        #ifdef MOD_OPENVDB
+        // whether to write to vdb file
+        TCLAP::SwitchArg arg_d("d","vdb","vdb file", cmd, false);
+        #endif
+
         // whether to write to ply or to wavefront file
         TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
+
+        // which openVDB method to use
+        TCLAP::ValueArg<std::string> arg_method("m","method","Which OpenVDB method to use",false,"absolute","string");
+        cmd.add(arg_method);
 
         cmd.parse(argc, argv);
 
@@ -72,7 +81,7 @@ int main(int argc, char* argv[]) {
         //**************************************
         std::string input_filename = arg_input_filename.getValue();
         std::string output_filename = arg_output_filename.getValue();
-        float isovalue = arg_isovalue.getValue();
+        double isovalue = arg_isovalue.getValue();
 
         std::cout << "Using isovalue: " << isovalue << std::endl;
 
@@ -81,11 +90,47 @@ int main(int argc, char* argv[]) {
         if(arg_b.getValue()) {
             std::cout << "Opening " << input_filename << " as binary file." << std::endl;
         } else {
-            std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+            if(input_filename.substr(input_filename.size()-4) == ".cub") {
+                std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
+            } else {
+                std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+            }
         }
 
         ScalarField sf(input_filename, false, arg_b.getValue());
         sf.read();
+
+        std::cout << "Lowest value in scalar field: " << sf.get_min() << std::endl;
+        std::cout << "Highest value in scalar field: " << sf.get_max() << std::endl;
+
+        #ifdef MOD_OPENVDB
+        if(arg_d.getValue()) {
+            std::cout << "Creating OpenVDB file" << std::endl;
+            std::cout << "Using method flag: " << arg_method.getValue() << std::endl;
+
+            if(arg_method.getValue() == "absolute") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+            } else if(arg_method.getValue() == "squared") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::SQUARED);
+            } else if(arg_method.getValue() == "absolute_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE_LOG);
+            }  else if(arg_method.getValue() == "positive") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::POSITIVE);
+            }  else if(arg_method.getValue() == "negative") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::NEGATIVE);
+            }  else if(arg_method.getValue() == "positive_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::POSITIVE_LOG);
+            }  else if(arg_method.getValue() == "negative_log") {
+                sf.write_to_vdb(output_filename, OpenVDB_METHOD::NEGATIVE_LOG);
+            } else {
+                throw std::runtime_error("Invalid method supplied: " + arg_method.getValue());
+            }
+
+            std::cout << "Output has been written to: " << arg_output_filename.getValue() << std::endl;
+
+            return 0;
+        }
+        #endif
 
         IsoSurface is(&sf);
         is.marching_cubes(isovalue);

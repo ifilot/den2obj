@@ -1,7 +1,11 @@
 # Den2Obj
 
+[![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/build.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build.yml)
+[![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Purpose
-Converts VASP density files (i.e. CHGCAR / PARCHG) or a (custom-format) [binary file](#binary-source) to a [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file) or a [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format)).
+Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file), [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format)) or [OpenVDB format](https://www.openvdb.org/).
 
 ## Example image
 ![3D Reaction-Diffusion system](img/reac_diff_3d_network_small.png)
@@ -10,9 +14,11 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a (custom-format) [binary 
 
 ## Compilation instructions
 
+### Debian Latest
+
 Getting the dependencies
 ```
-sudo apt install build-essential cmake libglm-dev libtclap-dev libboost-all-dev
+sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev
 ```
 
 To compile, run the following commands:
@@ -21,11 +27,33 @@ git clone https://github.com/ifilot/den2obj.git
 cd den2obj
 mkdir build
 cd build
-cmake ../src
+cmake -DMOD_OPENVDB=1 ../src
+make -j5
+```
+
+### Ubuntu Latest
+
+The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the Threading Building Blocks (`libtbb`) library. To solve this, manually compile and install OpenVDB 8.2 using the following instructions.
+
+```
+get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
+mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && make -j9 && sudo make install
+```
+
+Thereafter, clone, configure and compile Den2Obj and link against OpenVDB 8.2.
+
+```
+git clone https://github.com/ifilot/den2obj.git
+cd den2obj
+mkdir build
+cd build
+cmake -DMOD_OPENVDB=1 ../src
 make -j5
 ```
 
 ## Usage
+
+### Isosurfaces
 
 ```
 <path to>/den2obj -i CHGCAR -o <filename.obj> -v <isovalue>
@@ -54,12 +82,22 @@ Done in 0.0177371 seconds.
 
 * `-c`: Center the structure, i.e. the center of the structure is placed at the origin of the coordinate system.
 * `-p`: Write output as a binary `.ply` file rather than `.obj` file. The program automatically detects the [endianness](https://en.wikipedia.org/wiki/Endianness) of your system.
-* `-b`: Read from binary source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
+* `-d`: Write output as an OpenVDB file. This directive overrules the `p` directive.
+* `-b`: Read from cube source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
 
-## Binary source
-Instead of a `CHGCAR` or `PARCHG` file, a binary file can be supplied which should be formatted by first stating the number of grid points in x, y and z direction and the size of the floating point variable (only float and double are currently supported) followed by a list of 64 bit floats for the value at each grid point. Herein, it assumed that "z" is the slowest index and "x" the fastest index.
+### OpenVDB files
 
-In short:
+Example:
 ```
-<size x><size y><size z><size float><...data...>
+./den2obj -i <CUBFILE> -d -m <METHOD> -o <OUTFILE>
 ```
+
+Use one of the following methods:
+* absolute
+* absolute_log
+* positive
+* negative
+* positive_log
+* negative_log
+
+Recommended settings for molecular orbitals are using `positive` and `negative` for the two lobes. When rendering purely the electron density, it is recommended to use `absolute`.

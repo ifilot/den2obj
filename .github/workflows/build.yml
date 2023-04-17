@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev
+    - name: Configure CMake
+      run: mkdir build && cd build && cmake ../src
+    - name: Build
+      run: cd build && make -j3
+    - name: Perform unit tests
+      run: cd build && make test

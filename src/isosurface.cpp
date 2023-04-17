@@ -75,8 +75,8 @@ float Cube::get_value_from_vertex(unsigned int _p) const {
     return this->values[_p];
 }
 
-glm::vec3 Cube::get_position_from_vertex(unsigned int _p) const {
-    glm::vec3 c;
+Vec3 Cube::get_position_from_vertex(unsigned int _p) const {
+    Vec3 c;
     if(_p == 0) {
         c[0] = (float)this->i;
         c[1] = (float)this->j;
@@ -224,7 +224,7 @@ float Tetrahedron::get_value_from_vertex(unsigned int _p) const {
     return this->values[_p];
 }
 
-const glm::vec3& Tetrahedron::get_position_from_vertex(unsigned int _p) const {
+const Vec3& Tetrahedron::get_position_from_vertex(unsigned int _p) const {
     return pos[_p];
 }
 
@@ -232,7 +232,7 @@ const glm::vec3& Tetrahedron::get_position_from_vertex(unsigned int _p) const {
  *  TRIANGLE  *
  **************/
 
-Triangle::Triangle(const glm::vec3 &_p1, const glm::vec3 &_p2, const glm::vec3 &_p3) {
+Triangle::Triangle(const Vec3 &_p1, const Vec3 &_p2, const Vec3 &_p3) {
     this->p1 = _p1;
     this->p2 = _p2;
     this->p3 = _p3;
@@ -295,7 +295,7 @@ float Triangle::get_z(unsigned int i) const {
 IsoSurface::IsoSurface(ScalarField* _vp) {
     this->isovalue = 0;
     this->vp_ptr = _vp;
-    this->vp_ptr->copy_grid_dimensions(this->grid_dimensions);
+    this->grid_dimensions = this->vp_ptr->get_grid_dimensions();
 }
 
 /**
@@ -382,11 +382,11 @@ void IsoSurface::construct_triangles_from_cubes(float _isovalue) {
     for(unsigned int i=0; i < cube_table.size(); i++) {
 
         uint8_t cubeindex = cube_table[i].get_cube_index();
-        glm::vec3 vertices_list[12];
+        Vec3 vertices_list[12];
 
         /* Find the vertices where the surface intersects the cube, perform
-        an interpolation of 2 (glm::vec3) coordinates and 2 values and the isovalue,
-        return one (glm::vec3) coordinate as the result */
+        an interpolation of 2 (Vec3) coordinates and 2 values and the isovalue,
+        return one (Vec3) coordinate as the result */
         if (edge_table[cubeindex] & (1 << 0))
             vertices_list[0] =
                 this->interpolate_from_cubes(cube_table[i], 0, 1, _isovalue);
@@ -444,7 +444,7 @@ void IsoSurface::construct_triangles_from_tetrahedra(float _isovalue) {
     for(unsigned int i=0; i < tetrahedra_table.size(); i++) {
 
         unsigned int tetidx = tetrahedra_table[i].get_tetrahedron_index();
-        glm::vec3 p[3];
+        Vec3 p[3];
 
         switch(tetidx) {
             case 0x0E:
@@ -508,15 +508,15 @@ void IsoSurface::construct_triangles_from_tetrahedra(float _isovalue) {
     }
 }
 
-glm::vec3 IsoSurface::interpolate_from_cubes(const Cube &_cub, unsigned int _p1,
+Vec3 IsoSurface::interpolate_from_cubes(const Cube &_cub, unsigned int _p1,
     unsigned int _p2, float _isovalue) {
     float v1 = _cub.get_value_from_vertex(_p1);
     float v2 = _cub.get_value_from_vertex(_p2);
 
-    glm::vec3 p1 = _cub.get_position_from_vertex(_p1);
-    glm::vec3 p2 = _cub.get_position_from_vertex(_p2);
+    Vec3 p1 = _cub.get_position_from_vertex(_p1);
+    Vec3 p2 = _cub.get_position_from_vertex(_p2);
 
-    glm::vec3 p;
+    Vec3 p;
     float mu;
 
     if(std::abs(_isovalue-v1) < PRECISION_LIMIT)
@@ -535,15 +535,15 @@ glm::vec3 IsoSurface::interpolate_from_cubes(const Cube &_cub, unsigned int _p1,
     return p;
 }
 
-glm::vec3 IsoSurface::interpolate_from_tetrahedra(const Tetrahedron &_tet,
+Vec3 IsoSurface::interpolate_from_tetrahedra(const Tetrahedron &_tet,
     unsigned int _p1, unsigned int _p2, float _isovalue) {
     float v1 = _tet.get_value_from_vertex(_p1);
     float v2 = _tet.get_value_from_vertex(_p2);
 
-    glm::vec3 p1 = _tet.get_position_from_vertex(_p1);
-    glm::vec3 p2 = _tet.get_position_from_vertex(_p2);
+    Vec3 p1 = _tet.get_position_from_vertex(_p1);
+    Vec3 p2 = _tet.get_position_from_vertex(_p2);
 
-    glm::vec3 p;
+    Vec3 p;
     float mu;
 
     if(std::abs(_isovalue-v1) < PRECISION_LIMIT)

@@ -26,25 +26,20 @@
 #include <vector>
 #include <omp.h>
 
-#define GLM_FORCE_SWIZZLE
-#include <glm/glm.hpp>
-
+#include "math.h"
 #include "isosurface.h"
 #include "check_endian.h"
 
 /**
- * @brief      structure to put glm::vec3 in a map
+ * @brief      structure to put Vec3 in a map
  */
-struct KeyFuncs
-{
-    size_t operator()(const glm::vec3& k)const
-    {
-        return std::hash<float>()(k.x) ^ std::hash<float>()(k.y) ^ std::hash<float>()(k.z);
+struct KeyFuncs {
+    size_t operator()(const Vec3& k) const {
+        return std::hash<fpt>()(k[0]) ^ std::hash<fpt>()(k[1]) ^ std::hash<fpt>()(k[2]);
     }
 
-    bool operator()(const glm::vec3& a, const glm::vec3& b)const
-    {
-            return a.x == b.x && a.y == b.y && a.z == b.z;
+    bool operator()(const Vec3& a, const Vec3& b) const {
+            return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
     }
 };
 
@@ -53,16 +48,16 @@ struct KeyFuncs
  */
 class IsoSurfaceMesh{
 private:
-    std::unordered_map<glm::vec3, unsigned int, KeyFuncs, KeyFuncs> vertices_map;
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> texcoords;
+    std::unordered_map<Vec3, unsigned int, KeyFuncs, KeyFuncs> vertices_map;
+    std::vector<Vec3> vertices;
+    std::vector<Vec3> normals;
+    std::vector<Vec2> texcoords;
     std::vector<unsigned int> indices;
 
     const ScalarField* sf;
     const IsoSurface* is;
 
-    glm::vec3 center;
+    Vec3 center;
 
 public:
     /**
@@ -106,7 +101,7 @@ private:
      *
      * @return     the index
      */
-    unsigned int get_index_vertex(const glm::vec3 v);
+    unsigned int get_index_vertex(const Vec3 v);
 
 };
 

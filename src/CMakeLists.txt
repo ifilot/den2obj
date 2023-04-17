@@ -1,14 +1,14 @@
  #*************************************************************************
- #   CMakeLists.txt  --  This file is part of den2bin.                    *
+ #   CMakeLists.txt  --  This file is part of DEN2OBJ.                    *
  #                                                                        *
  #   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  #                                                                        *
- #   den2bin is free software: you can redistribute it and/or modify      *
+ #   DEN2OBJ is free software: you can redistribute it and/or modify      *
  #   it under the terms of the GNU General Public License as published    *
  #   by the Free Software Foundation, either version 3 of the License,    *
  #   or (at your option) any later version.                               *
  #                                                                        *
- #   den2bin is distributed in the hope that it will be useful,           *
+ #   DEN2OBJ is distributed in the hope that it will be useful,           *
  #   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  #   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  #   See the GNU General Public License for more details.                 *
@@ -19,7 +19,7 @@
  #*************************************************************************/
 
 # set minimum cmake requirements
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 project (den2obj)
 
 # add custom directory to look for .cmake files
@@ -28,8 +28,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "4")
-SET(VERSION_MICRO "1")
+SET(VERSION_MINOR "6")
+SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
 # Enable release build
@@ -41,14 +41,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # add OS specific
-if(APPLE)
-    add_definitions(-D_APPLE)
-    SET(BOOST_INCLUDEDIR "/usr/local/include")
-    SET(BOOST_LIBRARYDIR "/usr/local/lib")
-else()
-    SET(BOOST_INCLUDEDIR "/usr/include")
-    SET(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
-endif()
+SET(BOOST_INCLUDEDIR "/usr/include")
+SET(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -66,34 +60,44 @@ set (BOOST_ALL_DYN_LINK OFF)
 
 # Include libraries
 find_package(PkgConfig REQUIRED)
-find_package(GLM REQUIRED)
 find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
+find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
+pkg_check_modules(EIGEN eigen3 REQUIRED)
 
 # Set include folders
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_BINARY_DIR}
-                    ${GLM_INCLUDE_DIRS}
+                    ${EIGEN_INCLUDE_DIRS}
                     ${TCLAP_INCLUDE_DIR}
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+                    ${CPPUNIT_INCLUDE_DIR})
+
+# enable OpenVDB support
+if(MOD_OPENVDB)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMOD_OPENVDB -I/opt/openvdb/include")
+    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "Half" "blosc" "-lz")
+    MESSAGE("Compiling with OpenVDB module")
+endif()
 
 # Add sources
-file(GLOB_RECURSE SOURCES "*.cpp")
+file(GLOB SOURCES "*.cpp")
 add_executable(den2obj ${SOURCES})
+add_library(den2objsources STATIC ${SOURCES})
 
 # Set C++17
 add_definitions(-std=c++17 -march=native)
 
 # Link libraries
-if(UNIX AND NOT APPLE)
-    SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-endif()
-if(APPLE)
-    SET(CMAKE_MACOSX_RPATH TRUE)
-    SET_TARGET_PROPERTIES(den2obj PROPERTIES INSTALL_RPATH "@executable_path/lib")
-    target_link_libraries(den2obj ${Boost_LIBRARIES})
+#SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
+target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES})
+
+if(NOT DISABLE_TEST)
+    message("[USER] Performing unit tests")
+    enable_testing ()
+    add_subdirectory("test")
 else()
-    target_link_libraries(den2obj ${Boost_LIBRARIES})
+    message("[USER] Testing routine disabled")
 endif()
 
 ###
