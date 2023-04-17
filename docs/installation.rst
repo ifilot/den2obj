@@ -25,9 +25,6 @@ To ensure that all the packages are installed, one can run the following::
     sudo apt install build-essential cmake libtclap-dev libboost-all-dev \ 
     pkg-config libcppunit-dev libeigen3-dev
 
-.. note::
-   
-
 Standard compilation
 ====================
 
