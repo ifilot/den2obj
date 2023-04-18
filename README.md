@@ -18,7 +18,8 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a 
 
 Getting the dependencies
 ```
-sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev
+sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
+pkg-config libcppunit-dev libeigen3-dev
 ```
 
 To compile, run the following commands:
@@ -36,8 +37,10 @@ make -j5
 The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the Threading Building Blocks (`libtbb`) library. To solve this, manually compile and install OpenVDB 8.2 using the following instructions.
 
 ```
-get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
-mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && make -j9 && sudo make install
+get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz
+tar -xvzf v8.2.0.tar.gz
+mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb
+make -j9 && sudo make install
 ```
 
 Thereafter, clone, configure and compile Den2Obj and link against OpenVDB 8.2.
@@ -81,23 +84,18 @@ Converting CHGCAR to D2O
 ./den2obj -i CHGCAR_xxx -o xxx.d2o -t
 ```
 
-Converting CHGCAR to D2O
-```
-./den2obj -i CHGCAR_xxx -o xxx.d2o -t
-```
-
-Supported input types:
+**Supported input types:**
 * CHGCAR
 * PARCHG
 * LOCPOT
 * Gaussian cube (.cub)
 * D2O files (.d2o)
 
-Supported dense output types:
+**Supported dense output types:**
 * D2O
 * OpenVDB
 
-Supported isosurface object types:
+**Supported isosurface object types:**
 * [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format))
 * [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
 
