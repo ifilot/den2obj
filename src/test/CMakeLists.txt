@@ -46,7 +46,7 @@ set_tests_properties(DatasetCleanup PROPERTIES FIXTURES_CLEANUP Dataset)
 
 # configure common settings for test executables
 foreach(testexec ${EXECUTABLES})
-    target_link_libraries(${testexec} unittest den2objsources ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${CPPUNIT_LIB} -lgcov)
+    target_link_libraries(${testexec} unittest den2objsources ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${CPPUNIT_LIB} -lgcov z)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})
     set_tests_properties(${testexec} PROPERTIES FIXTURES_REQUIRED Dataset)
