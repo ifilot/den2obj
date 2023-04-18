@@ -28,12 +28,16 @@
 #include <sstream>
 #include <fstream>
 #include <math.h>
+#include <exception>
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
 #include "float_parser.h"
@@ -56,6 +60,13 @@ enum class OpenVDB_METHOD {
 };
 #endif // MOD_OPENVDB
 
+enum class ScalarFieldInputFileType {
+    SFF_CHGCAR,
+    SFF_PARCHG,
+    SFF_LOCPOT,
+    SFF_CUB,
+    SFF_D2O
+};
 
 class ScalarField{
 private:
@@ -99,7 +110,7 @@ public:
      * @param[in]  _flag_is_locpot  whether this file is a locpot
      * @param[in]  _is_bin          is binary file
      */
-    ScalarField(const std::string &_filename, bool _flag_is_locpot = false, bool _is_bin = false);
+    ScalarField(const std::string &_filename, ScalarFieldInputFileType file_type);
 
     #ifdef MOD_OPENVDB
     /**
@@ -110,6 +121,11 @@ public:
      */
     void write_to_vdb(const std::string& filename, OpenVDB_METHOD method) const;
     #endif // MOD_OPENVDB
+
+    /**
+     * @brief      Write to a binary D2O file
+     */
+    void write_d2o_binary(const std::string filename);
 
     /*
      * @brief output()
@@ -214,6 +230,10 @@ public:
 
     inline const fpt* get_grid_ptr() const {
         return &this->gridptr[0];
+    }
+
+    inline const auto& get_grid() const {
+        return this->gridptr;
     }
 
     unsigned int get_size() const {
@@ -321,9 +341,9 @@ private:
     fpt get_max_direction(unsigned int dim);
 
     /**
-     * @brief      Load a binary file
+     * @brief      Load a binary D2O file
      */
-    void load_binary();
+    void load_d2o_binary();
 
     /**
      * @brief      Load a cube file

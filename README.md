@@ -18,7 +18,8 @@ Converts VASP density files (i.e. CHGCAR / PARCHG) or a Gaussian cube file to a 
 
 Getting the dependencies
 ```
-sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev
+sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
+pkg-config libcppunit-dev libeigen3-dev
 ```
 
 To compile, run the following commands:
@@ -36,8 +37,10 @@ make -j5
 The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the Threading Building Blocks (`libtbb`) library. To solve this, manually compile and install OpenVDB 8.2 using the following instructions.
 
 ```
-get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
-mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb && make -j9 && sudo make install
+get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz
+tar -xvzf v8.2.0.tar.gz
+mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb
+make -j9 && sudo make install
 ```
 
 Thereafter, clone, configure and compile Den2Obj and link against OpenVDB 8.2.
@@ -64,40 +67,41 @@ Example:
 ./den2obj -i CHGCAR -o orbital.obj -v 0.1
 ```
 
-Example output:
-```
---------------------------------------------------------------
-Executing DEN2OBJ v.0.4.0
-Author: Ivo Filot <i.a.w.filot@tue.nl>
-Website: https://github.com/ifilot/den2obj
---------------------------------------------------------------
-Using isovalue: 0.1
-Identified 1608 faces.
-Writing to orbital.obj
---------------------------------------------------------------
-Done in 0.0177371 seconds.
-```
-
 ## Options
 
 * `-c`: Center the structure, i.e. the center of the structure is placed at the origin of the coordinate system.
-* `-p`: Write output as a binary `.ply` file rather than `.obj` file. The program automatically detects the [endianness](https://en.wikipedia.org/wiki/Endianness) of your system.
-* `-d`: Write output as an OpenVDB file. This directive overrules the `p` directive.
-* `-b`: Read from cube source rather than `CHGCAR` or `PARCHG` file (read about the format of this [binary file](#binary-source) below!).
+* `-t`: Converts one file format to another. File formats are auto-recognized based on the extensions.
 
-### OpenVDB files
+### Conversions
 
-Example:
+Converting CHGCAR to OpenVDB
 ```
-./den2obj -i <CUBFILE> -d -m <METHOD> -o <OUTFILE>
+./den2obj -i CHGCAR_xxx -o xxx.vdb -t
 ```
 
-Use one of the following methods:
-* absolute
-* absolute_log
-* positive
-* negative
-* positive_log
-* negative_log
+Converting CHGCAR to D2O
+```
+./den2obj -i CHGCAR_xxx -o xxx.d2o -t
+```
 
-Recommended settings for molecular orbitals are using `positive` and `negative` for the two lobes. When rendering purely the electron density, it is recommended to use `absolute`.
+**Supported input types:**
+* CHGCAR
+* PARCHG
+* LOCPOT
+* Gaussian cube (.cub)
+* D2O files (.d2o)
+
+**Supported dense output types:**
+* D2O
+* OpenVDB
+
+**Supported isosurface object types:**
+* [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format))
+* [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
+
+## D2O file format
+
+The D2O file format is native to `Den2Obj`. This file format stores the scalarfield
+in binary format and uses compression to generate small files which are fast to
+read from. More information on the file format can be found in the
+[documentation](https://den2obj.imc-tue.nl).
