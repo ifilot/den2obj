@@ -96,12 +96,16 @@ int main(int argc, char* argv[]) {
 
         // check whether only a conversion is requested, if not, continue
         if(arg_t.getValue()) {
-            if(output_filename.substr(input_filename.size()-4) == ".d2o") {
+            if(output_filename.substr(output_filename.size()-4) == ".d2o") {
+                sf->read();
                 sf->write_d2o_binary(output_filename);
+                std::cout << "Writing as D2O binary file." << std::endl;
             }
             #ifdef MOD_OPENVDB
-            else if(output_filename.substr(input_filename.size()-6) == ".openvdb") {
+            else if(output_filename.substr(output_filename.size()-4) == ".vdb") {
+                sf->read();
                 sf->write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+                std::cout << "Writing as OpenVDB file." << std::endl;
             }
             #endif
             else {
@@ -121,18 +125,20 @@ int main(int argc, char* argv[]) {
             is.marching_cubes(isovalue);
 
             // store path to extract filename
-            boost::filesystem::path path(input_filename);
+            boost::filesystem::path path(output_filename);
 
             // construct mesh storage object
             IsoSurfaceMesh ism(sf.get(), &is);
             ism.construct_mesh(arg_c.getValue());
 
             if(output_filename.substr(output_filename.size()-4) == ".obj") {
+                std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
                 ism.write_obj(output_filename, path.filename().string(), path.filename().string());
             } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
+                std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
                 ism.write_ply(output_filename, path.filename().string(), path.filename().string());
             } else {
-                std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+                throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
             }
         }
 
