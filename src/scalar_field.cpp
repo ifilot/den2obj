@@ -719,56 +719,141 @@ Vec3 ScalarField::get_atom_position(unsigned int atid) const {
  */
 void ScalarField::load_d2o_binary() {
     std::ifstream infile(filename, std::ios::binary);
+    char buf[3];
+    infile.read(buf, 3);
 
-    // read data size
-    this->gridsize = 1.0;
+    if(std::string(buf,3) != "D2O") {
+        throw std::runtime_error("File does not start with token D2O.");
+    }
+
+    // read matrix
     for(unsigned int i=0; i<3; i++) {
         for(unsigned int j=0; j<3; j++) {
-            this->mat(i,j) = 0.0;
+            float val = 0.0;
+            infile.read((char*)&val, sizeof(float));
+            this->mat(i,j) = val;
         }
-        uint16_t nx = 0;
-        infile.read((char*)&nx, sizeof(uint16_t));
-        this->mat(i,i) = nx;
-        this->grid_dimensions[i] = nx;
-        this->gridsize *= nx;
     }
 
     // create inverse and calculate volume
     this->imat = this->mat.inverse();
     this->volume = this->mat.determinant();
 
-    // prepare vector
-    this->gridptr.resize(this->gridsize);
-
-    // read float type
-    uint16_t nx = 0;
-    infile.read((char*)&nx, sizeof(uint16_t));
-    if(nx == sizeof(float)) {   // directly load into vector
-        infile.read((char*)&this->gridptr[0], sizeof(float) * this->gridsize);
-    } else if(nx == sizeof(double)) {   // convert to double and load
-        double val = 0.0;
-        std::cout << "Reading " << this->gridsize << " values." << std::endl;
-        for(unsigned int i=0; i<this->gridsize; i++) {
-            infile.read((char*)&val, sizeof(double));
-            this->gridptr[i] = (float)val;
-        }
-    } else {    // throw error
-        throw std::runtime_error("Invalid data type when reading binary file.");
+    // read number of data points
+    for(unsigned int i=0; i<3; i++) {
+        uint32_t sz = 0;
+        infile.read((char*)&sz, sizeof(uint32_t));
+        this->grid_dimensions[i] = sz;
     }
 
-    infile.close();
+    // read floating point size
+    uint8_t fptsz = 0;
+    infile.read((char*)&fptsz, sizeof(uint8_t));
+    std::cout << "Recognizing floating point size: " << (int)fptsz << " bytes." << std::endl;
+
+    if(sizeof(fpt) != fptsz) {
+        throw std::runtime_error("Invalid floating point size. Incompatible with current grid pointer floating point type.");
+    }
+
+    // prepare vector
+    this->gridsize = this->grid_dimensions[0] * grid_dimensions[1] * grid_dimensions[2];
+    this->gridptr.resize(this->gridsize);
+
+    // read data size
+    uint64_t compdatasize = 0;
+    infile.read((char*)&compdatasize, sizeof(uint64_t));
+    std::cout << "Reading " << compdatasize << " bytes from file." << std::endl;
+
+    // read data
+    char* data = new char[compdatasize];
+    infile.read(data, compdatasize);
+
+    // decompress
+    std::istringstream compressed(std::string(data, compdatasize));
+    std::cout << "Building decompressor" << std::endl;
+    boost::iostreams::filtering_istreambuf in;
+    in.push(boost::iostreams::gzip_decompressor());
+
+    std::cout << "Decompressed data" << std::endl;
+    in.push(compressed);
+
+    std::ostringstream origin;
+    boost::iostreams::copy(in, origin);
+    const std::string gridptrdata = origin.str();
+    memcpy(&this->gridptr[0], gridptrdata.data(), this->gridptr.size() * sizeof(fpt));
 
     this->scalar = 1.0;
-
     this->has_read = true;
     this->header_read = true;
+
+    // clean up
+    delete[] data;
+    infile.close();
+
+    std::cout << "Done reading D2O binary file" << std::endl;
+    std::cout << "Read " << this->gridptr.size() << " values." << std::endl;
 }
 
 /**
  * @brief      Write to a binary file
  */
 void ScalarField::write_d2o_binary(const std::string filename) {
+    std::ofstream outfile(filename, std::ios::binary);
+    char buf[] = "D2O";
+    outfile.write(buf, 3);
 
+    // write unit cell matrix
+    for(unsigned int i=0; i<3; i++) {
+        for(unsigned int j=0; j<3; j++) {
+            float val = this->mat(i,j);
+            outfile.write((char*)&val, sizeof(float));
+        }
+    }
+
+    // write number of data points
+    for(unsigned int i=0; i<3; i++) {
+        uint32_t sz = this->grid_dimensions[i];
+        outfile.write((char*)&sz, sizeof(uint32_t));
+    }
+
+    // write floating point size
+    uint8_t fptsz = sizeof(fpt);
+    outfile.write((char*)&fptsz, sizeof(uint8_t));
+
+    std::cout << "Floating point size determined at: " << (int)fptsz << " bytes" << std::endl;
+
+    // compressing stream
+    size_t gridptrsz = this->gridptr.size() * sizeof(fpt);
+    char* data = new char[gridptrsz];
+    memcpy(data, &this->gridptr[0], gridptrsz);
+    std::istringstream origin(std::string(data, gridptrsz));
+    boost::iostreams::filtering_istreambuf in;
+    in.push(
+        boost::iostreams::gzip_compressor(
+            boost::iostreams::gzip_params(
+                boost::iostreams::gzip::best_compression
+            )
+        )
+    );
+    in.push(origin);
+
+    // store compression
+    std::ostringstream compressed;
+    boost::iostreams::copy(in, compressed);
+
+    // output to file
+    const std::string griddata = compressed.str();
+    uint64_t sz = griddata.size();
+    std::cout << "Compressed data to " << sz << " bytes ("
+        << (float)sz / gridptrsz * 100 << " %)" << std::endl;
+
+    // write data size and data
+    outfile.write((char*)&sz, sizeof(uint64_t));
+    outfile.write(griddata.data(), griddata.size());
+
+    // clean up
+    delete[] data;
+    outfile.close();
 }
 
 /**

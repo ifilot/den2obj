@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
             sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CUB);
         } else if(input_filename.substr(input_filename.size()-4) == ".d2o") {
-            std::cout << "Opening " << input_filename << " as D2O binary file";
+            std::cout << "Opening " << input_filename << " as D2O binary file" << std::endl;
             sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_D2O);
         } else if(input_filename.substr(0,6) == "CHGCAR") {
             std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;

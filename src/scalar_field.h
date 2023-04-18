@@ -28,12 +28,16 @@
 #include <sstream>
 #include <fstream>
 #include <math.h>
+#include <exception>
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
 #include "float_parser.h"
