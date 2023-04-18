@@ -93,6 +93,33 @@ public:
      */
     void write_ply(const std::string& filename, const std::string& header, const std::string& name);
 
+    /**
+     * @brief      get the vertices
+     *
+     * @return     vertices
+     */
+    inline const auto& get_vertices() const {
+        return this->vertices;
+    }
+
+    /**
+     * @brief      get the normals
+     *
+     * @return     normals
+     */
+    inline const auto& get_normals() const {
+        return this->normals;
+    }
+
+    /**
+     * @brief      get the texcoords
+     *
+     * @return     texcoords
+     */
+    inline const auto& get_texcoords() const {
+        return this->texcoords;
+    }
+
 private:
     /**
      * @brief      get the index of a vertex from unordered map

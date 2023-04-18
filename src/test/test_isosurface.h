@@ -22,19 +22,31 @@
 #define _TEST_ISOSURFACE
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <memory>
+#include <unistd.h>
+#include <filesystem>
 
 #include "scalar_field.h"
+#include "isosurface.h"
+#include "isosurface_mesh.h"
 
 class TestIsosurface : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestIsosurface );
+  CPPUNIT_TEST( test_marching_cubes );
+  CPPUNIT_TEST( test_obj );
+  CPPUNIT_TEST( test_ply );
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp();
-  void tearDown();
+    void setUp();
+    void test_marching_cubes();
+    void test_obj();
+    void test_ply();
+    void tearDown();
 
 private:
+    std::unique_ptr<ScalarField> sf;
 };
 
 #endif  // _TEST_ISOSURFACE
