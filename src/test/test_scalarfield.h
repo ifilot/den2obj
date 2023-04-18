@@ -36,6 +36,7 @@ public:
   void tearDown();
 
   void testReading();
+  void testD2OFileFormat();
 
 private:
 };

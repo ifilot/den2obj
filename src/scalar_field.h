@@ -232,6 +232,10 @@ public:
         return &this->gridptr[0];
     }
 
+    inline const auto& get_grid() const {
+        return this->gridptr;
+    }
+
     unsigned int get_size() const {
         return this->gridptr.size();
     }

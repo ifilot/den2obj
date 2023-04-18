@@ -718,12 +718,23 @@ Vec3 ScalarField::get_atom_position(unsigned int atid) const {
  * @brief      Load a binary file
  */
 void ScalarField::load_d2o_binary() {
+    // read file format token
     std::ifstream infile(filename, std::ios::binary);
     char buf[3];
     infile.read(buf, 3);
 
+    // verify token id
     if(std::string(buf,3) != "D2O") {
         throw std::runtime_error("File does not start with token D2O.");
+    }
+
+    // verify protocol id
+    uint32_t protocol_id = 0;
+    infile.read((char*)&protocol_id, sizeof(uint32_t));
+
+    // check token id
+    if(protocol_id != 1) {
+        throw std::runtime_error("Invalid token ID for D2O binary.");
     }
 
     // read matrix
@@ -798,9 +809,14 @@ void ScalarField::load_d2o_binary() {
  * @brief      Write to a binary file
  */
 void ScalarField::write_d2o_binary(const std::string filename) {
+    // write file format token
     std::ofstream outfile(filename, std::ios::binary);
     char buf[] = "D2O";
     outfile.write(buf, 3);
+
+    // write protocol id
+    uint32_t protocol_id = 1;
+    outfile.write((char*)&protocol_id, sizeof(uint32_t));
 
     // write unit cell matrix
     for(unsigned int i=0; i<3; i++) {
