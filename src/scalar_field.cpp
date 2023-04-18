@@ -27,7 +27,7 @@
  * @param[in]  _flag_is_locpot  whether this file is a locpot
  * @param[in]  _is_bin          is binary file
  */
-ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, bool _is_bin) :
+ScalarField::ScalarField(const std::string &_filename, ScalarFieldInputFileType file_type) :
     filename(_filename),
     trans(0.0, 0.0, 0.0)
 {
@@ -35,16 +35,37 @@ ScalarField::ScalarField(const std::string &_filename, bool _flag_is_locpot, boo
         throw std::runtime_error("Cannot open " + this->filename + "!");
     }
 
-    if(this->filename.substr(this->filename.size()-4) == ".cub") {
-        this->load_cube_file();
-    } else if(_is_bin) {
-        this->load_binary();
-    } else {
-        this->scalar = -1;
-        this->vasp5_input = false;
-        this->has_read = false;
-        this->header_read = false;
-        this->flag_is_locpot = _flag_is_locpot;
+    switch(file_type) {
+        case ScalarFieldInputFileType::SFF_CHGCAR:
+            this->scalar = -1;
+            this->vasp5_input = false;
+            this->has_read = false;
+            this->header_read = false;
+            this->flag_is_locpot = false;
+        break;
+        case ScalarFieldInputFileType::SFF_PARCHG:
+            this->scalar = -1;
+            this->vasp5_input = false;
+            this->has_read = false;
+            this->header_read = false;
+            this->flag_is_locpot = false;
+        break;
+        case ScalarFieldInputFileType::SFF_LOCPOT:
+            this->scalar = -1;
+            this->vasp5_input = false;
+            this->has_read = false;
+            this->header_read = false;
+            this->flag_is_locpot = true;
+        break;
+        case ScalarFieldInputFileType::SFF_CUB:
+            this->load_cube_file();
+        break;
+        case ScalarFieldInputFileType::SFF_D2O:
+            this->load_d2o_binary();
+        break;
+        default:
+            throw std::runtime_error("Unknown file type.");
+        break;
     }
 }
 
@@ -696,7 +717,7 @@ Vec3 ScalarField::get_atom_position(unsigned int atid) const {
 /**
  * @brief      Load a binary file
  */
-void ScalarField::load_binary() {
+void ScalarField::load_d2o_binary() {
     std::ifstream infile(filename, std::ios::binary);
 
     // read data size
@@ -741,6 +762,13 @@ void ScalarField::load_binary() {
 
     this->has_read = true;
     this->header_read = true;
+}
+
+/**
+ * @brief      Write to a binary file
+ */
+void ScalarField::write_d2o_binary(const std::string filename) {
+
 }
 
 /**
