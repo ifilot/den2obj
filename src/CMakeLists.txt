@@ -27,8 +27,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
-SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "6")
+SET(VERSION_MAJOR "1")
+SET(VERSION_MINOR "0")
 SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
@@ -90,7 +90,7 @@ add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES})
+target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES} z)
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

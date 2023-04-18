@@ -30,7 +30,7 @@ void TestScalarField::tearDown() {
 
 void TestScalarField::testReading() {
     // create scalar field
-    ScalarField sf("CHGCAR_CH4", false, false);
+    ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
     CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
 
     // read atoms and check this

@@ -67,7 +67,7 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
 
     double dev = 0.01;
     this->normals.resize(this->vertices.size());
-    std::cout << this->normals.size() << std::endl;
+    // std::cout << this->normals.size() << std::endl;
 
     // calculate normal vectors
     std::cout << "Calculating normal vectors using two-point stencil" << std::endl;
