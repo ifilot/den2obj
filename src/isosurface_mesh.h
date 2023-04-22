@@ -94,6 +94,13 @@ public:
     void write_ply(const std::string& filename, const std::string& header, const std::string& name);
 
     /**
+     * @brief      write as binary stl file
+     *
+     * @param[in]  filename  The filename
+     */
+    void write_stl(const std::string& filename);
+
+    /**
      * @brief      get the vertices
      *
      * @return     vertices

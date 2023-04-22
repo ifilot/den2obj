@@ -116,3 +116,23 @@ void TestIsosurface::test_ply() {
     // because .ply files are written in binary form, their size is fixed
     CPPUNIT_ASSERT_EQUAL((size_t)408588, std::filesystem::file_size(fname));
 }
+
+void TestIsosurface::test_stl() {
+    // construct isosurface
+    IsoSurface is(this->sf.get());
+    is.marching_cubes(0.01);
+
+    // construct mesh storage object
+    IsoSurfaceMesh ism(sf.get(), &is);
+    ism.construct_mesh(true);
+
+    std::string fname = "ch4.stl";
+    if(std::filesystem::exists(fname)) {
+        std::filesystem::remove(fname);
+    }
+    ism.write_stl(fname);
+    CPPUNIT_ASSERT(std::filesystem::exists(fname));
+
+    // because .stl files are written in binary form, their size is fixed
+    CPPUNIT_ASSERT_EQUAL((size_t)816484, std::filesystem::file_size(fname));
+}
