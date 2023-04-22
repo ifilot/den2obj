@@ -137,6 +137,9 @@ int main(int argc, char* argv[]) {
             } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
                 std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
                 ism.write_ply(output_filename, path.filename().string(), path.filename().string());
+            } else if(output_filename.substr(output_filename.size()-4) == ".stl") {
+                std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
+                ism.write_stl(output_filename);
             } else {
                 throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
             }
