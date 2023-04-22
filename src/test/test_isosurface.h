@@ -36,6 +36,7 @@ class TestIsosurface : public CppUnit::TestFixture
   CPPUNIT_TEST( test_marching_cubes );
   CPPUNIT_TEST( test_obj );
   CPPUNIT_TEST( test_ply );
+  CPPUNIT_TEST( test_stl );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,7 @@ public:
     void test_marching_cubes();
     void test_obj();
     void test_ply();
+    void test_stl();
     void tearDown();
 
 private:

@@ -145,12 +145,12 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
  */
 void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& header, const std::string& name) {
     std::cout << "Writing as Wavefront (.obj) file: " << filename << std::endl;
-    std::ofstream myfile(filename);
+    std::ofstream outfile(filename);
 
-    myfile << "# " << header << std::endl;
-    myfile << "# Created by den2obj" << std::endl;
-    myfile << "# https://github.com/ifilot/den2obj" << std::endl;
-    myfile << "o " << name << std::endl;
+    outfile << "# " << header << std::endl;
+    outfile << "# Created by den2obj" << std::endl;
+    outfile << "# https://github.com/ifilot/den2obj" << std::endl;
+    outfile << "o " << name << std::endl;
 
     // calculate number of threads
     size_t nrthreads = omp_get_max_threads();
@@ -184,7 +184,7 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
 
     // merge results
     for(unsigned int i=0; i<nrthreads; i++) {
-        myfile << local[i].str();
+        outfile << local[i].str();
         local[i].str(std::string());    // clear stringstream
     }
 
@@ -216,11 +216,11 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
 
     // merge results
     for(unsigned int i=0; i<nrthreads; i++) {
-        myfile << local[i].str();
+        outfile << local[i].str();
         local[i].str(std::string());    // clear stringstream
     }
 
-    myfile << "s off" << std::endl;
+    outfile << "s off" << std::endl;
 
     // parallel writing faces
 
@@ -252,10 +252,10 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
 
     // merge results
     for(unsigned int i=0; i<nrthreads; i++) {
-        myfile << local[i].str();
+        outfile << local[i].str();
     }
 
-    myfile.close();
+    outfile.close();
 }
 
 /**
@@ -267,41 +267,109 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
  */
 void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& header, const std::string& name) {
     std::cout << "Writing as Stanford (.ply) file: " << filename << std::endl;
-    std::ofstream myfile(filename, std::ios::binary);
+    std::ofstream outfile(filename, std::ios::binary);
 
-    myfile << "ply" << std::endl;
+    outfile << "ply" << std::endl;
     if(is_big_endian()) {
-        myfile << "format binary_big_endian 1.0" << std::endl;
+        outfile << "format binary_big_endian 1.0" << std::endl;
     } else {
-        myfile << "format binary_little_endian 1.0" << std::endl;
+        outfile << "format binary_little_endian 1.0" << std::endl;
     }
 
-    myfile << "comment test" << std::endl;
-    myfile << "element vertex " << this->vertices.size() << std::endl;
-    myfile << "property float x" << std::endl;
-    myfile << "property float y" << std::endl;
-    myfile << "property float z" << std::endl;
-    myfile << "property float nx" << std::endl;
-    myfile << "property float ny" << std::endl;
-    myfile << "property float nz" << std::endl;
-    myfile << "element face " << (this->indices.size() / 3) << std::endl;
-    myfile << "property list uchar uint vertex_indices" << std::endl;
-    myfile << "end_header" << std::endl;
+    outfile << "comment test" << std::endl;
+    outfile << "element vertex " << this->vertices.size() << std::endl;
+    outfile << "property float x" << std::endl;
+    outfile << "property float y" << std::endl;
+    outfile << "property float z" << std::endl;
+    outfile << "property float nx" << std::endl;
+    outfile << "property float ny" << std::endl;
+    outfile << "property float nz" << std::endl;
+    outfile << "element face " << (this->indices.size() / 3) << std::endl;
+    outfile << "property list uchar uint vertex_indices" << std::endl;
+    outfile << "end_header" << std::endl;
 
     // output vertex positions and normals
     for(unsigned int i=0; i<this->vertices.size(); i++) {
-        myfile.write((char*)&this->vertices[i][0], sizeof(float) * 3);
-        myfile.write((char*)&this->normals[i][0], sizeof(float) * 3);
+        outfile.write((char*)&this->vertices[i][0], sizeof(float) * 3);
+        outfile.write((char*)&this->normals[i][0], sizeof(float) * 3);
     }
 
     // write indices
     static const uint8_t uchar_three = 3;
     for(unsigned int i=0; i<this->indices.size(); i+=3) {
-        myfile.write((char*)&uchar_three, sizeof(uint8_t));
-        myfile.write((char*)&this->indices[i], sizeof(unsigned int) * 3);
+        outfile.write((char*)&uchar_three, sizeof(uint8_t));
+        outfile.write((char*)&this->indices[i], sizeof(unsigned int) * 3);
     }
 
-    myfile.close();
+    outfile.close();
+}
+
+/**
+ * @brief      write as binary stl file
+ *
+ * @param[in]  filename  The filename
+ */
+void IsoSurfaceMesh::write_stl(const std::string& filename) {
+    std::cout << "Writing as Stereolithography (.stl) file: " << filename << std::endl;
+    std::ofstream outfile(filename, std::ios::binary);
+
+    // for writing the header line
+    static const char zerobyte = '\0';
+
+    // write empty header of 80 bytes
+    for(unsigned int i=0; i<80; i++) {
+        outfile.write(&zerobyte, 1);
+    }
+
+    // write number of triangles
+    uint32_t nr_triangles = this->indices.size() / 3;
+    outfile.write((char*)&nr_triangles, sizeof(uint32_t));
+
+    // for writing the attribute line
+    static const uint16_t empty_attribute = 0;
+
+    // loop over triangles
+    for(unsigned int i=0; i<this->indices.size(); i+=3) {
+        const unsigned int idx1 = this->indices[i];
+        const unsigned int idx2 = this->indices[i+1];
+        const unsigned int idx3 = this->indices[i+2];
+
+        // The normals are based on the gradient of the underlying scalar
+        // field and stored at the vertices. For STL files, the normal of
+        // the faces is required. From the vertex normals, we take the sum
+        // to get an approximation of the face normal. We calculate the normal
+        // by taking the cross product of two triangle edges. Since the order
+        // of the cross product determines the direction (sign), we multiply
+        // that answer with the sign of the dot product with the sum of the
+        // vertex normals. This will automatically flip the normal such that
+        // it will point outwards.
+
+        // calculate normal vector based on vertex normals
+        Vec3 normal = (this->normals[idx1] +
+                       this->normals[idx2] +
+                       this->normals[idx3]);
+
+        // calculate normal vector based on edges
+        Vec3 edge1 = this->vertices[idx2] - this->vertices[idx1];
+        Vec3 edge2 = this->vertices[idx3] - this->vertices[idx1];
+        Vec3 normal_cross = (edge1.cross(edge2)).normalized();
+
+        // flip outwards if necessary
+        normal_cross *= sgn(normal.dot(normal_cross));
+
+        // write normal vector
+        outfile.write((char*)&normal_cross[0], 3 * sizeof(fpt));
+
+        // write vertices
+        outfile.write((char*)&vertices[idx1][0], 3 * sizeof(fpt));
+        outfile.write((char*)&vertices[idx2][0], 3 * sizeof(fpt));
+        outfile.write((char*)&vertices[idx3][0], 3 * sizeof(fpt));
+
+        // write empty attribute value
+        outfile.write((char*)&empty_attribute, sizeof(uint16_t));
+    }
+
+    outfile.close();
 }
 
 /**
