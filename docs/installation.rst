@@ -77,3 +77,33 @@ Testing
 To test :program:`Den2Obj`, one can run the following after compilation::
 
 	make test
+
+A succesfull test should produce an output similar to the one found below::
+
+    Running tests...
+    Test project /mnt/d/PROGRAMMING/CPP/den2obj/build
+        Start 1: DatasetSetup
+    1/5 Test #1: DatasetSetup .....................   Passed    1.16 sec
+        Start 3: TestIsosurface
+    2/5 Test #3: TestIsosurface ...................   Passed    0.37 sec
+        Start 4: TestScalarField
+    3/5 Test #4: TestScalarField ..................   Passed    0.41 sec
+        Start 5: TestD2OFileFormat
+    4/5 Test #5: TestD2OFileFormat ................   Passed    0.10 sec
+        Start 2: DatasetCleanup
+    5/5 Test #2: DatasetCleanup ...................   Passed    0.00 sec
+
+    100% tests passed, 0 tests failed out of 5
+
+    Total Test time (real) =   2.16 sec
+
+If the test is for some reason failing, one can run the following to produce
+more output::
+
+    CTEST_OUTPUT_ON_FAILURE=TRUE make test
+
+
+.. note::
+
+    If the tests are continously failing for you, you are warmly invited
+    to `open an issue on the Github page <https://github.com/ifilot/den2obj/issues>`_.
