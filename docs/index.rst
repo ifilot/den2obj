@@ -6,6 +6,15 @@
 Den2Obj - A command line program for producing isosurfaces from density files
 =============================================================================
 
+.. image:: https://img.shields.io/github/v/tag/ifilot/den2obj?label=version
+   :alt: GitHub tag (latest SemVer)
+.. image:: https://github.com/ifilot/den2obj/actions/workflows/build.yml/badge.svg
+   :target: https://github.com/ifilot/den2obj/actions/workflows/build.yml
+.. image:: https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml/badge.svg
+   :target: https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+   :target: https://www.gnu.org/licenses/gpl-3.0
+
 :program:`Den2Obj` is a command-line tool that construct isosurfaces from
 densely packed scalar fields. :program:`Den2Obj` supports VASP charge files
 such as CHGCAR and PARCHG, Gaussian .cube files as well as its own
