@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Background &mdash; Den2Obj  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Den2Obj
+              <img src="_static/den2obj_logo_128.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d2o_fileformat.html">D2O File Format</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Den2Obj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div style="text-align: right;">
+<a href="https://github.com/ifilot/den2obj" target="_blank"><i class="fa-brands fa-github"></i> Github</a>
+</div>
+<hr>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <span class="target" id="background"></span><section id="index-0">
+<span id="id1"></span><h1>Background<a class="headerlink" href="#index-0" title="Permalink to this heading"></a></h1>
+<p>Below, a brief explanation on isosurface construction is given. A more technical
+description can be found on the <a class="reference external" href="http://paulbourke.net/geometry/polygonise/">excellent website of Paul Bourke</a>.</p>
+<p>Isosurfaces are built by picking a single representative value termed the
+isovalue and finding all points in the domain under consideration which have
+this value. These points are stitched together to construct a three-dimensional
+surface.</p>
+<p>The construction of isosurfaces, i.e. the set of points that (by approximation)
+are all associated to the same value of a function, is done using an algorithm
+called the <a class="reference external" href="https://en.wikipedia.org/wiki/Marching_cubes">marching cubes algorithm</a>. In this algorithm, the first
+step is to define a grid consisting of a set of points on which the function
+under inspection is being probed. This grid is typically an equidistant grid in
+three dimensions.</p>
+<p>The grid naturally divides the space wherein the function is evaluated into a
+series of cells wherein each cell contains 8 vertices. For each of the 8
+vertices in each cell, it is determined whether the value of the function is
+larger or smaller than the isovalue. If for one vertex the value is larger than
+the isovalue and for another vertex the value smaller than the isovalue, then
+the isosurface has to cut the edge that shares the two vertices. A schematic
+depiction of this situation is given in Figure 1.</p>
+<figure class="align-default" id="id2">
+<img alt="Schematic depiction of cube intersections." src="_images/cube_intersection.jpg" />
+<figcaption>
+<p><span class="caption-text"><strong>Figure 1</strong>: A triangle that is part of an isosurface. For each of the vertices
+on triangle, the point corresponds to the isovalue. These points lie on
+the edges 1, 4, and 5 (green numbers) and are found by probing whether the
+values at the cube vertices 1-2, 1-4, and 1-5, lie on opposite sides of the
+isovalue.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Given eight vertices per cube, there are only <span class="math notranslate nohighlight">\(2^{8}=256\)</span> possibilities of
+how a scalar field can interact with each cube. These possibilities are shown
+in Figure 2. Note that within this set of 256 possibilities, there are only 15
+unique results as the majority of the results are linked by a symmetry
+operation such as a rotation. All these 256 different ways by which the scalar
+field can interact with each cell are stored in a pre-calculated table by which
+the resulting list of edge intersections and the polygons that originate from
+these intersections can be readily found. The exact position where the
+isosurface intersects each edge is determined using trilinear interpolation.</p>
+<figure class="align-default" id="id3">
+<img alt="Complete set of possible intersections." src="_images/marching_cubes.png" />
+<figcaption>
+<p><span class="caption-text"><strong>Figure 2</strong>: The 256 possible ways that a scalar field can interact with
+each cube.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>To repeat on this. First the space wherein the function is evaluated is
+discretized into small cubes. Next, for each vertex on these cubes the function
+is evaluated and it is determined whether the value for the function at each of
+the vertices is larger or smaller than the isovalue. This leads to a number of
+edge intersections for each cube from which the polygons (triangles) for each
+cube can be established. As a final step, all polygons are gathered to form the
+threedimensional isosurface. It should be noted that this algorithm can be
+executed in a highly efficient fashion using trivial parallellization as the
+result for each cube is completely independent from all the other cubes. It
+turns out that the generation of the scalar field, which by itself is also a
+highly parallellizable step, is typically the most time-consuming.</p>
+<p>The quality of the isosurface depends on the resolution of the grid used to
+sample the scalar field. The finer the grid (or mesh) used, the better the
+quality of the isosurface. Of course, a finer mesh comes at the expense of more
+values that need to evaluated in the algorithm.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Inorganic Materials and Catalysis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

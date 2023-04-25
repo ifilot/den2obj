@@ -4,9 +4,9 @@ build:
   stage: build
   tags:
     - debian-build
-  before_script: 
-    - apt update && apt -y install build-essential libboost-all-dev cmake libtclap-dev libglm-dev pkg-config
-  script: 
+  before_script:
+    - apt update && apt -y install build-essential libboost-all-dev cmake libtclap-dev libglm-dev pkg-config libopenvdb-dev libtbb-dev
+  script:
     - mkdir build
     - cd build
     - cmake ../src

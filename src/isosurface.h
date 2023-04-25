@@ -29,6 +29,7 @@
 #include "edgetable.h"
 #include "triangletable.h"
 #include "scalar_field.h"
+#include "math.h"
 
 #define PRECISION_LIMIT 0.000000001
 
@@ -62,7 +63,7 @@ public:
     unsigned int get_cube_index() const;
 
     float get_value_from_vertex(unsigned int _p) const;
-    glm::vec3 get_position_from_vertex(unsigned int _p) const;
+    Vec3 get_position_from_vertex(unsigned int _p) const;
 };
 
 /*
@@ -88,7 +89,7 @@ private:
     unsigned int i,j,k;     //!< starting position of the cube
     float values[4];
     unsigned int tetidx;    //!< cubeindex (whether there is an intersection)
-    glm::vec3 pos[4];       //!< coordinates of the gridpoints
+    Vec3 pos[4];       //!< coordinates of the gridpoints
 
 public:
     Tetrahedron(unsigned int _i, unsigned int _j, unsigned int _k, const ScalarField &_vp, unsigned int _pos);
@@ -99,16 +100,16 @@ public:
 
     float get_value_from_vertex(unsigned int _p) const;
 
-    const glm::vec3& get_position_from_vertex(unsigned int _p) const;
+    const Vec3& get_position_from_vertex(unsigned int _p) const;
 };
 
 class Triangle{
 public:
-    glm::vec3 p1, p2, p3;
+    Vec3 p1, p2, p3;
 
     Triangle();
 
-    Triangle(const glm::vec3 &_p1, const glm::vec3 &_p2, const glm::vec3 &_p3);
+    Triangle(const Vec3 &_p1, const Vec3 &_p2, const Vec3 &_p3);
 
     void transform_to_real(const ScalarField &_vp);
 
@@ -130,7 +131,7 @@ private:
     std::vector<Tetrahedron> tetrahedra_table;
     std::vector<Triangle> triangles;
     ScalarField *vp_ptr;                // pointer to ScalarField obj
-    unsigned int grid_dimensions[3];
+    std::array<unsigned int,3> grid_dimensions;
     float isovalue;                     // isovalue setting
 
 public:
@@ -175,8 +176,8 @@ private:
     void sample_grid_with_tetrahedra(float _isovalue);
     void construct_triangles_from_cubes(float _isovalue);
     void construct_triangles_from_tetrahedra(float _isovalue);
-    glm::vec3 interpolate_from_cubes(const Cube &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
-    glm::vec3 interpolate_from_tetrahedra(const Tetrahedron &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
+    Vec3 interpolate_from_cubes(const Cube &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
+    Vec3 interpolate_from_tetrahedra(const Tetrahedron &_cub, unsigned int _p1, unsigned int _p2, float _isovalue);
 };
 
 #endif //_ISOSURFACE_H

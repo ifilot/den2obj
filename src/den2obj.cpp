@@ -44,17 +44,15 @@ int main(int argc, char* argv[]) {
         cmd.add(arg_output_filename);
 
         // isovalue
-        TCLAP::ValueArg<float> arg_isovalue("v","isovalue","Isovalue",true,0.1,"float");
+        TCLAP::ValueArg<double> arg_isovalue("v", "isovalue", "Isovalue", false, 0.01, "double");
         cmd.add(arg_isovalue);
 
         // whether to center the wavefront object
         TCLAP::SwitchArg arg_c("c","center","center structure", cmd, false);
 
-        // whether input file is binary
-        TCLAP::SwitchArg arg_b("b","binary","binary file", cmd, false);
-
-        // whether to write to ply or to wavefront file
-        TCLAP::SwitchArg arg_p("p","ply","ply file", cmd, false);
+        // whether to transform the data carrier to another format, useful for converting CHGCAR
+        // to binary format or to OpenVDB format
+        TCLAP::SwitchArg arg_t("t","transform","Store in new format", cmd, false);
 
         cmd.parse(argc, argv);
 
@@ -63,8 +61,9 @@ int main(int argc, char* argv[]) {
         //**************************************
         std::cout << "--------------------------------------------------------------" << std::endl;
         std::cout << "Executing "<< PROGRAM_NAME << " v." << PROGRAM_VERSION << std::endl;
-        std::cout << "Author: Ivo Filot <i.a.w.filot@tue.nl>" << std::endl;
-        std::cout << "Website: https://github.com/ifilot/den2obj" << std::endl;
+        std::cout << "Author:  Ivo Filot <i.a.w.filot@tue.nl>" << std::endl;
+        std::cout << "Website: https://den2obj.imc-tue.nl" << std::endl;
+        std::cout << "Github:  https://github.com/ifilot/den2obj" << std::endl;
         std::cout << "--------------------------------------------------------------" << std::endl;
 
         //**************************************
@@ -72,49 +71,83 @@ int main(int argc, char* argv[]) {
         //**************************************
         std::string input_filename = arg_input_filename.getValue();
         std::string output_filename = arg_output_filename.getValue();
-        float isovalue = arg_isovalue.getValue();
 
-        std::cout << "Using isovalue: " << isovalue << std::endl;
-
-        auto start = std::chrono::system_clock::now();
-
-        if(arg_b.getValue()) {
-            std::cout << "Opening " << input_filename << " as binary file." << std::endl;
-        } else {
-            std::cout << "Opening " << input_filename << " as VASP CHGCAR file." << std::endl;
+        // check whether only a transformation is being asked, if so, stop here
+        std::unique_ptr<ScalarField> sf;
+        if(input_filename.substr(input_filename.size()-4) == ".cub") {
+            std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
+            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CUB);
+        } else if(input_filename.substr(input_filename.size()-4) == ".d2o") {
+            std::cout << "Opening " << input_filename << " as D2O binary file" << std::endl;
+            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_D2O);
+        } else if(input_filename.substr(0,6) == "CHGCAR") {
+            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CHGCAR);
+        } else if(input_filename.substr(0,6) == "PARCHG") {
+            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_PARCHG);
+        } else if(input_filename.substr(0,6) == "LOCPOT") {
+            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_LOCPOT);
         }
 
-        ScalarField sf(input_filename, false, arg_b.getValue());
-        sf.read();
+        // keep track of time
+        auto start = std::chrono::system_clock::now();
 
-        IsoSurface is(&sf);
-        is.marching_cubes(isovalue);
+        // check whether only a conversion is requested, if not, continue
+        if(arg_t.getValue()) {
+            if(output_filename.substr(output_filename.size()-4) == ".d2o") {
+                sf->read();
+                sf->write_d2o_binary(output_filename);
+                std::cout << "Writing as D2O binary file." << std::endl;
+            }
+            #ifdef MOD_OPENVDB
+            else if(output_filename.substr(output_filename.size()-4) == ".vdb") {
+                sf->read();
+                sf->write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+                std::cout << "Writing as OpenVDB file." << std::endl;
+            }
+            #endif
+            else {
+                std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+            }
 
-        // store path to extract filename
-        boost::filesystem::path path(input_filename);
-
-        IsoSurfaceMesh ism(&sf, &is);
-        ism.construct_mesh(arg_c.getValue());
-
-        if(arg_p.getValue()) {
-            ism.write_ply(output_filename, path.filename().string(), path.filename().string());
         } else {
-            ism.write_obj(output_filename, path.filename().string(), path.filename().string());
+            double isovalue = arg_isovalue.getValue();
+            std::cout << "Using isovalue: " << isovalue << std::endl;
+
+            sf->read();
+            std::cout << "Lowest value in scalar field: " << sf->get_min() << std::endl;
+            std::cout << "Highest value in scalar field: " << sf->get_max() << std::endl;
+
+            // construct isosurface generator object
+            IsoSurface is(sf.get());
+            is.marching_cubes(isovalue);
+
+            // store path to extract filename
+            boost::filesystem::path path(output_filename);
+
+            // construct mesh storage object
+            IsoSurfaceMesh ism(sf.get(), &is);
+            ism.construct_mesh(arg_c.getValue());
+
+            if(output_filename.substr(output_filename.size()-4) == ".obj") {
+                std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
+                ism.write_obj(output_filename, path.filename().string(), path.filename().string());
+            } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
+                std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
+                ism.write_ply(output_filename, path.filename().string(), path.filename().string());
+            } else if(output_filename.substr(output_filename.size()-4) == ".stl") {
+                std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
+                ism.write_stl(output_filename);
+            } else {
+                throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+            }
         }
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end-start;
 
-        if(arg_p.getValue()) {
-            std::cout << "--------------------------------------------------------------------------------------" << std::endl;
-            std::cout << "You can directly import this file into blender using File > Import > Wavefront (.obj)." << std::endl;
-            std::cout << "--------------------------------------------------------------------------------------" << std::endl;
-        } else {
-            std::cout << "-------------------------------------------------------------------------------------" << std::endl;
-            std::cout << "You can directly import this file into blender using File > Import > Stanford (.ply)." << std::endl;
-            std::cout << "NOTE: Recommended Blender import settings: Z-UP and Y-FORWARD." << std::endl;
-            std::cout << "-------------------------------------------------------------------------------------" << std::endl;
-        }
         std::cout << "-------------------------------------------------------------------------------" << std::endl;
         std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl << std::endl;
 
