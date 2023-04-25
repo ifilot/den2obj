@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Interface &mdash; Den2Obj  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="D2O File Format" href="d2o_fileformat.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Den2Obj
+              <img src="_static/den2obj_logo_128.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#isosurface-generation">Isosurface generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filetype-conversion">Filetype conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="d2o_fileformat.html">D2O File Format</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Den2Obj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div style="text-align: right;">
+<a href="https://github.com/ifilot/den2obj" target="_blank"><i class="fa-brands fa-github"></i> Github</a>
+</div>
+<hr>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <span class="target" id="userinterface"></span><section id="user-interface">
+<span id="index-0"></span><h1>User Interface<a class="headerlink" href="#user-interface" title="Permalink to this heading"></a></h1>
+<p><strong class="program">Den2Obj</strong> has two operational modes</p>
+<ol class="arabic simple">
+<li><p>Isosurface generation</p></li>
+<li><p>Filetype conversion</p></li>
+</ol>
+<p>Isosurface generation is the default mode and is used to generate isosurfaces
+from scalar fields. Filetype conversion is mainly used to convert relatively
+large storage formats such as CHGCAR or Gaussian cube files to the compressed
+<a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">.d2o file format</span></a>.</p>
+<section id="isosurface-generation">
+<h2>Isosurface generation<a class="headerlink" href="#isosurface-generation" title="Permalink to this heading"></a></h2>
+<p>To perform an isosurface creation, one simply runs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">scalarfield</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">mesh</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">v</span> <span class="o">&lt;</span><span class="n">isovalue</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>wherein <code class="docutils literal notranslate"><span class="pre">path-to-scalarfield</span></code> is a scalar field file format of either
+of the following types</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.vasp.at/wiki/index.php/CHGCAR">CHGCAR</a>, <a class="reference external" href="https://www.vasp.at/wiki/index.php/PARCHG">PARCHG</a> or <a class="reference external" href="https://www.vasp.at/wiki/index.php/LOCPOT">LOCPOT</a></p></li>
+<li><p><a class="reference external" href="https://gaussian.com/cubegen/">Gaussian Cube file</a></p></li>
+<li><p><a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">Den2Obj .d2o file format</span></a></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">mesh-file</span></code> is any of the following supported formats</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/STL_(file_format)">Stereolitography (.stl) file</a></p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/PLY_(file_format)">Stanford (.ply) file</a></p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront (.obj) file</a></p></li>
+</ul>
+<p>and <code class="docutils literal notranslate"><span class="pre">isovalue</span></code> the isovalue for the isosurface.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>For visualizing wave functions, two isosurfaces are needed. One for the
+positive part and one for the negative part of the wave function. Simply
+run <strong class="program">Den2Obj</strong> twice and put a minus sign in front of the isovalue.
+Take care to adjust the output file, else the original output file will
+be overwritten.</p>
+</div>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">-c</span></code> is optional. If used, the isosurface will be centered at
+the origin.</p>
+</section>
+<section id="filetype-conversion">
+<h2>Filetype conversion<a class="headerlink" href="#filetype-conversion" title="Permalink to this heading"></a></h2>
+<p><strong class="program">Den2Obj</strong> offers the conversion to two different file types.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">Den2Obj .d2o file format</span></a></p></li>
+<li><p><a class="reference external" href="https://www.openvdb.org/">OpenVDB</a></p></li>
+</ul>
+<p>To perform the conversion, one executes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">scalarfield</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">mesh</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">t</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Creating <cite>OpenVDB</cite> files requires the OpenVDB module to be compiled. See
+the <a class="reference internal" href="installation.html#index-0"><span class="std std-ref">installation</span></a> section for more details.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="d2o_fileformat.html" class="btn btn-neutral float-right" title="D2O File Format" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Inorganic Materials and Catalysis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
