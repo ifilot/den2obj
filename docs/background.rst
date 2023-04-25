@@ -29,7 +29,7 @@ the isovalue and for another vertex the value smaller than the isovalue, then
 the isosurface has to cut the edge that shares the two vertices. A schematic
 depiction of this situation is given in Figure 1.
 
-.. figure:: _static/img/background/cube_intersection.jpg
+.. figure:: _static/img/background/cube_intersection.JPG
    :alt: Schematic depiction of cube intersections.
 
    **Figure 1**: A triangle that is part of an isosurface. For each of the vertices
