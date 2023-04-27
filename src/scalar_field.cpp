@@ -733,8 +733,8 @@ void ScalarField::load_d2o_binary() {
     infile.read((char*)&protocol_id, sizeof(uint32_t));
 
     // check token id
-    if(protocol_id != 1) {
-        throw std::runtime_error("Invalid token ID for D2O binary.");
+    if(protocol_id == 0 || protocol_id > 2) {
+        throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
     }
 
     // read matrix
@@ -783,7 +783,19 @@ void ScalarField::load_d2o_binary() {
     std::istringstream compressed(std::string(data, compdatasize));
     std::cout << "Building decompressor" << std::endl;
     boost::iostreams::filtering_istreambuf in;
-    in.push(boost::iostreams::gzip_decompressor());
+
+    switch(protocol_id) {
+        case 1:
+            // GZIP compression
+            in.push(boost::iostreams::gzip_decompressor());
+        break;
+        case 2:
+            in.push(boost::iostreams::lzma_decompressor());
+        break;
+        default:
+            throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
+        break;
+    }
 
     std::cout << "Decompressed data" << std::endl;
     in.push(compressed);
@@ -808,14 +820,17 @@ void ScalarField::load_d2o_binary() {
 /**
  * @brief      Write to a binary file
  */
-void ScalarField::write_d2o_binary(const std::string filename) {
+void ScalarField::write_d2o_binary(const std::string filename, uint32_t protocol_id) {
     // write file format token
     std::ofstream outfile(filename, std::ios::binary);
     char buf[] = "D2O";
     outfile.write(buf, 3);
 
+    if(protocol_id == 0 || protocol_id > 2) {
+        throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
+    }
+
     // write protocol id
-    uint32_t protocol_id = 1;
     outfile.write((char*)&protocol_id, sizeof(uint32_t));
 
     // write unit cell matrix
@@ -844,13 +859,30 @@ void ScalarField::write_d2o_binary(const std::string filename) {
     memcpy(data, &this->gridptr[0], gridptrsz);
     std::istringstream origin(std::string(data, gridptrsz));
     boost::iostreams::filtering_istreambuf in;
-    in.push(
-        boost::iostreams::gzip_compressor(
-            boost::iostreams::gzip_params(
-                boost::iostreams::gzip::best_compression
-            )
-        )
-    );
+
+    switch(protocol_id) {
+        case 1:
+            // GZIP compression
+            in.push(
+                boost::iostreams::gzip_compressor(
+                    boost::iostreams::gzip_params(
+                        boost::iostreams::gzip::best_compression
+                    )
+                )
+            );
+            std::cout << "Using GZIP compression." << std::endl;
+        break;
+        case 2:
+            in.push(
+                boost::iostreams::lzma_compressor()
+            );
+            std::cout << "Using LZMA compression." << std::endl;
+        break;
+        default:
+            throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
+        break;
+    }
+
     in.push(origin);
 
     // store compression

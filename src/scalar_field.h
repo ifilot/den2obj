@@ -37,6 +37,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/lzma.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
@@ -124,8 +125,10 @@ public:
 
     /**
      * @brief      Write to a binary D2O file
+     *
+     * Preferred protocol is set to 2, which corresponds to LZMA compression.
      */
-    void write_d2o_binary(const std::string filename);
+    void write_d2o_binary(const std::string filename, uint32_t protocol_id = 2);
 
     /*
      * @brief output()

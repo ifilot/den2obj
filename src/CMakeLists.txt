@@ -28,7 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "0")
+SET(VERSION_MINOR "1")
 SET(VERSION_MICRO "0")
 configure_file(config.h.in ../src/config.h @ONLY)
 
@@ -61,6 +61,8 @@ set (BOOST_ALL_DYN_LINK OFF)
 # Include libraries
 find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
+find_package(LibLZMA REQUIRED)
+find_package(ZLIB REQUIRED)
 find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
@@ -90,7 +92,7 @@ add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES} z)
+target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${LIBLZMA_LIBRARIES} ${ZLIB_LIBRARIES})
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

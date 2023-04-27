@@ -27,7 +27,7 @@ The organization of this file is given in the Table 1.
     * - 0x03-0x07
       - uint32_t
       - 4 bytes
-      - Protocol identifier token, used for future adaptations of the file format. Currently set to 1.
+      - Protocol identifier token (see below). Default = 2.
     * - 0x08-0x2B
       - float[9]
       - 36 bytes
@@ -52,3 +52,9 @@ The organization of this file is given in the Table 1.
 To convert a ``CHGCAR`` file to ``.d2o`` file format, run the following command::
 
     den2obj -i CHGCAR -o filename.d2o -t
+
+Protocol token
+==============
+
+1. GZIP compression
+2. LZMA compression (default)

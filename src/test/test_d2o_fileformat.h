@@ -29,14 +29,17 @@
 class TestD2OFileFormat : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestD2OFileFormat );
-  CPPUNIT_TEST( test_read_and_write );
+  CPPUNIT_TEST( test_gzip_compression );
+  CPPUNIT_TEST( test_lzma_compression );
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void setUp();
   void tearDown();
 
-  void test_read_and_write();
+  void test_gzip_compression();
+
+  void test_lzma_compression();
 
 private:
 };

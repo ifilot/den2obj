@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
-      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev wget
+      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev wget  liblzma-dev zlib1g-dev
     - name: Get sources OpenVDB 8.2
       run: wget https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz && tar -xvzf v8.2.0.tar.gz
     - name: Compile and install OpenVDB 8.02
