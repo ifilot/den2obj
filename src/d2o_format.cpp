@@ -105,8 +105,11 @@ void write_d2o_file(const std::string& filename,
     // output to file
     const std::string griddata = compressed.str();
     uint64_t sz = griddata.size();
-    std::cout << "Compressed data to " << sz << " bytes ("
-        << (float)sz / gridptrsz * 100 << " %)" << std::endl;
+    std::cout << "Compressed data to "
+        << (boost::format("%0.1f") % ((float)sz / 1024.f)).str()
+        << " kb ("
+        << (boost::format("%0.2f") % ((float)sz / (float)gridptrsz * 100.0f)).str()
+        << " %)." << std::endl;
 
     // write data size and data
     outfile.write((char*)&sz, sizeof(uint64_t));
@@ -115,4 +118,9 @@ void write_d2o_file(const std::string& filename,
     // clean up
     delete[] data;
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }

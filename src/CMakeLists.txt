@@ -84,15 +84,16 @@ endif()
 
 # Add sources
 file(GLOB SOURCES "*.cpp")
-add_executable(den2obj ${SOURCES})
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 add_library(den2objsources STATIC ${SOURCES})
+add_executable(den2obj ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 
 # Set C++17
 add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${LIBLZMA_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(den2obj den2objsources ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${LIBLZMA_LIBRARIES} ${ZLIB_LIBRARIES})
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

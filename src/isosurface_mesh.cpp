@@ -144,7 +144,6 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
  * @param[in]  name      The name
  */
 void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& header, const std::string& name) {
-    std::cout << "Writing as Wavefront (.obj) file: " << filename << std::endl;
     std::ofstream outfile(filename);
 
     outfile << "# " << header << std::endl;
@@ -256,6 +255,11 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Wavefront (.obj) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**
@@ -266,7 +270,6 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
  * @param[in]  name      The name
  */
 void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& header, const std::string& name) {
-    std::cout << "Writing as Stanford (.ply) file: " << filename << std::endl;
     std::ofstream outfile(filename, std::ios::binary);
 
     outfile << "ply" << std::endl;
@@ -302,6 +305,11 @@ void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& h
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Stanford (.ply) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**
@@ -310,7 +318,6 @@ void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& h
  * @param[in]  filename  The filename
  */
 void IsoSurfaceMesh::write_stl(const std::string& filename) {
-    std::cout << "Writing as Stereolithography (.stl) file: " << filename << std::endl;
     std::ofstream outfile(filename, std::ios::binary);
 
     // for writing the header line
@@ -370,6 +377,11 @@ void IsoSurfaceMesh::write_stl(const std::string& filename) {
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Stereolithography (.stl) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**

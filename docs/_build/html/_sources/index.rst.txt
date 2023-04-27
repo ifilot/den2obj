@@ -32,6 +32,7 @@ of your research. Below, a few examples are shown. See also the
 
    installation
    background
+   tutorial
    examples
    user_interface
    d2o_fileformat
