@@ -21,7 +21,7 @@
 add_library(unittest STATIC unittest.cpp)
 
 # set executables
-SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
+SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestGenerator)
 
 #######################################################
 # Add executables
@@ -29,6 +29,7 @@ SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
 add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
+add_executable(TestGenerator test_generator.cpp)
 
 #######################################################
 # Link mkmsources and other dependencies

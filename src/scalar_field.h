@@ -43,6 +43,7 @@
 #include "math.h"
 #include "float_parser.h"
 #include "periodic_table.h"
+#include "d2o_format.h"
 
 #ifdef MOD_OPENVDB
 #include <openvdb/openvdb.h>

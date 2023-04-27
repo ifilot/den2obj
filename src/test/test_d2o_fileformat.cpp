@@ -38,13 +38,9 @@ void TestD2OFileFormat::test_gzip_compression() {
     sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
     CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
 
-    // compare random points
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0,nrgridpts-1);
-    for(unsigned int i=0; i<1000; i++) {
-        unsigned int idx = dist(rng);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[idx], sf.get_grid()[idx], 1e-12);
+    // compare vector points
+    for(unsigned int i=0; i<grid.size(); i++) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
     }
 }
 
@@ -66,12 +62,8 @@ void TestD2OFileFormat::test_lzma_compression() {
     sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
     CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
 
-    // compare random points
-    std::random_device dev;
-    std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0,nrgridpts-1);
-    for(unsigned int i=0; i<1000; i++) {
-        unsigned int idx = dist(rng);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[idx], sf.get_grid()[idx], 1e-12);
+    // compare vector points
+    for(unsigned int i=0; i<grid.size(); i++) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
     }
 }

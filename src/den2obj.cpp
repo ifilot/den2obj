@@ -22,8 +22,9 @@
 #include <tclap/CmdLine.h>
 #include <boost/filesystem.hpp>
 
-#include "scalar_field.h"
 #include "config.h"
+#include "scalar_field.h"
+#include "generator.h"
 #include "isosurface.h"
 #include "isosurface_mesh.h"
 
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
         //**************************************
 
         // input filename
-        TCLAP::ValueArg<std::string> arg_input_filename("i","input","Input file (i.e. CHGCAR)",true,"CHGCAR","filename");
+        TCLAP::ValueArg<std::string> arg_input_filename("i","input","Input file (i.e. CHGCAR)",false,"CHGCAR","filename");
         cmd.add(arg_input_filename);
 
         // output filename
@@ -58,6 +59,10 @@ int main(int argc, char* argv[]) {
         TCLAP::ValueArg<uint32_t> arg_protocol("p", "protocol", "D2O protocol", false, 1, "uint32t");
         cmd.add(arg_protocol);
 
+        // output filename
+        TCLAP::ValueArg<std::string> arg_generator("g","dataset","Dataset name",false,"","string");
+        cmd.add(arg_generator);
+
         cmd.parse(argc, argv);
 
         //**************************************
@@ -73,84 +78,100 @@ int main(int argc, char* argv[]) {
         //**************************************
         // parsing values
         //**************************************
-        std::string input_filename = arg_input_filename.getValue();
-        std::string output_filename = arg_output_filename.getValue();
-
-        boost::filesystem::path path_input_filename(input_filename);
-        const std::string base_filename = path_input_filename.filename().string();
-
-        // check whether only a transformation is being asked, if so, stop here
-        std::unique_ptr<ScalarField> sf;
-        if(base_filename.substr(base_filename.size()-4) == ".cub") {
-            std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
-            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CUB);
-        } else if(base_filename.substr(base_filename.size()-4) == ".d2o") {
-            std::cout << "Opening " << input_filename << " as D2O binary file" << std::endl;
-            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_D2O);
-        } else if(base_filename.substr(0,6) == "CHGCAR") {
-            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
-            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CHGCAR);
-        } else if(base_filename.substr(0,6) == "PARCHG") {
-            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
-            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_PARCHG);
-        } else if(base_filename.substr(0,6) == "LOCPOT") {
-            std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
-            sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_LOCPOT);
-        } else {
-            throw std::runtime_error("Cannot interpret input file format. Please check the filename.");
-        }
+        const std::string output_filename = arg_output_filename.getValue();
 
         // keep track of time
         auto start = std::chrono::system_clock::now();
 
-        // check whether only a conversion is requested, if not, continue
-        if(arg_t.getValue()) {
-            if(output_filename.substr(output_filename.size()-4) == ".d2o") {
-                sf->read();
-                sf->write_d2o_binary(output_filename, arg_protocol.getValue());
-                std::cout << "Writing as D2O binary file." << std::endl;
-            }
-            #ifdef MOD_OPENVDB
-            else if(output_filename.substr(output_filename.size()-4) == ".vdb") {
-                sf->read();
-                sf->write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
-                std::cout << "Writing as OpenVDB file." << std::endl;
-            }
-            #endif
-            else {
-                std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+        // check if a generation is requested, if not, check further
+        if(!arg_generator.getValue().empty()) {
+            Generator gen;
+
+            if(output_filename.substr(output_filename.size()-4) != ".d2o") {
+                throw std::runtime_error("Invalid extension for dataset generation. Has to end in .d2o.");
             }
 
+            std::cout << "Building grid using dataset: " << arg_generator.getValue() << std::endl;
+            gen.build_dataset(arg_generator.getValue(), output_filename);
         } else {
-            double isovalue = arg_isovalue.getValue();
-            std::cout << "Using isovalue: " << isovalue << std::endl;
+            const std::string input_filename = arg_input_filename.getValue();
+            if(input_filename.empty()) {
+                throw std::runtime_error("No input file is specified.");
+            }
 
-            sf->read();
-            std::cout << "Lowest value in scalar field: " << sf->get_min() << std::endl;
-            std::cout << "Highest value in scalar field: " << sf->get_max() << std::endl;
+            boost::filesystem::path path_input_filename(input_filename);
+            const std::string base_filename = path_input_filename.filename().string();
 
-            // construct isosurface generator object
-            IsoSurface is(sf.get());
-            is.marching_cubes(isovalue);
-
-            // store path to extract filename
-            boost::filesystem::path path(output_filename);
-
-            // construct mesh storage object
-            IsoSurfaceMesh ism(sf.get(), &is);
-            ism.construct_mesh(arg_c.getValue());
-
-            if(output_filename.substr(output_filename.size()-4) == ".obj") {
-                std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
-                ism.write_obj(output_filename, path.filename().string(), path.filename().string());
-            } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
-                std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
-                ism.write_ply(output_filename, path.filename().string(), path.filename().string());
-            } else if(output_filename.substr(output_filename.size()-4) == ".stl") {
-                std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
-                ism.write_stl(output_filename);
+            // check whether only a transformation is being asked, if so, stop here
+            std::unique_ptr<ScalarField> sf;
+            if(base_filename.substr(base_filename.size()-4) == ".cub") {
+                std::cout << "Opening " << input_filename << " as Gaussian cube file." << std::endl;
+                sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CUB);
+            } else if(base_filename.substr(base_filename.size()-4) == ".d2o") {
+                std::cout << "Opening " << input_filename << " as D2O binary file" << std::endl;
+                sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_D2O);
+            } else if(base_filename.substr(0,6) == "CHGCAR") {
+                std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+                sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_CHGCAR);
+            } else if(base_filename.substr(0,6) == "PARCHG") {
+                std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+                sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_PARCHG);
+            } else if(base_filename.substr(0,6) == "LOCPOT") {
+                std::cout << "Opening " << input_filename << " as " << input_filename.substr(0,6) << std::endl;
+                sf = std::make_unique<ScalarField>(input_filename, ScalarFieldInputFileType::SFF_LOCPOT);
             } else {
-                throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+                throw std::runtime_error("Cannot interpret input file format. Please check the filename.");
+            }
+
+            // check whether only a conversion is requested, if not, continue
+            if(arg_t.getValue()) {
+                if(output_filename.substr(output_filename.size()-4) == ".d2o") {
+                    sf->read();
+                    sf->write_d2o_binary(output_filename, arg_protocol.getValue());
+                    std::cout << "Writing as D2O binary file." << std::endl;
+                }
+                #ifdef MOD_OPENVDB
+                else if(output_filename.substr(output_filename.size()-4) == ".vdb") {
+                    sf->read();
+                    sf->write_to_vdb(output_filename, OpenVDB_METHOD::ABSOLUTE);
+                    std::cout << "Writing as OpenVDB file." << std::endl;
+                }
+                #endif
+                else {
+                    std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+                }
+
+            } else {
+                double isovalue = arg_isovalue.getValue();
+                std::cout << "Using isovalue: " << isovalue << std::endl;
+
+                sf->read();
+                std::cout << "Lowest value in scalar field: " << sf->get_min() << std::endl;
+                std::cout << "Highest value in scalar field: " << sf->get_max() << std::endl;
+
+                // construct isosurface generator object
+                IsoSurface is(sf.get());
+                is.marching_cubes(isovalue);
+
+                // store path to extract filename
+                boost::filesystem::path path(output_filename);
+
+                // construct mesh storage object
+                IsoSurfaceMesh ism(sf.get(), &is);
+                ism.construct_mesh(arg_c.getValue());
+
+                if(output_filename.substr(output_filename.size()-4) == ".obj") {
+                    std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
+                    ism.write_obj(output_filename, path.filename().string(), path.filename().string());
+                } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
+                    std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
+                    ism.write_ply(output_filename, path.filename().string(), path.filename().string());
+                } else if(output_filename.substr(output_filename.size()-4) == ".stl") {
+                    std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
+                    ism.write_stl(output_filename);
+                } else {
+                    throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+                }
             }
         }
 
