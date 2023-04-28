@@ -781,16 +781,27 @@ void ScalarField::load_d2o_binary() {
 
     // decompress
     std::istringstream compressed(std::string(data, compdatasize));
-    std::cout << "Building decompressor" << std::endl;
     boost::iostreams::filtering_istreambuf in;
 
     switch(protocol_id) {
         case 1:
+        {
             // GZIP compression
+            std::cout << "Building GZIP decompressor" << std::endl;
             in.push(boost::iostreams::gzip_decompressor());
+        }
         break;
         case 2:
+        {
+            std::cout << "Building LZMA decompressor" << std::endl;
             in.push(boost::iostreams::lzma_decompressor());
+        }
+        break;
+        case 3:
+        {
+            std::cout << "Building BZIP2 decompressor" << std::endl;
+            in.push(boost::iostreams::bzip2_decompressor());
+        }
         break;
         default:
             throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));

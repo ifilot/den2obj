@@ -23,7 +23,7 @@ libraries are available to you:
 To ensure that all the packages are installed, one can run the following::
 
     sudo apt install build-essential cmake libtclap-dev libboost-all-dev \ 
-    pkg-config libcppunit-dev libeigen3-dev
+    pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev
 
 Standard compilation
 ====================
@@ -61,7 +61,8 @@ argument to CMake.
 Ensure that the following libraries are installed by running::
 
 	sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
-	libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev
+	libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev \
+    liblzma-dev zlib1g-dev libbz2-dev
 
 Compilation :program:`Den2Obj` with the OpenVDB module is as follows::
 

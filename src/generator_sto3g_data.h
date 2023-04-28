@@ -18,34 +18,37 @@
  *                                                                        *
  **************************************************************************/
 
-#include "test_generator.h"
+#ifndef _GENERATOR_STO3G_DATA_H
+#define _GENERATOR_STO3G_DATA_H
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestGenerator );
+#include "math.h"
 
-void TestGenerator::setUp() {
-}
+namespace GeneratorData {
 
-void TestGenerator::tearDown() {
-}
+static constexpr fpt basis_h[3][2] {
+    {3.425251, 0.154329},
+    {0.623914, 0.535328},
+    {0.168855, 0.444635},
+};
 
-void TestGenerator::test_generator_genus() {
-    Generator gen;
-    const std::string filename = "genus2.d2o";
+static constexpr fpt basis_c[3][3][2] {
+    {
+        {71.616837, 0.154329},
+        {13.045096, 0.535328},
+        {3.530512, 0.444635},
+    },
+    {
+        {2.941249, -0.099967},
+        {0.683483, 0.399513},
+        {0.22229, 0.700115},
+    },
+    {
+        {2.941249, 0.155916},
+        {0.683483, 0.607684},
+        {0.22229, 0.391957},
+    }
+};
 
-    // generator dataset
-    gen.build_dataset("genus2", filename);
+} //  namespace GeneratorData
 
-    // check that it can be read
-    CPPUNIT_ASSERT_NO_THROW(ScalarField(filename, ScalarFieldInputFileType::SFF_D2O));
-}
-
-void TestGenerator::test_generator_benzene() {
-    Generator gen;
-    const std::string filename = "benzene_homo.d2o";
-
-    // generator dataset
-    gen.build_dataset("benzene_homo", filename);
-
-    // check that it can be read
-    CPPUNIT_ASSERT_NO_THROW(ScalarField(filename, ScalarFieldInputFileType::SFF_D2O));
-}
+#endif // _GENERATOR_STO3G_DATA_H

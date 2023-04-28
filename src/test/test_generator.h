@@ -30,11 +30,13 @@ class TestGenerator : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestGenerator );
   CPPUNIT_TEST( test_generator_genus );
+  CPPUNIT_TEST( test_generator_benzene );
   CPPUNIT_TEST_SUITE_END();
 
 public:
     void setUp();
     void test_generator_genus();
+    void test_generator_benzene();
     void tearDown();
 
 private:

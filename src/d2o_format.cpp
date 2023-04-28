@@ -48,8 +48,19 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     memcpy(data, &gridptr[0], gridptrsz);
 
     // determine best compression format
-    auto compstr = d2o_compress_all(std::string(data, gridptrsz));
+    std::vector<std::string> compstr = d2o_compress_all(std::string(data, gridptrsz));
     std::vector<unsigned int> stringsize(3,0);
+
+    // clean up data object (no longer needed)
+    delete[] data;
+
+    // list of compression algos
+    static const std::vector<std::string> algos = {
+        "GZIP",
+        "LZMA",
+        "BZIP2"
+    };
+
 
     unsigned int idx = 0;
     if(protocol_override == 0) {
@@ -60,13 +71,14 @@ void D2OFormat::write_d2o_file(const std::string& filename,
 
         // find best compression algo and base protocol id on this
         idx = std::distance(std::begin(stringsize), std::min_element(std::begin(stringsize), std::end(stringsize)));
+        std::cout << "Best algorithm: " << algos[idx] << std::endl;
     } else {
         idx = protocol_override - 1;
+        std::cout << "Overruling compression algo to: " << algos[idx] << std::endl;
     }
 
     // capture compressed data
     uint32_t protocol_id = idx + 1;
-    const std::string griddata = compstr[idx];
 
     // write protocol id
     outfile.write((char*)&protocol_id, sizeof(uint32_t));
@@ -91,12 +103,10 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     std::cout << "Floating point size determined at: " << (int)fptsz << " bytes" << std::endl;
 
     // write compressed data size and compressed data
-    uint64_t sz = griddata.size();
+    uint64_t sz = compstr[idx].size();
     outfile.write((char*)&sz, sizeof(uint64_t));
-    outfile.write(griddata.data(), griddata.size());
+    outfile.write(compstr[idx].data(), compstr[idx].size());
 
-    // clean up
-    delete[] data;
     outfile.close();
 
     std::uintmax_t size = boost::filesystem::file_size(filename);
@@ -129,7 +139,11 @@ std::vector<std::string> D2OFormat::d2o_compress_all(const std::string& originst
             {
                 std::cout << "Trying LZMA: ";
                 in.push(
-                    boost::iostreams::lzma_compressor()
+                    boost::iostreams::lzma_compressor(
+                        boost::iostreams::lzma_params(
+                            boost::iostreams::lzma::best_compression
+                        )
+                    )
                 );
             }
             break;
