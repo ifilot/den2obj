@@ -43,15 +43,19 @@ You should see the following output::
     Github:  https://github.com/ifilot/den2obj
     --------------------------------------------------------------
     Building grid using dataset: genus2
+    Looking for best compression algorithm.
+    Trying GZIP: 2720.5 kb (69.64 %).
+    Trying LZMA: 1781.2 kb (45.60 %).
+    Trying BZIP2: 3149.8 kb (80.63 %).
     Floating point size determined at: 4 bytes
-    Using LZMA compression.
-    Compressed data to 1781.2 kb (45.60 %).
     Writing genus2.d2o (1781.3kb).
     -------------------------------------------------------------------------------
-    Done in 0.371628 seconds.
+    Done in 1.42421 seconds.
 
 This will generate a :ref:`.d2o file <D2O file format>` containing the Genus 2
-scalar field named ``genus2.d2o``.
+scalar field named ``genus2.d2o``. Observe that :program:`Den2Obj` tests three
+different compression algorithms and automatically selects the best algorithm
+for the data compression.
 
 To construct the isosurface with an isovalue of 0.1, run::
 
