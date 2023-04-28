@@ -38,7 +38,7 @@ void Generator::build_dataset(const std::string& name, const std::string& filena
                 for(unsigned int i=0; i<3; i++) {
                     mat(i,i) = 2.0 * sz;
                 }
-                D2OFormat::write_d2o_file(filename, 0, grid, grid_dimensions, mat);
+                D2OFormat::write_d2o_file(filename, grid, grid_dimensions, mat);
             }
             break;
             default:

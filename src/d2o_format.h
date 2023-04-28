@@ -43,16 +43,16 @@ namespace D2OFormat {
      * @brief      Write a D2O file
      *
      * @param[in]  filename         The filename
-     * @param[in]  protocol_id      The protocol identifier
      * @param[in]  gridptr          Vector containing the grid points
      * @param      grid_dimensions  Dimensions in each unit cell direction
      * @param[in]  mat              Unitcell matrix
+     * @param[in]  protocol_id      The protocol identifier override
      */
     void write_d2o_file(const std::string& filename,
-                        uint32_t protocol_id,
                         const std::vector<fpt>& gridptr,
                         std::array<unsigned int, 3>& grid_dimensions,
-                        const MatrixUnitcell& mat);
+                        const MatrixUnitcell& mat,
+                        uint32_t protocol_override = 0);
 
     /**
      * @brief      Compress data stream using all possible compression algos

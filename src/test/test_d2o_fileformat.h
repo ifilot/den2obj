@@ -31,17 +31,26 @@ class TestD2OFileFormat : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE( TestD2OFileFormat );
   CPPUNIT_TEST( test_gzip_compression );
   CPPUNIT_TEST( test_lzma_compression );
+  CPPUNIT_TEST( test_bzip2_compression );
+  CPPUNIT_TEST( test_autocompression );
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void setUp();
+
   void tearDown();
 
   void test_gzip_compression();
 
   void test_lzma_compression();
 
+  void test_bzip2_compression();
+
+  void test_autocompression();
+
 private:
+
+  uint32_t get_protocol_id(const std::string& filename);
 };
 
 #endif  // _TEST_D2O_FileFormat
