@@ -56,6 +56,7 @@ foreach(testexec ${EXECUTABLES})
                           ${CPPUNIT_LIB}
                           ${LIBLZMA_LIBRARIES}
                           ${ZLIB_LIBRARIES}
+                          ${BZIP2_LIBRARIES}
                           -lgcov)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})

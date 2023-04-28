@@ -33,23 +33,36 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filter/lzma.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
 
-/**
- * @brief      Write a D2O file
- *
- * @param[in]  filename         The filename
- * @param[in]  protocol_id      The protocol identifier
- * @param[in]  gridptr          Vector containing the grid points
- * @param      grid_dimensions  Dimensions in each unit cell direction
- * @param[in]  mat              Unitcell matrix
- */
-void write_d2o_file(const std::string& filename,
-                    uint32_t protocol_id,
-                    const std::vector<fpt>& gridptr,
-                    std::array<unsigned int, 3>& grid_dimensions,
-                    const MatrixUnitcell& mat);
+namespace D2OFormat {
+    /**
+     * @brief      Write a D2O file
+     *
+     * @param[in]  filename         The filename
+     * @param[in]  gridptr          Vector containing the grid points
+     * @param      grid_dimensions  Dimensions in each unit cell direction
+     * @param[in]  mat              Unitcell matrix
+     * @param[in]  protocol_id      The protocol identifier override
+     */
+    void write_d2o_file(const std::string& filename,
+                        const std::vector<fpt>& gridptr,
+                        std::array<unsigned int, 3>& grid_dimensions,
+                        const MatrixUnitcell& mat,
+                        uint32_t protocol_override = 0);
+
+    /**
+     * @brief      Compress data stream using all possible compression algos
+     *
+     * @param[in]  origin  Uncompressed data stream
+     *
+     * @return     Vector containing compressed streams as strings
+     */
+    std::vector<std::string> d2o_compress_all(const std::string& originstr);
+
+}
 
 #endif // _D2O_FORMAT

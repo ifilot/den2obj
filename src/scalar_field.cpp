@@ -821,7 +821,7 @@ void ScalarField::load_d2o_binary() {
  * @brief      Write to a binary file
  */
 void ScalarField::write_d2o_binary(const std::string filename, uint32_t protocol_id) {
-    write_d2o_file(filename, protocol_id, this->gridptr, this->grid_dimensions, this->mat);
+    D2OFormat::write_d2o_file(filename, this->gridptr, this->grid_dimensions, this->mat, protocol_id);
 }
 
 /**
