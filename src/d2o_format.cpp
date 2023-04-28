@@ -29,11 +29,11 @@
  * @param      grid_dimensions  Dimensions in each unit cell direction
  * @param[in]  mat              Unitcell matrix
  */
-void write_d2o_file(const std::string& filename,
-                    uint32_t protocol_id,
-                    const std::vector<fpt>& gridptr,
-                    std::array<unsigned int, 3>& grid_dimensions,
-                    const MatrixUnitcell& mat) {
+void D2OFormat::write_d2o_file(const std::string& filename,
+                               uint32_t protocol_id,
+                               const std::vector<fpt>& gridptr,
+                               std::array<unsigned int, 3>& grid_dimensions,
+                               const MatrixUnitcell& mat) {
     // write file format token
     std::ofstream outfile(filename, std::ios::binary);
     char buf[] = "D2O";
@@ -72,22 +72,25 @@ void write_d2o_file(const std::string& filename,
     memcpy(data, &gridptr[0], gridptrsz);
     std::istringstream origin(std::string(data, gridptrsz));
     boost::iostreams::filtering_istreambuf in;
+    std::string griddata;
 
     switch(protocol_id) {
         case 0:
         {
             // look for best compression algo
             std::cout << "Looking for best compression algorithm." << std::endl;
-            auto compstr = d2o_compress_all(origin);
+            auto compstr = d2o_compress_all(std::string(data, gridptrsz));
             std::vector<unsigned int> stringsize(3,0);
             for(unsigned int i=0; i<3; i++) {
                 stringsize[i] = compstr[i].size();
             }
             unsigned int idx = std::distance(std::begin(stringsize), std::min_element(std::begin(stringsize), std::end(stringsize)));
             protocol_id = idx + 1;
+            griddata = compstr[idx];
         }
         break;
         case 1:
+        {
             // GZIP compression
             in.push(
                 boost::iostreams::gzip_compressor(
@@ -97,34 +100,44 @@ void write_d2o_file(const std::string& filename,
                 )
             );
             std::cout << "Using GZIP compression." << std::endl;
+            in.push(origin);
+            std::ostringstream compressed;
+            boost::iostreams::copy(in, compressed);
+            griddata = compressed.str();
+        }
         break;
         case 2:
+        {
             // LZMA compression
             in.push(
                 boost::iostreams::lzma_compressor()
             );
             std::cout << "Using LZMA compression." << std::endl;
+            in.push(origin);
+            std::ostringstream compressed;
+            boost::iostreams::copy(in, compressed);
+            griddata = compressed.str();
+        }
         break;
         case 3:
+        {
             // BZIP2 compression
             in.push(
                 boost::iostreams::bzip2_compressor()
             );
             std::cout << "Using LZMA compression." << std::endl;
+            in.push(origin);
+            std::ostringstream compressed;
+            boost::iostreams::copy(in, compressed);
+            griddata = compressed.str();
+        }
         break;
         default:
             throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
         break;
     }
 
-    in.push(origin);
-
-    // store compression
-    std::ostringstream compressed;
-    boost::iostreams::copy(in, compressed);
-
     // output to file
-    const std::string griddata = compressed.str();
     uint64_t sz = griddata.size();
     std::cout << "Compressed data to "
         << (boost::format("%0.1f") % ((float)sz / 1024.f)).str()
@@ -146,11 +159,12 @@ void write_d2o_file(const std::string& filename,
     << "kb)." << std::endl;
 }
 
-std::vector<std::string> d2o_compress_all(const std::istringstream& origin) {
+std::vector<std::string> D2OFormat::d2o_compress_all(const std::string& originstr) {
     std::vector<std::string> compressed_strings;
-    unsigned int gridptrsz = origin.str().size();
+    unsigned int gridptrsz = originstr.size();
 
     for(unsigned int i=0; i<3; i++) {
+        std::istringstream origin(originstr);
         boost::iostreams::filtering_istreambuf in;
         switch(i) {
             case 0:
@@ -183,6 +197,7 @@ std::vector<std::string> d2o_compress_all(const std::istringstream& origin) {
             break;
         }
 
+        in.push(origin);
         std::ostringstream compressed;
         boost::iostreams::copy(in, compressed);
         compressed_strings.emplace_back(compressed.str());
