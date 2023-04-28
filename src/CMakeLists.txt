@@ -63,6 +63,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
 find_package(LibLZMA REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(BZip2 REQUIRED)
 find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
@@ -93,7 +94,13 @@ add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj den2objsources ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${LIBLZMA_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(den2obj 
+                      den2objsources 
+                      ${OPENVDB_LIBS} 
+                      ${Boost_LIBRARIES} 
+                      ${LIBLZMA_LIBRARIES} 
+                      ${ZLIB_LIBRARIES}
+                      ${BZIP2_LIBRARIES})
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

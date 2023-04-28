@@ -39,7 +39,7 @@ void write_d2o_file(const std::string& filename,
     char buf[] = "D2O";
     outfile.write(buf, 3);
 
-    if(protocol_id == 0 || protocol_id > 2) {
+    if(protocol_id > 3) {
         throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
     }
 
@@ -74,6 +74,19 @@ void write_d2o_file(const std::string& filename,
     boost::iostreams::filtering_istreambuf in;
 
     switch(protocol_id) {
+        case 0:
+        {
+            // look for best compression algo
+            std::cout << "Looking for best compression algorithm." << std::endl;
+            auto compstr = d2o_compress_all(origin);
+            std::vector<unsigned int> stringsize(3,0);
+            for(unsigned int i=0; i<3; i++) {
+                stringsize[i] = compstr[i].size();
+            }
+            unsigned int idx = std::distance(std::begin(stringsize), std::min_element(std::begin(stringsize), std::end(stringsize)));
+            protocol_id = idx + 1;
+        }
+        break;
         case 1:
             // GZIP compression
             in.push(
@@ -86,8 +99,16 @@ void write_d2o_file(const std::string& filename,
             std::cout << "Using GZIP compression." << std::endl;
         break;
         case 2:
+            // LZMA compression
             in.push(
                 boost::iostreams::lzma_compressor()
+            );
+            std::cout << "Using LZMA compression." << std::endl;
+        break;
+        case 3:
+            // BZIP2 compression
+            in.push(
+                boost::iostreams::bzip2_compressor()
             );
             std::cout << "Using LZMA compression." << std::endl;
         break;
@@ -123,4 +144,55 @@ void write_d2o_file(const std::string& filename,
     std::cout << "Writing " << filename << " ("
     << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
     << "kb)." << std::endl;
+}
+
+std::vector<std::string> d2o_compress_all(const std::istringstream& origin) {
+    std::vector<std::string> compressed_strings;
+    unsigned int gridptrsz = origin.str().size();
+
+    for(unsigned int i=0; i<3; i++) {
+        boost::iostreams::filtering_istreambuf in;
+        switch(i) {
+            case 0:
+            {
+                std::cout << "Trying GZIP: ";
+                in.push(
+                    boost::iostreams::gzip_compressor(
+                        boost::iostreams::gzip_params(
+                            boost::iostreams::gzip::best_compression
+                        )
+                    )
+                );
+            }
+            break;
+            case 1:
+            {
+                std::cout << "Trying LZMA: ";
+                in.push(
+                    boost::iostreams::lzma_compressor()
+                );
+            }
+            break;
+            case 2:
+            {
+                std::cout << "Trying BZIP2: ";
+                in.push(
+                    boost::iostreams::bzip2_compressor()
+                );
+            }
+            break;
+        }
+
+        std::ostringstream compressed;
+        boost::iostreams::copy(in, compressed);
+        compressed_strings.emplace_back(compressed.str());
+        size_t sz = compressed_strings.back().size();
+
+        std::cout << (boost::format("%0.1f") % ((float)sz / 1024.f)).str()
+        << " kb ("
+        << (boost::format("%0.2f") % ((float)sz / (float)gridptrsz * 100.0f)).str()
+        << " %)." << std::endl;
+    }
+
+    return compressed_strings;
 }

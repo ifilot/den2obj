@@ -33,6 +33,7 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filter/lzma.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
@@ -51,5 +52,14 @@ void write_d2o_file(const std::string& filename,
                     const std::vector<fpt>& gridptr,
                     std::array<unsigned int, 3>& grid_dimensions,
                     const MatrixUnitcell& mat);
+
+/**
+ * @brief      Compress data stream using all possible compression algos
+ *
+ * @param[in]  origin  Uncompressed data stream
+ *
+ * @return     Vector containing compressed streams as strings
+ */
+std::vector<std::string> d2o_compress_all(const std::istringstream& origin);
 
 #endif // _D2O_FORMAT
