@@ -25,6 +25,7 @@
 #include <set>
 #include <vector>
 #include <omp.h>
+#include <boost/filesystem.hpp>
 
 #include "math.h"
 #include "isosurface.h"
@@ -74,6 +75,15 @@ public:
      * @param[in]  center_mesh  whether to center structure
      */
     void construct_mesh(bool center_mesh);
+
+    /**
+     * @brief      Write to file, autorecognizes the file type
+     *
+     * @param[in]  filename  The filename
+     * @param[in]  header    The header
+     * @param[in]  name      The name
+     */
+    void write_to_file(const std::string& filename, const std::string& header, const std::string& name);
 
     /**
      * @brief      write wavefront file

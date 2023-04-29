@@ -48,6 +48,9 @@ int main(int argc, char* argv[]) {
         TCLAP::ValueArg<double> arg_isovalue("v", "isovalue", "Isovalue", false, 0.01, "double");
         cmd.add(arg_isovalue);
 
+        // whether to produce both positive as well as negative isovalue plots
+        TCLAP::SwitchArg arg_d("d","dual","produce positive and negative versions of the isovalue", cmd, false);
+
         // whether to center the wavefront object
         TCLAP::SwitchArg arg_c("c","center","center structure", cmd, false);
 
@@ -78,7 +81,7 @@ int main(int argc, char* argv[]) {
         //**************************************
         // parsing values
         //**************************************
-        const std::string output_filename = arg_output_filename.getValue();
+        std::string output_filename = arg_output_filename.getValue();
 
         // keep track of time
         auto start = std::chrono::system_clock::now();
@@ -159,7 +162,13 @@ int main(int argc, char* argv[]) {
                 }
 
             } else {
-                double isovalue = arg_isovalue.getValue();
+                fpt isovalue = arg_isovalue.getValue();
+
+                // automatically convert the isovalue to a positive number if d is set
+                if(arg_d.getValue()) {
+                    isovalue = std::abs(isovalue);
+                }
+
                 std::cout << "Using isovalue: " << isovalue << std::endl;
 
                 sf->read();
@@ -177,17 +186,36 @@ int main(int argc, char* argv[]) {
                 IsoSurfaceMesh ism(sf.get(), &is);
                 ism.construct_mesh(arg_c.getValue());
 
-                if(output_filename.substr(output_filename.size()-4) == ".obj") {
-                    std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
-                    ism.write_obj(output_filename, path.filename().string(), path.filename().string());
-                } else if(output_filename.substr(output_filename.size()-4) == ".ply") {
-                    std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
-                    ism.write_ply(output_filename, path.filename().string(), path.filename().string());
-                } else if(output_filename.substr(output_filename.size()-4) == ".stl") {
-                    std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
-                    ism.write_stl(output_filename);
-                } else {
-                    throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+                // insert a suffix "pos" before the extension if dual conversion is set
+                if(arg_d.getValue()) {
+                    boost::filesystem::path p(output_filename);
+                    auto ext = p.extension();
+                    auto stem = p.stem();
+
+                    // insert "_pos"
+                    output_filename = stem.string() + "_pos" + ext.string();
+                }
+
+                // write isosurface to file; automatically capture file type from extension
+                ism.write_to_file(output_filename, path.filename().string(), path.filename().string());
+
+                // insert a suffix "pos" before the extension if dual conversion is set
+                if(arg_d.getValue()) {
+                    boost::filesystem::path p(output_filename);
+                    auto ext = p.extension();
+                    auto stem = p.stem();
+
+                    // insert "_neg"
+                    output_filename = stem.string().substr(0,stem.string().size()-4) + "_neg" + ext.string();
+
+                    IsoSurface is_neg(sf.get());
+                    is_neg.marching_cubes(-isovalue);
+
+                    IsoSurfaceMesh ism_neg(sf.get(), &is_neg);
+                    ism_neg.construct_mesh(arg_c.getValue());
+
+                    // write isosurface to file; automatically capture file type from extension
+                    ism_neg.write_to_file(output_filename, path.filename().string(), path.filename().string());
                 }
             }
         }

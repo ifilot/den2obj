@@ -137,6 +137,30 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
 }
 
 /**
+ * @brief      Write to file, autorecognizes the file type
+ *
+ * @param[in]  filename  The filename
+ * @param[in]  header    The header
+ * @param[in]  name      The name
+ */
+void IsoSurfaceMesh::write_to_file(const std::string& filename, const std::string& header, const std::string& name) {
+    boost::filesystem::path path(filename);
+
+    if(filename.substr(filename.size()-4) == ".obj") {
+        std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
+        this->write_obj(filename, path.filename().string(), path.filename().string());
+    } else if(filename.substr(filename.size()-4) == ".ply") {
+        std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
+        this->write_ply(filename, path.filename().string(), path.filename().string());
+    } else if(filename.substr(filename.size()-4) == ".stl") {
+        std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
+        this->write_stl(filename);
+    } else {
+        throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+    }
+}
+
+/**
  * @brief      write wavefront file
  *
  * @param[in]  filename  The filename
