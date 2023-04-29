@@ -63,3 +63,18 @@ To perform the conversion, one executes::
 
     Creating `OpenVDB` files requires the OpenVDB module to be compiled. See
     the :ref:`installation <Installation>` section for more details.
+
+Dataset generation
+==================
+
+For testing and learning purposes, :program:`Den2Obj` can generate a number of datasets. This
+is done via the ``-g <dataset name>`` directive, which takes a valid ``dataset name`` as input. 
+
+For example, to build the ``genus2`` dataset, one runs::
+
+    ./den2obj -g genus2 -o genus2.d2o
+
+It is possible to overrule the preferred compression algorithm using the ``-a <compression algo>``
+directive. For example, to force BZIP2 type of compression, one runs::
+
+    ./den2obj -g genus2 -o genus2.d2o -a bzip2

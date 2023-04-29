@@ -20,11 +20,27 @@
 
 #include "generator.h"
 
+/**
+ * @brief      Constructs a new instance.
+ */
 Generator::Generator() {}
 
-void Generator::build_dataset(const std::string& name, const std::string& filename) const {
+/**
+ * @brief      Build a dataset
+ *
+ * @param[in]  name      Name of the dataset
+ * @param[in]  filename  File to output dataset to
+ * @param[in]  algo_id   Compression algorithm
+ */
+void Generator::build_dataset(const std::string& name, 
+                              const std::string& filename,
+                              unsigned int algo_id) const {
     auto got = this->datasets.find(name);
     if(got == this->datasets.end()) {
+        std::cerr << "Invalid dataset name encountered. Please select from the following sets: " << std::endl;
+        for(const auto& i : this->datasets) {
+            std::cerr << " * " << i.first << std::endl;
+        }
         throw std::runtime_error("Invalid dataset: " + name);
     } else {
         switch(got->second) {
@@ -38,20 +54,28 @@ void Generator::build_dataset(const std::string& name, const std::string& filena
                 for(unsigned int i=0; i<3; i++) {
                     mat(i,i) = 2.0 * sz;
                 }
-                D2OFormat::write_d2o_file(filename, grid, grid_dimensions, mat);
+                D2OFormat::write_d2o_file(filename, grid, grid_dimensions, mat, algo_id);
             }
             break;
             case GeneratorDataset::DS_BENZENE_HOMO:
+            case GeneratorDataset::DS_BENZENE_LUMO:
             {
+                unsigned int mo_id = 0;
+                if(got->second == GeneratorDataset::DS_BENZENE_HOMO) {
+                    mo_id = 20;
+                } else if(got->second == GeneratorDataset::DS_BENZENE_LUMO) {
+                    mo_id = 21;
+                }
+
                 const unsigned int npts = 150;
                 const fpt sz = 6.0f;
                 std::array<unsigned int, 3> grid_dimensions = {npts, npts, npts};
-                std::vector<fpt> grid = this->benzene_molecular_orbital(sz, npts, 20);
+                std::vector<fpt> grid = this->benzene_molecular_orbital(sz, npts, mo_id);
                 MatrixUnitcell mat = MatrixUnitcell::Zero();
                 for(unsigned int i=0; i<3; i++) {
                     mat(i,i) = 2.0 * sz;
                 }
-                D2OFormat::write_d2o_file(filename, grid, grid_dimensions, mat);
+                D2OFormat::write_d2o_file(filename, grid, grid_dimensions, mat, algo_id);
             }
             break;
             default:
@@ -61,6 +85,14 @@ void Generator::build_dataset(const std::string& name, const std::string& filena
     }
 }
 
+/**
+ * @brief      Generator for the `genus2` dataset
+ *
+ * @param[in]  sz    Size in each cartesian direction
+ * @param[in]  npts  Number of points in each direction
+ *
+ * @return     Vector containing datapoints for genus2 dataset
+ */
 std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
     std::vector<fpt> xx(npts);
 
@@ -88,6 +120,15 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
     return f;
 }
 
+/**
+ * @brief      Generator for benzene molecular orbitals
+ *
+ * @param[in]  sz     Size in each cartesian direction
+ * @param[in]  npts   Number of points in each direction
+ * @param[in]  mo_id  Which molecular orbital (0-35) to produce
+ *
+ * @return     Vector containing datapoints for benzene molecule orbital
+ */
 std::vector<fpt> Generator::benzene_molecular_orbital(fpt sz, size_t npts,
                                                       unsigned int mo_id) const {
     std::vector<fpt> xx(npts);
@@ -115,6 +156,16 @@ std::vector<fpt> Generator::benzene_molecular_orbital(fpt sz, size_t npts,
     return f;
 }
 
+/**
+ * @brief      Calculate Gaussian Type Orbital Normalization Constant
+ *
+ * @param[in]  alpha  Exponent
+ * @param[in]  l      Power in x-direction
+ * @param[in]  m      Power in y-direction
+ * @param[in]  n      Power in z-direction
+ *
+ * @return     The gto normalization constant.
+ */
 fpt Generator::calculate_gto_normalization_constant(fpt alpha,
                                                     unsigned int l,
                                                     unsigned int m,
@@ -133,6 +184,18 @@ fpt Generator::calculate_gto_normalization_constant(fpt alpha,
     return std::sqrt(nom / denom);
 }
 
+/**
+ * @brief      Calculate the amplitude (value) of a GTO
+ *
+ * @param[in]  pos    Position to evaluate
+ * @param[in]  apos   Location of the GTO
+ * @param[in]  alpha  Exponent
+ * @param[in]  l      Power in x-direction
+ * @param[in]  m      Power in y-direction
+ * @param[in]  n      Power in z-direction
+ *
+ * @return     The gto amp.
+ */
 fpt Generator::calculate_gto_amp(const Vec3& pos, const Vec3& apos,
                                  fpt alpha, unsigned int l,
                                  unsigned int m, unsigned int n) const {
@@ -147,6 +210,14 @@ fpt Generator::calculate_gto_amp(const Vec3& pos, const Vec3& apos,
                   std::exp(-alpha * r2);
 }
 
+/**
+ * @brief      Calculate the ampltitude (value) of the molecular orbital
+ *
+ * @param[in]  pos    Position in three-dimensional space
+ * @param[in]  mo_id  Which molecular orbital to produce
+ *
+ * @return     molecular orbital amplitude
+ */
 fpt Generator::calculate_mo_amp(const Vec3& pos, unsigned int mo_id) const {
     fpt val = 0.0;
 

@@ -733,7 +733,7 @@ void ScalarField::load_d2o_binary() {
     infile.read((char*)&protocol_id, sizeof(uint32_t));
 
     // check token id
-    if(protocol_id == 0 || protocol_id > 2) {
+    if(protocol_id == 0 || protocol_id > 3) {
         throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
     }
 

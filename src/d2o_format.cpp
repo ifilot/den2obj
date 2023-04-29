@@ -46,9 +46,10 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     size_t gridptrsz = gridptr.size() * sizeof(fpt);
     char* data = new char[gridptrsz];
     memcpy(data, &gridptr[0], gridptrsz);
+    const std::string originstr(data, gridptrsz);
 
     // determine best compression format
-    std::vector<std::string> compstr = d2o_compress_all(std::string(data, gridptrsz));
+    std::vector<std::string> compstr = d2o_compress_all(originstr);
     std::vector<unsigned int> stringsize(3,0);
 
     // clean up data object (no longer needed)
@@ -75,6 +76,14 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     } else {
         idx = protocol_override - 1;
         std::cout << "Overruling compression algo to: " << algos[idx] << std::endl;
+    }
+
+    // verify that the compressed stream can be correctly decompressed
+    bool valid_decompression = check_decompression(idx, originstr, compstr[idx]);
+    if(!valid_decompression) {
+        throw std::runtime_error("Decompression could not be verified. Please try again or force to use a different compression algorithm.");
+    } else {
+        std::cout << "Decompression verification passed." << std::endl;
     }
 
     // capture compressed data
@@ -170,4 +179,52 @@ std::vector<std::string> D2OFormat::d2o_compress_all(const std::string& originst
     }
 
     return compressed_strings;
+}
+
+/**
+ * @brief      Check that a compressed stream can be correctly decompressed
+ *
+ * @param[in]  protocol         Which compression algorithm has been used
+ * @param[in]  verificationstr  Original data stream (string)
+ * @param[in]  compressedstr    Compressed data stream (string)
+ *
+ * @return     Whether compressed stream can be correctly decompressed
+ */
+bool D2OFormat::check_decompression(uint32_t protocol, const std::string& verificationstr, const std::string& compressedstr) {
+    // decompress
+    std::istringstream compressed(compressedstr);
+    boost::iostreams::filtering_istreambuf in;
+
+    switch(protocol) {
+        case 0:
+        {
+            // GZIP compression
+            std::cout << "Building GZIP decompressor" << std::endl;
+            in.push(boost::iostreams::gzip_decompressor());
+        }
+        break;
+        case 1:
+        {
+            std::cout << "Building LZMA decompressor" << std::endl;
+            in.push(boost::iostreams::lzma_decompressor());
+        }
+        break;
+        case 2:
+        {
+            std::cout << "Building BZIP2 decompressor" << std::endl;
+            in.push(boost::iostreams::bzip2_decompressor());
+        }
+        break;
+        default:
+            throw std::runtime_error("Invalid algorithm id encountered for decompression verification: " + std::to_string(protocol));
+        break;
+    }
+
+    in.push(compressed);
+
+    std::ostringstream origin;
+    boost::iostreams::copy(in, origin);
+    const std::string originstr = origin.str();
+
+    return verificationstr == originstr;
 }

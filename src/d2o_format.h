@@ -63,6 +63,17 @@ namespace D2OFormat {
      */
     std::vector<std::string> d2o_compress_all(const std::string& originstr);
 
+    /**
+     * @brief      Check that a compressed stream can be correctly decompressed
+     *
+     * @param[in]  protocol         Which compression algorithm has been used
+     * @param[in]  verificationstr  Original data stream for verification (string)
+     * @param[in]  compressedstr    Compressed data stream (string)
+     *
+     * @return     Whether compressed stream can be correctly decompressed
+     */
+    bool check_decompression(uint32_t protocol, const std::string& verificationstr, const std::string& compressedstr);
+
 }
 
 #endif // _D2O_FORMAT

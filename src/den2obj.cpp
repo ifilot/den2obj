@@ -55,13 +55,13 @@ int main(int argc, char* argv[]) {
         // to binary format or to OpenVDB format
         TCLAP::SwitchArg arg_t("t","transform","Store in new format", cmd, false);
 
-        // protocol id for d2o compression
-        TCLAP::ValueArg<uint32_t> arg_protocol("p", "protocol", "D2O protocol", false, 1, "uint32t");
-        cmd.add(arg_protocol);
-
         // output filename
         TCLAP::ValueArg<std::string> arg_generator("g","dataset","Dataset name",false,"","string");
         cmd.add(arg_generator);
+
+        // select compression algorithm
+        TCLAP::ValueArg<std::string> arg_algo("a","algo","Compression algorithm",false,"","string");
+        cmd.add(arg_algo);
 
         cmd.parse(argc, argv);
 
@@ -83,16 +83,39 @@ int main(int argc, char* argv[]) {
         // keep track of time
         auto start = std::chrono::system_clock::now();
 
-        // check if a generation is requested, if not, check further
+        // verify algorithm choice
+        unsigned int algo_id = 0; // default is auto-select
+        if(!arg_generator.getValue().empty() || arg_t.getValue()) {
+            if(!arg_algo.getValue().empty()) {
+                static const std::unordered_map<std::string, unsigned int> algos = {
+                    {"gzip", 1},
+                    {"lzma", 2},
+                    {"bzip2", 3},
+                };
+
+                auto got = algos.find(arg_algo.getValue());
+                if(got == algos.end()) {
+                    std::cerr << "Invalid choice for compression algorithm. Valid options are: " << std::endl;
+                    for(const auto& i : algos) {
+                        std::cerr << " * " << i.first << std::endl;
+                    }
+                    throw std::runtime_error("Invalid choice for compression algorithm: " + arg_algo.getValue());
+                } else {
+                    algo_id = got->second;
+                }
+            }
+        }
+
+        // check if a generation is requested
         if(!arg_generator.getValue().empty()) {
             Generator gen;
 
             if(output_filename.substr(output_filename.size()-4) != ".d2o") {
-                throw std::runtime_error("Invalid extension for dataset generation. Has to end in .d2o.");
+                throw std::runtime_error("Invalid extension for dataset generation. Filename has to end in .d2o.");
             }
 
             std::cout << "Building grid using dataset: " << arg_generator.getValue() << std::endl;
-            gen.build_dataset(arg_generator.getValue(), output_filename);
+            gen.build_dataset(arg_generator.getValue(), output_filename, algo_id);
         } else {
             const std::string input_filename = arg_input_filename.getValue();
             if(input_filename.empty()) {
@@ -127,7 +150,7 @@ int main(int argc, char* argv[]) {
             if(arg_t.getValue()) {
                 if(output_filename.substr(output_filename.size()-4) == ".d2o") {
                     sf->read();
-                    sf->write_d2o_binary(output_filename, arg_protocol.getValue());
+                    sf->write_d2o_binary(output_filename, algo_id);
                     std::cout << "Writing as D2O binary file." << std::endl;
                 }
                 #ifdef MOD_OPENVDB
