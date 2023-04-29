@@ -11,6 +11,9 @@ libraries are available to you:
 * `Eigen3 <https://eigen.tuxfamily.org>`_ (matrix algebra)
 * `Boost <https://www.boost.org/>`_ (common routines)
 * `TCLAP <https://tclap.sourceforge.net/>`_ (command line instruction library)
+* `BZIP2 <https://sourceware.org/bzip2/>`_ (bzip2 data compression)
+* `GZIP <https://www.gnu.org/software/gzip/>`_ (gzip data compression)
+* `LZMA <https://7-zip.org/>`_ (lzma data compression)
 * `CPPUnit <https://sourceforge.net/projects/cppunit/>`_ (unit testing)
 
 .. note::
@@ -82,27 +85,28 @@ To test :program:`Den2Obj`, one can run the following after compilation::
 A succesfull test should produce an output similar to the one found below::
 
     Running tests...
-    Test project /mnt/d/PROGRAMMING/CPP/den2obj/build
+    Test project /mnt/c/PROGRAMMING/CPP/den2obj/build
         Start 1: DatasetSetup
-    1/5 Test #1: DatasetSetup .....................   Passed    1.16 sec
+    1/6 Test #1: DatasetSetup .....................   Passed    2.49 sec
         Start 3: TestIsosurface
-    2/5 Test #3: TestIsosurface ...................   Passed    0.37 sec
+    2/6 Test #3: TestIsosurface ...................   Passed    1.07 sec
         Start 4: TestScalarField
-    3/5 Test #4: TestScalarField ..................   Passed    0.41 sec
+    3/6 Test #4: TestScalarField ..................   Passed    0.39 sec
         Start 5: TestD2OFileFormat
-    4/5 Test #5: TestD2OFileFormat ................   Passed    0.10 sec
+    4/6 Test #5: TestD2OFileFormat ................   Passed    0.02 sec
+        Start 6: TestGenerator
+    5/6 Test #6: TestGenerator ....................   Passed    8.34 sec
         Start 2: DatasetCleanup
-    5/5 Test #2: DatasetCleanup ...................   Passed    0.00 sec
+    6/6 Test #2: DatasetCleanup ...................   Passed    0.00 sec
 
-    100% tests passed, 0 tests failed out of 5
+    100% tests passed, 0 tests failed out of 6
 
-    Total Test time (real) =   2.16 sec
+    Total Test time (real) =  12.45 sec
 
 If the test is for some reason failing, one can run the following to produce
 more output::
 
     CTEST_OUTPUT_ON_FAILURE=TRUE make test
-
 
 .. note::
 
