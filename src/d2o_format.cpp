@@ -33,14 +33,11 @@ void D2OFormat::write_d2o_file(const std::string& filename,
                                const std::vector<fpt>& gridptr,
                                std::array<unsigned int, 3>& grid_dimensions,
                                const MatrixUnitcell& mat,
-                               uint32_t protocol_override) {
+                               D2OFormat::CompressionAlgo algo_id) {
     // write file format token
     std::ofstream outfile(filename, std::ios::binary);
     char buf[] = "D2O";
     outfile.write(buf, 3);
-
-    // auto-look for best compression algo
-    std::cout << "Looking for best compression algorithm." << std::endl;
 
     // copy data to char array
     size_t gridptrsz = gridptr.size() * sizeof(fpt);
@@ -48,38 +45,34 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     memcpy(data, &gridptr[0], gridptrsz);
     const std::string originstr(data, gridptrsz);
 
-    // determine best compression format
-    std::vector<std::string> compstr = d2o_compress_all(originstr);
-    std::vector<unsigned int> stringsize(3,0);
+    std::string compressedstr;
+    if(algo_id == D2OFormat::CompressionAlgo::AUTO) {
+        // auto-look for best compression algo
+        std::cout << "Looking for best compression algorithm." << std::endl;
 
-    // clean up data object (no longer needed)
-    delete[] data;
+        // determine best compression format
+        auto compstr = d2o_compress_all(originstr);
+        std::unordered_map<D2OFormat::CompressionAlgo, unsigned int, std::hash<D2OFormat::CompressionAlgo>> stringsizes;
 
-    // list of compression algos
-    static const std::vector<std::string> algos = {
-        "GZIP",
-        "LZMA",
-        "BZIP2"
-    };
-
-
-    unsigned int idx = 0;
-    if(protocol_override == 0) {
         // determine size for each type of compression
-        for(unsigned int i=0; i<3; i++) {
-            stringsize[i] = compstr[i].size();
+        for(const auto& i : compstr) {
+            stringsizes.emplace(i.first, i.second.size());
         }
 
         // find best compression algo and base protocol id on this
-        idx = std::distance(std::begin(stringsize), std::min_element(std::begin(stringsize), std::end(stringsize)));
-        std::cout << "Best algorithm: " << algos[idx] << std::endl;
+        auto got = std::min_element(stringsizes.begin(), stringsizes.end(), [](const auto& l, const auto& r) { return l.second < r.second; });
+        compressedstr = compstr.find(got->first)->second;
+
+        // overwrite algo_id
+        algo_id = got->first;
+        // std::cout << "Best algorithm: " << D2OFormat::algos[idx] << std::endl;
     } else {
-        idx = protocol_override - 1;
-        std::cout << "Overruling compression algo to: " << algos[idx] << std::endl;
+        compressedstr = D2OFormat::compress_stream(originstr, algo_id);
+        // std::cout << "Overruling compression algo to: " << D2OFormat::algos[idx] << std::endl;
     }
 
     // verify that the compressed stream can be correctly decompressed
-    bool valid_decompression = check_decompression(idx, originstr, compstr[idx]);
+    bool valid_decompression = check_decompression(algo_id, originstr, compressedstr);
     if(!valid_decompression) {
         throw std::runtime_error("Decompression could not be verified. Please try again or force to use a different compression algorithm.");
     } else {
@@ -87,7 +80,7 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     }
 
     // capture compressed data
-    uint32_t protocol_id = idx + 1;
+    uint32_t protocol_id = static_cast<uint32_t>(algo_id);
 
     // write protocol id
     outfile.write((char*)&protocol_id, sizeof(uint32_t));
@@ -112,10 +105,14 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     std::cout << "Floating point size determined at: " << (int)fptsz << " bytes" << std::endl;
 
     // write compressed data size and compressed data
-    uint64_t sz = compstr[idx].size();
+    uint64_t sz = compressedstr.size();
     outfile.write((char*)&sz, sizeof(uint64_t));
-    outfile.write(compstr[idx].data(), compstr[idx].size());
+    outfile.write(compressedstr.data(), compressedstr.size());
 
+    // clean up data object (no longer needed)
+    delete[] data;
+
+    // close file
     outfile.close();
 
     std::uintmax_t size = boost::filesystem::file_size(filename);
@@ -124,57 +121,24 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     << "kb)." << std::endl;
 }
 
-std::vector<std::string> D2OFormat::d2o_compress_all(const std::string& originstr) {
-    std::vector<std::string> compressed_strings;
-    unsigned int gridptrsz = originstr.size();
+std::unordered_map<D2OFormat::CompressionAlgo, std::string, std::hash<D2OFormat::CompressionAlgo>> D2OFormat::d2o_compress_all(const std::string& originstr) {
+    std::unordered_map<D2OFormat::CompressionAlgo, std::string, std::hash<D2OFormat::CompressionAlgo>> compressed_strings;
 
-    for(unsigned int i=0; i<3; i++) {
-        std::istringstream origin(originstr);
-        boost::iostreams::filtering_istreambuf in;
-        switch(i) {
-            case 0:
-            {
-                std::cout << "Trying GZIP: ";
-                in.push(
-                    boost::iostreams::gzip_compressor(
-                        boost::iostreams::gzip_params(
-                            boost::iostreams::gzip::best_compression
-                        )
-                    )
-                );
-            }
-            break;
-            case 1:
-            {
-                std::cout << "Trying LZMA: ";
-                in.push(
-                    boost::iostreams::lzma_compressor(
-                        boost::iostreams::lzma_params(
-                            boost::iostreams::lzma::best_compression
-                        )
-                    )
-                );
-            }
-            break;
-            case 2:
-            {
-                std::cout << "Trying BZIP2: ";
-                in.push(
-                    boost::iostreams::bzip2_compressor()
-                );
-            }
-            break;
+    for(const auto& i : D2OFormat::algos) {
+        // skip auto tag
+        if(i.second == D2OFormat::CompressionAlgo::AUTO) {
+            continue;
         }
 
-        in.push(origin);
-        std::ostringstream compressed;
-        boost::iostreams::copy(in, compressed);
-        compressed_strings.emplace_back(compressed.str());
-        size_t sz = compressed_strings.back().size();
+        std::cout << "Trying " << i.first << ": ";
+        
+        const std::string compressedstr = D2OFormat::compress_stream(originstr, i.second);
+        compressed_strings.emplace(i.second, compressedstr);
+        size_t sz = compressedstr.size();
 
         std::cout << (boost::format("%0.1f") % ((float)sz / 1024.f)).str()
         << " kb ("
-        << (boost::format("%0.2f") % ((float)sz / (float)gridptrsz * 100.0f)).str()
+        << (boost::format("%0.2f") % ((float)sz / (float)originstr.size() * 100.0f)).str()
         << " %)." << std::endl;
     }
 
@@ -182,41 +146,94 @@ std::vector<std::string> D2OFormat::d2o_compress_all(const std::string& originst
 }
 
 /**
+ * @brief      Compress a stream
+ *
+ * @param[in]  originstr  Original string to compress
+ * @param[in]  algo_id    The algorithm identifier
+ *
+ * @return     Compressed stream
+ */
+std::string D2OFormat::compress_stream(const std::string& originstr, D2OFormat::CompressionAlgo algo_id) {
+    std::istringstream origin(originstr);
+    boost::iostreams::filtering_istreambuf in;
+
+    switch(algo_id) {
+        case D2OFormat::CompressionAlgo::GZIP:
+        {
+            in.push(
+                boost::iostreams::gzip_compressor(
+                    boost::iostreams::gzip_params(
+                        boost::iostreams::gzip::best_compression
+                    )
+                )
+            );
+        }
+        break;
+        case D2OFormat::CompressionAlgo::LZMA:
+        {
+            in.push(
+                boost::iostreams::lzma_compressor(
+                    boost::iostreams::lzma_params(
+                        boost::iostreams::lzma::best_compression
+                    )
+                )
+            );
+        }
+        break;
+        case D2OFormat::CompressionAlgo::BZIP2:
+        {
+            in.push(
+                boost::iostreams::bzip2_compressor()
+            );
+        }
+        break;
+        default:
+            throw std::runtime_error("Invalid algorithm id received.");
+        break;
+    }
+
+    in.push(origin);
+    std::ostringstream compressed;
+    boost::iostreams::copy(in, compressed);
+    return compressed.str();
+}
+
+/**
  * @brief      Check that a compressed stream can be correctly decompressed
  *
- * @param[in]  protocol         Which compression algorithm has been used
+ * @param[in]  algo_id          Which compression algorithm has been used
  * @param[in]  verificationstr  Original data stream (string)
  * @param[in]  compressedstr    Compressed data stream (string)
  *
  * @return     Whether compressed stream can be correctly decompressed
  */
-bool D2OFormat::check_decompression(uint32_t protocol, const std::string& verificationstr, const std::string& compressedstr) {
+bool D2OFormat::check_decompression(D2OFormat::CompressionAlgo algo_id, const std::string& verificationstr, const std::string& compressedstr) {
     // decompress
     std::istringstream compressed(compressedstr);
     boost::iostreams::filtering_istreambuf in;
 
-    switch(protocol) {
-        case 0:
+    switch(algo_id) {
+        case D2OFormat::CompressionAlgo::GZIP:
         {
             // GZIP compression
             std::cout << "Building GZIP decompressor" << std::endl;
             in.push(boost::iostreams::gzip_decompressor());
         }
         break;
-        case 1:
+        case D2OFormat::CompressionAlgo::LZMA:
         {
             std::cout << "Building LZMA decompressor" << std::endl;
             in.push(boost::iostreams::lzma_decompressor());
         }
         break;
-        case 2:
+        case D2OFormat::CompressionAlgo::BZIP2:
         {
             std::cout << "Building BZIP2 decompressor" << std::endl;
             in.push(boost::iostreams::bzip2_decompressor());
         }
         break;
         default:
-            throw std::runtime_error("Invalid algorithm id encountered for decompression verification: " + std::to_string(protocol));
+            throw std::runtime_error("Invalid algorithm id encountered for decompression verification.");
         break;
     }
 

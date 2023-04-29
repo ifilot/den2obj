@@ -34,7 +34,7 @@ Generator::Generator() {}
  */
 void Generator::build_dataset(const std::string& name, 
                               const std::string& filename,
-                              unsigned int algo_id) const {
+                              D2OFormat::CompressionAlgo algo_id) const {
     auto got = this->datasets.find(name);
     if(got == this->datasets.end()) {
         std::cerr << "Invalid dataset name encountered. Please select from the following sets: " << std::endl;

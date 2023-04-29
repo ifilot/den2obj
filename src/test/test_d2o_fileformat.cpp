@@ -35,7 +35,7 @@ void TestD2OFileFormat::test_gzip_compression() {
 
     static const std::string filename = "chgcar_ch4_gzip.d2o";
 
-    sf.write_d2o_binary(filename, 1);
+    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::GZIP);
     CPPUNIT_ASSERT_EQUAL((uint32_t)1, this->get_protocol_id(filename));
 
     const auto nrgridpts = sf.get_grid().size();
@@ -56,7 +56,7 @@ void TestD2OFileFormat::test_lzma_compression() {
 
     static const std::string filename = "chgcar_ch4_lzma.d2o";
 
-    sf.write_d2o_binary(filename, 2);
+    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::LZMA);
     CPPUNIT_ASSERT_EQUAL((uint32_t)2, this->get_protocol_id(filename));
 
     const auto nrgridpts = sf.get_grid().size();
@@ -77,7 +77,7 @@ void TestD2OFileFormat::test_bzip2_compression() {
 
     static const std::string filename = "chgcar_ch4_bzip2.d2o";
 
-    sf.write_d2o_binary(filename, 3);
+    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::BZIP2);
     CPPUNIT_ASSERT_EQUAL((uint32_t)3, this->get_protocol_id(filename));
 
     const auto nrgridpts = sf.get_grid().size();
@@ -99,7 +99,7 @@ void TestD2OFileFormat::test_autocompression() {
 
     static const std::string filename = "chgcar_ch4_auto.d2o";
 
-    sf.write_d2o_binary(filename, 0);
+    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::AUTO);
     CPPUNIT_ASSERT_EQUAL((uint32_t)2, this->get_protocol_id(filename));
 
     const auto nrgridpts = sf.get_grid().size();

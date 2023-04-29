@@ -57,11 +57,11 @@ public:
      *
      * @param[in]  name      Name of the dataset
      * @param[in]  filename  File to output dataset to
-     * @param[in]  algo_id   Compression algorithm
+     * @param[in]  algo_id   Compression algorithm [0-4], 0 = autocompression
      */
     void build_dataset(const std::string& name,
                        const std::string& filename,
-                       unsigned int algo_id = 0) const;
+                       D2OFormat::CompressionAlgo algo_id = D2OFormat::CompressionAlgo::AUTO) const;
 
 private:
     /**

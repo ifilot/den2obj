@@ -84,19 +84,13 @@ int main(int argc, char* argv[]) {
         auto start = std::chrono::system_clock::now();
 
         // verify algorithm choice
-        unsigned int algo_id = 0; // default is auto-select
+        D2OFormat::CompressionAlgo algo_id = D2OFormat::CompressionAlgo::AUTO; // default is auto-select
         if(!arg_generator.getValue().empty() || arg_t.getValue()) {
             if(!arg_algo.getValue().empty()) {
-                static const std::unordered_map<std::string, unsigned int> algos = {
-                    {"gzip", 1},
-                    {"lzma", 2},
-                    {"bzip2", 3},
-                };
-
-                auto got = algos.find(arg_algo.getValue());
-                if(got == algos.end()) {
+                auto got = D2OFormat::algos.find(arg_algo.getValue());
+                if(got == D2OFormat::algos.end()) {
                     std::cerr << "Invalid choice for compression algorithm. Valid options are: " << std::endl;
-                    for(const auto& i : algos) {
+                    for(const auto& i : D2OFormat::algos) {
                         std::cerr << " * " << i.first << std::endl;
                     }
                     throw std::runtime_error("Invalid choice for compression algorithm: " + arg_algo.getValue());

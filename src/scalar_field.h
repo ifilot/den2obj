@@ -129,7 +129,7 @@ public:
      *
      * Preferred protocol is set to 2, which corresponds to LZMA compression.
      */
-    void write_d2o_binary(const std::string filename, uint32_t protocol_id = 0);
+    void write_d2o_binary(const std::string filename, D2OFormat::CompressionAlgo = D2OFormat::CompressionAlgo::AUTO);
 
     /*
      * @brief output()

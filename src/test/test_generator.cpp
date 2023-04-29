@@ -33,7 +33,7 @@ void TestGenerator::test_generator_genus() {
     const std::string filename = "genus2.d2o";
 
     // generator dataset
-    gen.build_dataset("genus2", filename);
+    gen.build_dataset("genus2", filename, D2OFormat::CompressionAlgo::BZIP2);
 
     // check that it can be read
     CPPUNIT_ASSERT_NO_THROW(ScalarField(filename, ScalarFieldInputFileType::SFF_D2O));
@@ -44,7 +44,7 @@ void TestGenerator::test_generator_benzene() {
     const std::string filename = "benzene_homo.d2o";
 
     // generator dataset
-    gen.build_dataset("benzene_homo", filename);
+    gen.build_dataset("benzene_homo", filename, D2OFormat::CompressionAlgo::BZIP2);
 
     // check that it can be read
     CPPUNIT_ASSERT_NO_THROW(ScalarField(filename, ScalarFieldInputFileType::SFF_D2O));
