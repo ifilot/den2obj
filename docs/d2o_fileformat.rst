@@ -2,7 +2,7 @@
 .. index:: D2O file format
 
 D2O File Format
-***************
+===============
 
 The ``.d2o`` file format is a binary file type to store densely packed scalar
 fields. :program:`Den2Obj` uses this file format to store the data in the

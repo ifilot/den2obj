@@ -1,8 +1,11 @@
 .. _tutorial:
 .. index:: Tutorial
 
-Tutorial
-********
+Tutorials
+=========
+
+.. contents::
+   :local:
 
 This tutorial describes in a step-by-step procedure how to use :program:`Den2Obj`.
 :program:`Den2Obj` comes bundled with a generator to produce scalar fields. As
@@ -22,7 +25,7 @@ tutorial.
       `tutorials by Blender Guru <https://www.youtube.com/watch?v=nIoXOplUvAw>`_.
 
 Genus2 dataset
-==============
+--------------
 
 In this tutorial, we will be reproducing the Figure as shown below.
 

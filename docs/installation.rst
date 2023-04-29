@@ -2,7 +2,13 @@
 .. index:: Installation
 
 Installation
-************
+============
+
+.. contents::
+   :local:
+
+Prerequisites
+-------------
 
 :program:`Den2Obj` is developed for Linux operating systems. In order to 
 compile :program:`Den2Obj` on your system, you need to ensure the following 
@@ -29,7 +35,7 @@ To ensure that all the packages are installed, one can run the following::
     pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev
 
 Standard compilation
-====================
+--------------------
 
 Compilation of :program:`Den2Obj` is fairly straightforward and a typical procedure
 looks as follows::
@@ -47,7 +53,7 @@ To install :program:`EDP`, you can in addition run::
 which will place a copy of the ``den2obj`` executable in ``/usr/local/bin/den2obj``.
 
 Compilation with OpenVDB module
-===============================
+-------------------------------
 
 Using the `OpenVDB <https://www.openvdb.org/>`_ library, it is possible
 to convert a density object to an OpenVDB file which can be used to render
@@ -76,7 +82,7 @@ Compilation :program:`Den2Obj` with the OpenVDB module is as follows::
     make -j9
 
 Testing
-=======
+-------
 
 To test :program:`Den2Obj`, one can run the following after compilation::
 

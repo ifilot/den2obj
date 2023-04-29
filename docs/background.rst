@@ -2,8 +2,7 @@
 .. index:: Background
 
 Background
-**********
-
+==========
 
 Below, a brief explanation on isosurface construction is given. A more technical
 description can be found on the `excellent website of Paul Bourke <http://paulbourke.net/geometry/polygonise/>`_.

@@ -2,7 +2,13 @@
 .. index:: User Interface
 
 User Interface
-**************
+==============
+
+.. contents::
+   :local:
+
+Operational modes
+-----------------
 
 :program:`Den2Obj` has three operational modes
 
@@ -17,7 +23,7 @@ large storage formats such as CHGCAR or Gaussian cube files to the compressed
 used for testing or educational purposes.
 
 Isosurface generation
-=====================
+---------------------
 
 To perform an isosurface creation, one simply runs::
 
@@ -51,7 +57,7 @@ and ``isovalue`` the isovalue for the isosurface.
   rendered. This is useful when rendering wave functions rather than densities.
 
 Filetype conversion
-===================
+-------------------
 
 :program:`Den2Obj` offers the conversion to two different file types.
 
@@ -79,7 +85,7 @@ When ``auto`` is selected or when no ``-a`` directive is provided, automatically
 the best compression algorithm is taken by checking all possible compressions.
 
 Dataset generation
-==================
+------------------
 
 For testing and learning purposes, :program:`Den2Obj` can generate a number of datasets. This
 is done via the ``-g <dataset name>`` directive, which takes a valid ``dataset name`` as input. 

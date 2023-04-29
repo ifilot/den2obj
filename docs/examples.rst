@@ -2,7 +2,7 @@
 .. index:: Examples
 
 Examples
-********
+========
 
 Charge distribution
 -------------------

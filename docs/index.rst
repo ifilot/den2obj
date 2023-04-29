@@ -36,6 +36,7 @@ of your research. Below, a few examples are shown. See also the
    examples
    user_interface
    d2o_fileformat
+   faq
 
 Indices and tables
 ------------------
