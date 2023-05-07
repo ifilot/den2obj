@@ -12,16 +12,7 @@ scalar fields. Den2Obj supports VASP charge files such as CHGCAR and PARCHG,
 Gaussian .cube files as well as its own .d2o format.
 
 ## Example images
-![3D Reaction-Diffusion system](img/reac_diff_3d_network_small.png)
-
-*The isosurface above represents the concentration profile of a
- reaction-diffusion system in 3D using Gray-Scott kinetics. The isosurface has
- been generated using den2obj and rendered using [Blender]
- (https://www.blender.org/).*
-
-![Molecular orbitals of CO](img/CO_mos.jpg)
-
-*The isosurfaces of the first 10 molecular orbitals of the CO molecule.*
+![Canonical valence orbitals of CH4](docs/_static/img/ch4_valence_orbitals.png)
 
 ## Compilation instructions
 

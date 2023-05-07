@@ -60,7 +60,7 @@ To convert a ``CHGCAR`` file to ``.d2o`` file format, run the following command:
    cases, this corresponds to the `LZMA type of compression <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_.
 
 Protocol tokens
-===============
+---------------
 
 1. GZIP compression
 2. LZMA compression

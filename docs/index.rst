@@ -25,6 +25,8 @@ such as `Blender <https://www.blender.org/>`_ to produce stunning visuals
 of your research. Below, a few examples are shown. See also the
 :ref:`Examples<Examples>` for a nice overview.
 
+.. figure:: _static/img/ch4_valence_orbitals.png
+   :alt: Canonical valence orbitals of CH4
 
 .. toctree::
    :maxdepth: 2
@@ -36,6 +38,7 @@ of your research. Below, a few examples are shown. See also the
    examples
    user_interface
    d2o_fileformat
+   community_guidelines
    faq
 
 Indices and tables

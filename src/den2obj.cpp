@@ -103,7 +103,11 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // check if a generation is requested
+        /************************************************************************************************************
+         *
+         * SCALAR FIELD GENERATION
+         *
+         ***********************************************************************************************************/
         if(!arg_generator.getValue().empty()) {
             Generator gen;
 
@@ -143,6 +147,12 @@ int main(int argc, char* argv[]) {
                 throw std::runtime_error("Cannot interpret input file format. Please check the filename.");
             }
 
+            /************************************************************************************************************
+             *
+             * DATASET CONVERSION (TRANSFORMATION)
+             *
+             ***********************************************************************************************************/
+
             // check whether only a conversion is requested, if not, continue
             if(arg_t.getValue()) {
                 if(output_filename.substr(output_filename.size()-4) == ".d2o") {
@@ -162,6 +172,12 @@ int main(int argc, char* argv[]) {
                 }
 
             } else {
+
+                /************************************************************************************************************
+                *
+                * ISOSURFACE GENERATION
+                *
+                ***********************************************************************************************************/
                 fpt isovalue = arg_isovalue.getValue();
 
                 // automatically convert the isovalue to a positive number if d is set
@@ -177,7 +193,16 @@ int main(int argc, char* argv[]) {
 
                 // construct isosurface generator object
                 IsoSurface is(sf.get());
-                is.marching_cubes(isovalue);
+
+                if(arg_algo.getValue().empty() || arg_algo.getValue() == "marching-cubes") {
+                    std::cout << "Using marching cubes algorithm for isosurface generation." << std::endl;
+                    is.marching_cubes(isovalue);    
+                } else if(arg_algo.getValue() == "marching-tetrahedra") {
+                    std::cout << "Using marching tetrahedra algorithm for isosurface generation." << std::endl;
+                    is.marching_tetrahedra(isovalue);
+                } else {
+                    throw std::runtime_error("Invalid isosurface generation algo: " + arg_algo.getValue());
+                }
 
                 // store path to extract filename
                 boost::filesystem::path path(output_filename);

@@ -116,3 +116,147 @@ we have used the settings as can be seen in the figure below.
 
 The only step that remains is to render the image, which will give the image
 as shown at the start of this section.
+
+Benzene highest occupied molecular orbital
+------------------------------------------
+
+In this tutorial, we will be reproducing the Figure as shown below.
+
+.. figure:: _static/img/tutorials/benzene_homo_result.png
+   :alt: Benzene highest occupied molecular orbital
+
+To generate the scalar field, run::
+
+    ./den2obj -g benzene_homo -o benzene_homo.d2o
+
+Next, the isosurface is generated. An isovalue of 0.03 is chosen. Because
+molecular orbital have positive and negative lobes, we use the ``-d`` tag
+to create both isosurfaces. Furthermore, we center the object by defining
+``-c`` and we explicitly ask to use the marching tetrahedra algorithm
+via ``--algo marching-tetrahedra``::
+
+    ./den2obj -i benzene_homo.d2o -o benzene_homo.ply -v 0.03 -c -d --algo marching-tetrahedra
+
+The following output (or similar) is generated::
+
+    --------------------------------------------------------------
+    Executing DEN2OBJ v.1.1.0
+    Author:  Ivo Filot <i.a.w.filot@tue.nl>
+    Website: https://den2obj.imc-tue.nl
+    Github:  https://github.com/ifilot/den2obj
+    --------------------------------------------------------------
+    Opening benzene_homo.d2o as D2O binary file
+    Recognizing floating point size: 4 bytes.
+    Reading 11415368 bytes from file.
+    Building LZMA decompressor
+    Decompressed data
+    Done reading D2O binary file
+    Read 3375000 values.
+    Using isovalue: 0.03
+    Lowest value in scalar field: -0.25383
+    Highest value in scalar field: 0.25383
+    Calculating normal vectors using two-point stencil
+    Centering structure
+    Writing mesh as Standford Triangle Format file (.ply).
+    Writing as Stanford (.ply) file: benzene_homo_pos.ply (4560.3kb).
+    Identified 59512 faces.
+    Calculating normal vectors using two-point stencil
+    Centering structure
+    Writing mesh as Standford Triangle Format file (.ply).
+    Writing as Stanford (.ply) file: benzene_homo_neg.ply (1454.4kb).
+    -------------------------------------------------------------------------------
+    Done in 2.17096 seconds.
+
+Observe that two isosurfaces are created and stored as ``.ply`` files:
+
+* benzene_homo_pos.ply
+* benzene_homo_neg.ply
+
+Importing these two files in Blender gives us the following result
+
+.. figure:: _static/img/tutorials/benzene_homo_blender_01.JPG
+   :alt: HOMO orbital of benzene imported into Blender
+
+Of course, this result is rather blend and we would like to add
+the positions of the carbon and hydrogen atoms and the bonds between
+them. For this, we are going to use the hardcoded Python script as shown
+below which we can readily execute in Blender
+
+.. code-block:: python
+
+    import bpy
+    import numpy as np
+
+    def main():
+        # define molecule
+        mol = []
+        
+        mol.append(['C',  0.0000000015, -1.3868467444, 0.0000000000])
+        mol.append(['C',  1.2010445126, -0.6934233709, 0.0000000000])
+        mol.append(['C',  1.2010445111,  0.6934233735, 0.0000000000])
+        mol.append(['C', -0.0000000015,  1.3868467444, 0.0000000000])
+        mol.append(['C', -1.2010445126,  0.6934233709, 0.0000000000])
+        mol.append(['C', -1.2010445111, -0.6934233735, 0.0000000000])
+        mol.append(['H',  0.0000000027, -2.4694205285, 0.0000000000])
+        mol.append(['H',  2.1385809117, -1.2347102619, 0.0000000000])
+        mol.append(['H',  2.1385809090,  1.2347102666, 0.0000000000])
+        mol.append(['H', -0.0000000027,  2.4694205285, 0.0000000000])
+        mol.append(['H', -2.1385809117,  1.2347102619, 0.0000000000])
+        mol.append(['H', -2.1385809090, -1.2347102666, 0.0000000000])
+
+        build_atoms(mol)
+        build_bonds(mol)
+
+    def build_atoms(molecule):
+        for i,at in enumerate(molecule):
+            sc = 0.4 if at[0] == 'C' else 0.3
+            obj = bpy.ops.mesh.primitive_ico_sphere_add(radius=sc, 
+                                                        enter_editmode=False, 
+                                                        align='WORLD', 
+                                                        location=(at[1], at[2], at[3]), 
+                                                        scale=(1, 1, 1),
+                                                        subdivisions=3)
+            bpy.context.selected_objects[0].name = at[0] + str(i+1)
+            bpy.ops.object.shade_smooth()
+
+    def build_bonds(molecule):
+        z = np.array([0,0,1])
+        for i,at1 in enumerate(molecule):
+            p1 = np.array([at1[1], at1[2], at1[3]])
+            for j,at2 in enumerate(molecule[i+1:]):
+                p2 = np.array([at2[1], at2[2], at2[3]])
+                d = np.linalg.norm(p1-p2)
+                
+                if d < 1.5:
+                    ctr = (p1 + p2) / 2
+                    angle = np.arccos(np.dot(z, (p2-p1) / d))
+                    axis = np.cross(z, (p2-p1) / d)
+                    axis /= np.linalg.norm(axis)
+                    
+                    bpy.ops.mesh.primitive_cylinder_add(radius=0.2, 
+                                                        depth=1, 
+                                                        enter_editmode=False, 
+                                                        align='WORLD', 
+                                                        location=(ctr[0], ctr[1], ctr[2]), 
+                                                        scale=(1, 1, 1))
+                    bpy.context.object.rotation_mode = 'AXIS_ANGLE'
+                    bpy.context.object.rotation_axis_angle[0] = angle
+                    bpy.context.object.rotation_axis_angle[1:4] = axis
+                    bpy.context.selected_objects[0].name = 'bond' + str(i+1) + '-' + str(j+1)
+                    bpy.ops.object.shade_smooth()
+
+
+    if __name__ == '__main__':
+        main()
+
+This will generate all the atoms and bonds between them. Next,
+materials are assigned to all atoms and bonds and the final result
+looks as seen in the image below.
+
+.. figure:: _static/img/tutorials/benzene_homo_blender_02.JPG
+   :alt: HOMO orbital of benzene together with the atoms and bonds
+
+Finally, we can render the scene to create a nice picture of the molecular orbital.
+
+.. figure:: _static/img/tutorials/benzene_homo_result.png
+   :alt: Benzene highest occupied molecular orbital

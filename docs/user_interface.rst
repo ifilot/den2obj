@@ -27,7 +27,7 @@ Isosurface generation
 
 To perform an isosurface creation, one simply runs::
 
-    ./den2obj -i <path-to-scalarfield> -o <mesh-file> -v <isovalue> [-c] [-d]
+    ./den2obj -i <path-to-scalarfield> -o <mesh-file> -v <isovalue> [-c] [-d] [-a <algo>]
 
 wherein ``path-to-scalarfield`` is a scalar field file format of either
 of the following types
@@ -55,6 +55,16 @@ and ``isovalue`` the isovalue for the isosurface.
   that the center of the unit cell is located at the origin.
 * The argument ``-d`` is optional. If used, both signs of the isosurface will be
   rendered. This is useful when rendering wave functions rather than densities.
+* The argument ``--algo`` is optional. It can be set to either ``marching-cubes``
+  or to ``marching-tetrahedra``. The default option is ``marching-cubes``.
+
+.. figure:: _static/img/tutorials/genus2_tetrahedra_versus_cubes.png
+   :alt: Marching tetrahedra versus marching cubes
+
+   Marching tetrahedra (left) versus marching cubes (right). Edges are explicitly
+   visualized. Observe that whilst using the same resolution of the dataset,
+   when using marching tetrahedra more facets are created and thus a higher
+   resolution isosurface.
 
 Filetype conversion
 -------------------
@@ -101,3 +111,8 @@ directive. For example, to force BZIP2 type of compression, one runs::
 
 When no ``-a`` is provided, automatically the best compression algorithm is used by
 checking the inflation ratio of all possible compression algorithms.
+
+The following datasets are available:
+* ``genus2``
+* ``benzene_homo``
+* ``benzene_lumo``

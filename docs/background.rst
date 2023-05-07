@@ -53,19 +53,26 @@ isosurface intersects each edge is determined using trilinear interpolation.
    **Figure 2**: The 256 possible ways that a scalar field can interact with
    each cube.
 
-To repeat on this. First the space wherein the function is evaluated is
-discretized into small cubes. Next, for each vertex on these cubes the function
-is evaluated and it is determined whether the value for the function at each of
-the vertices is larger or smaller than the isovalue. This leads to a number of
-edge intersections for each cube from which the polygons (triangles) for each
-cube can be established. As a final step, all polygons are gathered to form the
-threedimensional isosurface. It should be noted that this algorithm can be
-executed in a highly efficient fashion using trivial parallellization as the
-result for each cube is completely independent from all the other cubes. It
-turns out that the generation of the scalar field, which by itself is also a
-highly parallellizable step, is typically the most time-consuming.
+Thus the procedure is as follows:
+
+1. The space wherein the function is evaluated is discretized into small
+   cubes. 
+2. For each vertex on these cubes the function is evaluated and it is
+   determined whether the value for the function at each of the vertices is
+   larger or smaller than the isovalue. This leads to a number of edge
+   intersections for each cube from which the polygons (triangles) for each cube
+   can be established. 
+3. All polygons are gathered to form the threedimensional isosurface. 
+
+It should be noted that this algorithm can be executed in a highly efficient
+fashion using trivial parallellization as the result for each cube is
+completely independent from all the other cubes. It turns out that the
+generation of the scalar field, which by itself is also a highly
+parallellizable step, is typically the most time-consuming.
 
 The quality of the isosurface depends on the resolution of the grid used to
 sample the scalar field. The finer the grid (or mesh) used, the better the
-quality of the isosurface. Of course, a finer mesh comes at the expense of more
-values that need to evaluated in the algorithm.
+quality of the isosurface. Thus, rather than using cubes to sample the space,
+one can use tetrahedra. The algorithm is essentially the same as the one
+as described above, yet each cube is once more divided into six tetrahedra
+for which the above algorithm is executed.
