@@ -20,6 +20,8 @@
 
 #include "test_d2o_fileformat.h"
 
+CPPUNIT_TEST_SUITE_REGISTRATION( TestD2OFileFormat );
+
 void TestD2OFileFormat::setUp() {
     ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
     CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );

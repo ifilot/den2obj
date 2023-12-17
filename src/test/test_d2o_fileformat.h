@@ -37,19 +37,14 @@ class TestD2OFileFormat : public CppUnit::TestFixture
 
 public:
   void setUp();
-
   void tearDown();
 
   void test_gzip_compression();
-
   void test_lzma_compression();
-
   void test_bzip2_compression();
-
   void test_autocompression();
 
 private:
-
   uint32_t get_protocol_id(const std::string& filename);
 };
 
