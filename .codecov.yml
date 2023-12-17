@@ -24,3 +24,4 @@ ignore:
   - "*.h"
   - "src/test/**"           # ignore test harness code
   - "src/den2obj.cpp"       # ignore main routine of den2obj
+  - "src/generator.cpp"     # not being tested, also only used for dataset generation
