@@ -35,3 +35,6 @@ src/config.h
 # do not save doc build
 docs/_build/
 docs/userguide/build*
+
+# VSCODE
+.vscode
