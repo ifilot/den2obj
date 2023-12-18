@@ -39,6 +39,8 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     char buf[] = "D2O";
     outfile.write(buf, 3);
 
+    std::cout << "Writing .D2O file, using compression algo id: " << (int)algo_id << std::endl;
+
     // copy data to char array
     size_t gridptrsz = gridptr.size() * sizeof(fpt);
     char* data = new char[gridptrsz];
@@ -46,7 +48,7 @@ void D2OFormat::write_d2o_file(const std::string& filename,
     const std::string originstr(data, gridptrsz);
 
     std::string compressedstr;
-    if(algo_id == D2OFormat::CompressionAlgo::AUTO) {
+    if(algo_id == D2OFormat::CompressionAlgo::AUTO) { // check which compression algo works best
         // auto-look for best compression algo
         std::cout << "Looking for best compression algorithm." << std::endl;
 
@@ -66,7 +68,7 @@ void D2OFormat::write_d2o_file(const std::string& filename,
         // overwrite algo_id
         algo_id = got->first;
         // std::cout << "Best algorithm: " << D2OFormat::algos[idx] << std::endl;
-    } else {
+    } else { // use the user-supplied compression algo
         compressedstr = D2OFormat::compress_stream(originstr, algo_id);
         // std::cout << "Overruling compression algo to: " << D2OFormat::algos[idx] << std::endl;
     }
@@ -140,6 +142,10 @@ std::unordered_map<D2OFormat::CompressionAlgo, std::string, std::hash<D2OFormat:
         << " kb ("
         << (boost::format("%0.2f") % ((float)sz / (float)originstr.size() * 100.0f)).str()
         << " %)." << std::endl;
+
+        if(sz == 0) {
+            throw std::runtime_error("A compression size of 0 is incorrect. Something is wrong with this file.");
+        }
     }
 
     return compressed_strings;
@@ -174,7 +180,7 @@ std::string D2OFormat::compress_stream(const std::string& originstr, D2OFormat::
             in.push(
                 boost::iostreams::lzma_compressor(
                     boost::iostreams::lzma_params(
-                        boost::iostreams::lzma::best_compression
+                        boost::iostreams::lzma::default_compression
                     )
                 )
             );

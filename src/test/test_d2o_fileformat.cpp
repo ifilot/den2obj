@@ -26,14 +26,15 @@ void TestD2OFileFormat::setUp() {
     ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
     CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
 
-    static const std::string filename = "chgcar_ch4_base.d2o";
+    static const std::string filename = basefile;
     sf.read();
     sf.write_d2o_binary(filename);
 }
 
 void TestD2OFileFormat::test_gzip_compression() {
     // create scalar field
-    ScalarField sf("chgcar_ch4_base.d2o", ScalarFieldInputFileType::SFF_D2O);
+    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
 
     static const std::string filename = "chgcar_ch4_gzip.d2o";
 
@@ -54,7 +55,8 @@ void TestD2OFileFormat::test_gzip_compression() {
 
 void TestD2OFileFormat::test_lzma_compression() {
     // create scalar field
-    ScalarField sf("chgcar_ch4_base.d2o", ScalarFieldInputFileType::SFF_CHGCAR);
+    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
 
     static const std::string filename = "chgcar_ch4_lzma.d2o";
 
@@ -75,7 +77,8 @@ void TestD2OFileFormat::test_lzma_compression() {
 
 void TestD2OFileFormat::test_bzip2_compression() {
     // create scalar field
-    ScalarField sf("chgcar_ch4_base.d2o", ScalarFieldInputFileType::SFF_CHGCAR);
+    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
 
     static const std::string filename = "chgcar_ch4_bzip2.d2o";
 
@@ -96,8 +99,8 @@ void TestD2OFileFormat::test_bzip2_compression() {
 
 void TestD2OFileFormat::test_autocompression() {
     // create scalar field
-    ScalarField sf("chgcar_ch4_base.d2o", ScalarFieldInputFileType::SFF_CHGCAR);
-    CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
+    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
 
     static const std::string filename = "chgcar_ch4_auto.d2o";
 
