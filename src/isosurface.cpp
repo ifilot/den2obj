@@ -503,9 +503,11 @@ void IsoSurface::construct_triangles_from_tetrahedra(float _isovalue) {
                 p[1] = this->interpolate_from_tetrahedra(tetrahedra_table[i], 3, 2, _isovalue);
                 p[2] = this->interpolate_from_tetrahedra(tetrahedra_table[i], 3, 1, _isovalue);
                 this->triangles.push_back(Triangle(p[0], p[1], p[2]));
-        break;
+                break;
         }
     }
+
+    std::cout << "Identified " << this->triangles.size() << " faces." << std::endl;
 }
 
 Vec3 IsoSurface::interpolate_from_cubes(const Cube &_cub, unsigned int _p1,
