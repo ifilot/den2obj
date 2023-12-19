@@ -2,13 +2,14 @@
 .. index:: D2O file format
 
 D2O File Format
-***************
+===============
 
 The ``.d2o`` file format is a binary file type to store densely packed scalar
 fields. :program:`Den2Obj` uses this file format to store the data in the
 relatively unwieldy ``CHGCAR`` and ``PARCHG``. In general, ``.d2o`` files are
 about a factor 5 smaller than their corresponding ``CHGCAR`` files and can be
-read in only a fraction of the time because the data is somewhat better aligned.
+read in only a fraction of the time because the data does not need to be
+converted from a human-readable format to binary.
 
 The organization of this file is given in the Table 1.
 
@@ -27,7 +28,7 @@ The organization of this file is given in the Table 1.
     * - 0x03-0x07
       - uint32_t
       - 4 bytes
-      - Protocol identifier token, used for future adaptations of the file format. Currently set to 1.
+      - Protocol identifier token (see below). Default = 2.
     * - 0x08-0x2B
       - float[9]
       - 36 bytes
@@ -52,3 +53,15 @@ The organization of this file is given in the Table 1.
 To convert a ``CHGCAR`` file to ``.d2o`` file format, run the following command::
 
     den2obj -i CHGCAR -o filename.d2o -t
+
+.. note::
+   :program:`Den2Obj` will automatically look for the best compression algorithm
+   when converting a scalar field to the ``.d2o`` format. For the majority of the
+   cases, this corresponds to the `LZMA type of compression <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_.
+
+Protocol tokens
+---------------
+
+1. GZIP compression
+2. LZMA compression
+3. BZIP2 compression

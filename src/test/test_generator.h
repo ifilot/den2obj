@@ -2,13 +2,13 @@
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
- *   EDP is free software:                                                *
+ *   DEN2OBJ is free software:                                            *
  *   you can redistribute it and/or modify it under the terms of the      *
  *   GNU General Public License as published by the Free Software         *
  *   Foundation, either version 3 of the License, or (at your option)     *
  *   any later version.                                                   *
  *                                                                        *
- *   EDP is distributed in the hope that it will be useful,               *
+ *   DEN2OBJ is distributed in the hope that it will be useful,           *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -18,21 +18,28 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _TEST_ISOSURFACE
+#define _TEST_ISOSURFACE
 
-#define PROGNAME "@PROGNAME@"
-#define VERSION_MAJOR @VERSION_MAJOR@
-#define VERSION_MINOR @VERSION_MINOR@
-#define VERSION_MICRO @VERSION_MICRO@
-#define VERSION "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_MICRO@"
-#define GIT_HASH "@GIT_HASH@"
+#include <cppunit/extensions/HelperMacros.h>
 
-static const std::string PROGRAM_NAME(PROGNAME);
-static const std::string PROGRAM_VERSION(VERSION);
-static const std::string PROGRAM_GIT_HASH(GIT_HASH);
-static const unsigned int PROGRAM_VERSION_MAJOR = VERSION_MAJOR;
-static const unsigned int PROGRAM_VERSION_MINOR = VERSION_MINOR;
-static const unsigned int PROGRAM_VERSION_MICRO = VERSION_MICRO;
+#include "scalar_field.h"
+#include "generator.h"
 
-#endif // _CONFIG_H
+class TestGenerator : public CppUnit::TestFixture
+{
+  CPPUNIT_TEST_SUITE( TestGenerator );
+  CPPUNIT_TEST( test_generator_genus );
+  CPPUNIT_TEST( test_generator_benzene );
+  CPPUNIT_TEST_SUITE_END();
+
+public:
+    void setUp();
+    void test_generator_genus();
+    void test_generator_benzene();
+    void tearDown();
+
+private:
+};
+
+#endif  // _TEST_ISOSURFACE

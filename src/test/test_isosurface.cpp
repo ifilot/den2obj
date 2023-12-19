@@ -76,6 +76,53 @@ void TestIsosurface::test_marching_cubes() {
     }
 }
 
+void TestIsosurface::test_marching_tetrahedra() {
+    // construct isosurface
+    IsoSurface is(this->sf.get());
+    is.marching_tetrahedra(0.01);
+
+    // construct mesh storage object
+    IsoSurfaceMesh ism(sf.get(), &is);
+    ism.construct_mesh(true);
+
+    CPPUNIT_ASSERT_EQUAL((size_t)24433, ism.get_vertices().size());
+    CPPUNIT_ASSERT_EQUAL((size_t)24433, ism.get_normals().size());
+    CPPUNIT_ASSERT_EQUAL((size_t)146124, ism.get_texcoords().size());
+
+    // get minimum and maximum value
+    float minx = 0.0;
+    float miny = 0.0;
+    float minz = 0.0;
+    float maxx = 0.0;
+    float maxy = 0.0;
+    float maxz = 0.0;
+    for(unsigned int i=0; i<ism.get_vertices().size(); i++) {
+        minx = std::min(minx, ism.get_vertices()[i][0]);
+        miny = std::min(miny, ism.get_vertices()[i][1]);
+        minz = std::min(minz, ism.get_vertices()[i][2]);
+
+        maxx = std::max(maxx, ism.get_vertices()[i][0]);
+        maxy = std::max(maxy, ism.get_vertices()[i][1]);
+        maxz = std::max(maxz, ism.get_vertices()[i][2]);
+    }
+
+    // check minimum and maximum values; note that the ordering of the
+    // vertices object is more-or-less random due to them being generated
+    // under OpenMP
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.98314094543457, minx, 1e-8);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.98314094543457, miny, 1e-8);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.98314094543457, minz, 1e-8);
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.98314094543457, maxx, 1e-8);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.98314094543457, maxy, 1e-8);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.98314094543457, maxz, 1e-8);
+
+    // verify that all normals are, by approximation, of unit size
+    for(unsigned int i=0; i<ism.get_vertices().size(); i++) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ism.get_normals()[i].norm(), 1e-6);
+    }
+}
+
 void TestIsosurface::test_obj() {
     // construct isosurface
     IsoSurface is(this->sf.get());

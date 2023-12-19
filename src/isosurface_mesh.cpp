@@ -137,6 +137,30 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
 }
 
 /**
+ * @brief      Write to file, autorecognizes the file type
+ *
+ * @param[in]  filename  The filename
+ * @param[in]  header    The header
+ * @param[in]  name      The name
+ */
+void IsoSurfaceMesh::write_to_file(const std::string& filename, const std::string& header, const std::string& name) {
+    boost::filesystem::path path(filename);
+
+    if(filename.substr(filename.size()-4) == ".obj") {
+        std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
+        this->write_obj(filename, path.filename().string(), path.filename().string());
+    } else if(filename.substr(filename.size()-4) == ".ply") {
+        std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
+        this->write_ply(filename, path.filename().string(), path.filename().string());
+    } else if(filename.substr(filename.size()-4) == ".stl") {
+        std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
+        this->write_stl(filename);
+    } else {
+        throw std::runtime_error("Cannot interpret output file format. Please specify a valid extension.");
+    }
+}
+
+/**
  * @brief      write wavefront file
  *
  * @param[in]  filename  The filename
@@ -144,7 +168,6 @@ void IsoSurfaceMesh::construct_mesh(bool center_mesh) {
  * @param[in]  name      The name
  */
 void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& header, const std::string& name) {
-    std::cout << "Writing as Wavefront (.obj) file: " << filename << std::endl;
     std::ofstream outfile(filename);
 
     outfile << "# " << header << std::endl;
@@ -256,6 +279,11 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Wavefront (.obj) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**
@@ -266,7 +294,6 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
  * @param[in]  name      The name
  */
 void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& header, const std::string& name) {
-    std::cout << "Writing as Stanford (.ply) file: " << filename << std::endl;
     std::ofstream outfile(filename, std::ios::binary);
 
     outfile << "ply" << std::endl;
@@ -302,6 +329,11 @@ void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& h
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Stanford (.ply) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**
@@ -310,7 +342,6 @@ void IsoSurfaceMesh::write_ply(const std::string& filename, const std::string& h
  * @param[in]  filename  The filename
  */
 void IsoSurfaceMesh::write_stl(const std::string& filename) {
-    std::cout << "Writing as Stereolithography (.stl) file: " << filename << std::endl;
     std::ofstream outfile(filename, std::ios::binary);
 
     // for writing the header line
@@ -370,6 +401,11 @@ void IsoSurfaceMesh::write_stl(const std::string& filename) {
     }
 
     outfile.close();
+
+    std::uintmax_t size = boost::filesystem::file_size(filename);
+    std::cout << "Writing as Stereolithography (.stl) file: " << filename << " ("
+    << (boost::format("%0.1f") % ((float)size / 1024.f)).str()
+    << "kb)." << std::endl;
 }
 
 /**

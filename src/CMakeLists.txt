@@ -22,15 +22,39 @@
 cmake_minimum_required(VERSION 2.8.12)
 project (den2obj)
 
+# change compiler directives when code coverage is required
+if(USE_GCOV)
+  set(CMAKE_BUILD_TYPE "Debug")
+
+  # Set global c and c++ flags
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+
+  # Link flags used for creating executables
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgcov -fprofile-arcs -ftest-coverage")
+
+  # Link flags used for creating shared libraries
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -profile-arcs -ftest-coverage")
+endif()
+
 # add custom directory to look for .cmake files
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
+
+# store git hash
+execute_process(
+    COMMAND git log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "0")
+SET(VERSION_MINOR "1")
 SET(VERSION_MICRO "0")
-configure_file(config.h.in ../src/config.h @ONLY)
+message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
 
 # Enable release build
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -61,6 +85,9 @@ set (BOOST_ALL_DYN_LINK OFF)
 # Include libraries
 find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
+find_package(LibLZMA REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(BZip2 REQUIRED)
 find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
@@ -82,15 +109,22 @@ endif()
 
 # Add sources
 file(GLOB SOURCES "*.cpp")
-add_executable(den2obj ${SOURCES})
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 add_library(den2objsources STATIC ${SOURCES})
+add_executable(den2obj ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 
 # Set C++17
 add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj ${OPENVDB_LIBS} ${Boost_LIBRARIES} z)
+target_link_libraries(den2obj 
+                      den2objsources 
+                      ${OPENVDB_LIBS} 
+                      ${Boost_LIBRARIES} 
+                      ${LIBLZMA_LIBRARIES} 
+                      ${ZLIB_LIBRARIES}
+                      ${BZIP2_LIBRARIES})
 
 if(NOT DISABLE_TEST)
     message("[USER] Performing unit tests")

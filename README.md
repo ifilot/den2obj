@@ -3,6 +3,7 @@
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/ifilot/den2obj?label=version)
 [![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/build.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build.yml)
 [![OpenVDB build CI](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml)
+[![codecov](https://codecov.io/gh/ifilot/bramble/graph/badge.svg?token=IZ7OGUR6DY)](https://codecov.io/gh/ifilot/den2obj)
 [![Documentation](https://github.com/ifilot/den2obj/actions/workflows/docs.yml/badge.svg)](https://den2obj.imc-tue.nl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
@@ -12,16 +13,7 @@ scalar fields. Den2Obj supports VASP charge files such as CHGCAR and PARCHG,
 Gaussian .cube files as well as its own .d2o format.
 
 ## Example images
-![3D Reaction-Diffusion system](img/reac_diff_3d_network_small.png)
-
-*The isosurface above represents the concentration profile of a
- reaction-diffusion system in 3D using Gray-Scott kinetics. The isosurface has
- been generated using den2obj and rendered using [Blender]
- (https://www.blender.org/).*
-
-![Molecular orbitals of CO](img/CO_mos.jpg)
-
-*The isosurfaces of the first 10 molecular orbitals of the CO molecule.*
+![Canonical valence orbitals of CH4](docs/_static/img/ch4_valence_orbitals.png)
 
 ## Compilation instructions
 
@@ -30,7 +22,7 @@ Gaussian .cube files as well as its own .d2o format.
 Getting the dependencies
 ```
 sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
-pkg-config libcppunit-dev libeigen3-dev
+pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev
 ```
 
 To compile, run the following commands:

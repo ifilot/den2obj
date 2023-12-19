@@ -37,11 +37,13 @@
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/lzma.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
 #include "math.h"
 #include "float_parser.h"
 #include "periodic_table.h"
+#include "d2o_format.h"
 
 #ifdef MOD_OPENVDB
 #include <openvdb/openvdb.h>
@@ -124,8 +126,10 @@ public:
 
     /**
      * @brief      Write to a binary D2O file
+     *
+     * Preferred protocol is set to 2, which corresponds to LZMA compression.
      */
-    void write_d2o_binary(const std::string filename);
+    void write_d2o_binary(const std::string filename, D2OFormat::CompressionAlgo = D2OFormat::CompressionAlgo::AUTO);
 
     /*
      * @brief output()

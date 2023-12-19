@@ -1,0 +1,22 @@
+name: stats
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+jobs:
+  build-stats:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install packages
+      run: sudo apt update && sudo apt install -y cloc
+    - name: Collect package statistics
+      run:  cloc . --report-file=stats.txt
+    - name: Store package statistics
+      uses: actions/upload-artifact@v3
+      with:
+        name: stats
+        path: ./stats.txt

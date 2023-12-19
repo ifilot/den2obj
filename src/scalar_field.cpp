@@ -733,8 +733,8 @@ void ScalarField::load_d2o_binary() {
     infile.read((char*)&protocol_id, sizeof(uint32_t));
 
     // check token id
-    if(protocol_id != 1) {
-        throw std::runtime_error("Invalid token ID for D2O binary.");
+    if(protocol_id == 0 || protocol_id > 3) {
+        throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
     }
 
     // read matrix
@@ -781,9 +781,32 @@ void ScalarField::load_d2o_binary() {
 
     // decompress
     std::istringstream compressed(std::string(data, compdatasize));
-    std::cout << "Building decompressor" << std::endl;
     boost::iostreams::filtering_istreambuf in;
-    in.push(boost::iostreams::gzip_decompressor());
+
+    switch(protocol_id) {
+        case 1:
+        {
+            // GZIP compression
+            std::cout << "Building GZIP decompressor" << std::endl;
+            in.push(boost::iostreams::gzip_decompressor());
+        }
+        break;
+        case 2:
+        {
+            std::cout << "Building LZMA decompressor" << std::endl;
+            in.push(boost::iostreams::lzma_decompressor());
+        }
+        break;
+        case 3:
+        {
+            std::cout << "Building BZIP2 decompressor" << std::endl;
+            in.push(boost::iostreams::bzip2_decompressor());
+        }
+        break;
+        default:
+            throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
+        break;
+    }
 
     std::cout << "Decompressed data" << std::endl;
     in.push(compressed);
@@ -808,68 +831,8 @@ void ScalarField::load_d2o_binary() {
 /**
  * @brief      Write to a binary file
  */
-void ScalarField::write_d2o_binary(const std::string filename) {
-    // write file format token
-    std::ofstream outfile(filename, std::ios::binary);
-    char buf[] = "D2O";
-    outfile.write(buf, 3);
-
-    // write protocol id
-    uint32_t protocol_id = 1;
-    outfile.write((char*)&protocol_id, sizeof(uint32_t));
-
-    // write unit cell matrix
-    for(unsigned int i=0; i<3; i++) {
-        for(unsigned int j=0; j<3; j++) {
-            float val = this->mat(i,j);
-            outfile.write((char*)&val, sizeof(float));
-        }
-    }
-
-    // write number of data points
-    for(unsigned int i=0; i<3; i++) {
-        uint32_t sz = this->grid_dimensions[i];
-        outfile.write((char*)&sz, sizeof(uint32_t));
-    }
-
-    // write floating point size
-    uint8_t fptsz = sizeof(fpt);
-    outfile.write((char*)&fptsz, sizeof(uint8_t));
-
-    std::cout << "Floating point size determined at: " << (int)fptsz << " bytes" << std::endl;
-
-    // compressing stream
-    size_t gridptrsz = this->gridptr.size() * sizeof(fpt);
-    char* data = new char[gridptrsz];
-    memcpy(data, &this->gridptr[0], gridptrsz);
-    std::istringstream origin(std::string(data, gridptrsz));
-    boost::iostreams::filtering_istreambuf in;
-    in.push(
-        boost::iostreams::gzip_compressor(
-            boost::iostreams::gzip_params(
-                boost::iostreams::gzip::best_compression
-            )
-        )
-    );
-    in.push(origin);
-
-    // store compression
-    std::ostringstream compressed;
-    boost::iostreams::copy(in, compressed);
-
-    // output to file
-    const std::string griddata = compressed.str();
-    uint64_t sz = griddata.size();
-    std::cout << "Compressed data to " << sz << " bytes ("
-        << (float)sz / gridptrsz * 100 << " %)" << std::endl;
-
-    // write data size and data
-    outfile.write((char*)&sz, sizeof(uint64_t));
-    outfile.write(griddata.data(), griddata.size());
-
-    // clean up
-    delete[] data;
-    outfile.close();
+void ScalarField::write_d2o_binary(const std::string filename, D2OFormat::CompressionAlgo algo_id) {
+    D2OFormat::write_d2o_file(filename, this->gridptr, this->grid_dimensions, this->mat, algo_id);
 }
 
 /**

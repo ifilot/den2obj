@@ -23,12 +23,22 @@ add_library(unittest STATIC unittest.cpp)
 # set executables
 SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
 
+# remove this test from the list as it takes too long
+if(NOT USE_GCOV)
+    list(APPEND EXECUTABLES TestGenerator)
+endif()
+
 #######################################################
 # Add executables
 #######################################################
 add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
+
+# remove this test from the list as it takes too long
+if(NOT USE_GCOV)
+    add_executable(TestGenerator test_generator.cpp)
+endif()
 
 #######################################################
 # Link mkmsources and other dependencies
@@ -47,7 +57,16 @@ set_tests_properties(DatasetCleanup PROPERTIES FIXTURES_CLEANUP Dataset)
 
 # configure common settings for test executables
 foreach(testexec ${EXECUTABLES})
-    target_link_libraries(${testexec} unittest den2objsources ${OPENVDB_LIBS} ${Boost_LIBRARIES} ${CPPUNIT_LIB} -lgcov z)
+    target_link_libraries(${testexec}
+                          unittest
+                          den2objsources
+                          ${OPENVDB_LIBS}
+                          ${Boost_LIBRARIES}
+                          ${CPPUNIT_LIB}
+                          ${LIBLZMA_LIBRARIES}
+                          ${ZLIB_LIBRARIES}
+                          ${BZIP2_LIBRARIES}
+                          -lgcov)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})
     set_tests_properties(${testexec} PROPERTIES FIXTURES_REQUIRED Dataset)

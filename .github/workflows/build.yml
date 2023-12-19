@@ -14,10 +14,25 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
-      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev
+      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev gcovr
     - name: Configure CMake
-      run: mkdir build && cd build && cmake ../src
+      run: mkdir build && cd build && cmake ../src -DUSE_GCOV=1
     - name: Build
-      run: cd build && make -j3
+      run: cd build && make -j
     - name: Perform unit tests
       run: cd build && make test
+    - name: Perform code coverage
+      run: |
+        cd build
+        gcovr -r ../ . --xml-pretty -e ".*\.h" > coverage.xml
+        gcovr -r ../ . --html -e ".*\.h" > report.html
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: ./build/report.html
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./build/coverage.xml
