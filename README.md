@@ -3,6 +3,7 @@
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/ifilot/den2obj?label=version)
 [![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/build.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build.yml)
 [![OpenVDB build CI](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml)
+[![codecov](https://codecov.io/gh/ifilot/bramble/graph/badge.svg?token=IZ7OGUR6DY)](https://codecov.io/gh/ifilot/den2obj)
 [![Documentation](https://github.com/ifilot/den2obj/actions/workflows/docs.yml/badge.svg)](https://den2obj.imc-tue.nl)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 

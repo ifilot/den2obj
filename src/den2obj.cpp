@@ -77,6 +77,9 @@ int main(int argc, char* argv[]) {
         std::cout << "Website: https://den2obj.imc-tue.nl" << std::endl;
         std::cout << "Github:  https://github.com/ifilot/den2obj" << std::endl;
         std::cout << "--------------------------------------------------------------" << std::endl;
+        std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
+        std::cout << "Git Hash: " << PROGRAM_GIT_HASH << std::endl;
+        std::cout << "--------------------------------------------------------------" << std::endl;
 
         //**************************************
         // parsing values

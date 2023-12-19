@@ -23,6 +23,11 @@ add_library(unittest STATIC unittest.cpp)
 # set executables
 SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestGenerator)
 
+# remove this test from the list as it takes too long
+if(NOT USE_GCOV)
+    list(APPEND EXECUTABLES TestGenerator)
+endif()
+
 #######################################################
 # Add executables
 #######################################################
@@ -30,6 +35,11 @@ add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
 add_executable(TestGenerator test_generator.cpp)
+
+# remove this test from the list as it takes too long
+if(NOT USE_GCOV)
+    add_executable(TestGenerator test_generator.cpp)
+endif()
 
 #######################################################
 # Link mkmsources and other dependencies

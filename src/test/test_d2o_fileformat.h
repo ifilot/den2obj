@@ -41,16 +41,13 @@ public:
   void tearDown();
 
   void test_gzip_compression();
-
   void test_lzma_compression();
-
   void test_bzip2_compression();
-
   void test_autocompression();
 
 private:
-
   uint32_t get_protocol_id(const std::string& filename);
+  const std::string basefile = "chgcar_ch4_base.d2o";
 };
 
 #endif  // _TEST_D2O_FileFormat
