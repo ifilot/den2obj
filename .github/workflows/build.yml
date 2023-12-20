@@ -20,7 +20,7 @@ jobs:
     - name: Build
       run: cd build && make -j
     - name: Perform unit tests
-      run: cd build && make test
+      run: cd build && OMP_NUM_THREADS=1 make test # suppress parallel sections for tests
     - name: Perform code coverage
       run: |
         cd build
