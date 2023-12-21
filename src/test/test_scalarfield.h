@@ -28,15 +28,16 @@
 class TestScalarField : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestScalarField );
-  CPPUNIT_TEST( testReading );
+  CPPUNIT_TEST( testReadingCHGCAR );
+  CPPUNIT_TEST( testReadingCUB );
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void setUp();
   void tearDown();
 
-  void testReading();
-  void testD2OFileFormat();
+  void testReadingCHGCAR();
+  void testReadingCUB();
 
 private:
 };

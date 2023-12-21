@@ -28,7 +28,7 @@ void TestScalarField::setUp() {
 void TestScalarField::tearDown() {
 }
 
-void TestScalarField::testReading() {
+void TestScalarField::testReadingCHGCAR() {
     // create scalar field
     ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
     CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
@@ -89,4 +89,9 @@ void TestScalarField::testReading() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL( sf.get_value_interp(0.0,0.0,0.0),
                                   sf.get_value_interp(0.0,0.0,10.0),
                                   1e-12);
+}
+
+void TestScalarField::testReadingCUB() {
+    // test reading sf file
+    ScalarField sf("co_2pi_x.cub", ScalarFieldInputFileType::SFF_CUB);
 }

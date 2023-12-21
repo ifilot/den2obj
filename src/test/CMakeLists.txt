@@ -23,9 +23,14 @@ add_library(unittest STATIC unittest.cpp)
 # set executables
 SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
 
-# remove this test from the list as it takes too long
+# only add this test when not using GCOV
 if(NOT USE_GCOV)
     list(APPEND EXECUTABLES TestGenerator)
+endif()
+
+# only add this test when not using GCOV
+if(USE_GCOV)
+    list(APPEND EXECUTABLES TestFileCreation)
 endif()
 
 #######################################################
@@ -35,9 +40,14 @@ add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
 
-# remove this test from the list as it takes too long
+# only add this test when not using GCOV
 if(NOT USE_GCOV)
     add_executable(TestGenerator test_generator.cpp)
+endif()
+
+# only add this test when not using OpenVDB
+if(USE_GCOV)
+    add_executable(TestFileCreation test_file_creation.cpp)
 endif()
 
 #######################################################
@@ -51,7 +61,7 @@ endif()
 
 # add unpacking of dataset to the test suite
 add_test(NAME DatasetSetup COMMAND tar -xvjf dataset.tar.bz2)
-add_test(NAME DatasetCleanup COMMAND rm -rvf CHGCAR_* PARCHG_*)
+add_test(NAME DatasetCleanup COMMAND rm -rvf CHGCAR_* PARCHG_* *.d2o *.cub)
 set_tests_properties(DatasetSetup PROPERTIES FIXTURES_SETUP Dataset)
 set_tests_properties(DatasetCleanup PROPERTIES FIXTURES_CLEANUP Dataset)
 
@@ -66,6 +76,7 @@ foreach(testexec ${EXECUTABLES})
                           ${LIBLZMA_LIBRARIES}
                           ${ZLIB_LIBRARIES}
                           ${BZIP2_LIBRARIES}
+                          ${CRYPTO_LIBRARIES}
                           -lgcov)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})
