@@ -51,7 +51,7 @@ endif()
 
 # add unpacking of dataset to the test suite
 add_test(NAME DatasetSetup COMMAND tar -xvjf dataset.tar.bz2)
-add_test(NAME DatasetCleanup COMMAND rm -rvf CHGCAR_* PARCHG_*)
+add_test(NAME DatasetCleanup COMMAND rm -rvf CHGCAR_* PARCHG_* *.d2o *.cub)
 set_tests_properties(DatasetSetup PROPERTIES FIXTURES_SETUP Dataset)
 set_tests_properties(DatasetCleanup PROPERTIES FIXTURES_CLEANUP Dataset)
 
