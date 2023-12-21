@@ -21,7 +21,7 @@
 add_library(unittest STATIC unittest.cpp)
 
 # set executables
-SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
+SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestFileCreation)
 
 # remove this test from the list as it takes too long
 if(NOT USE_GCOV)
@@ -34,6 +34,7 @@ endif()
 add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
+add_executable(TestFileCreation test_file_creation.cpp)
 
 # remove this test from the list as it takes too long
 if(NOT USE_GCOV)
@@ -66,7 +67,8 @@ foreach(testexec ${EXECUTABLES})
                           ${LIBLZMA_LIBRARIES}
                           ${ZLIB_LIBRARIES}
                           ${BZIP2_LIBRARIES}
-                          -lgcov)
+                          -lgcov
+                          -lcrypto)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})
     set_tests_properties(${testexec} PROPERTIES FIXTURES_REQUIRED Dataset)

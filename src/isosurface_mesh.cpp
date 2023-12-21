@@ -148,10 +148,10 @@ void IsoSurfaceMesh::write_to_file(const std::string& filename, const std::strin
 
     if(filename.substr(filename.size()-4) == ".obj") {
         std::cout << "Writing mesh as Wavefront file (.obj)." << std::endl;
-        this->write_obj(filename, path.filename().string(), path.filename().string());
+        this->write_obj(filename, header, name);
     } else if(filename.substr(filename.size()-4) == ".ply") {
         std::cout << "Writing mesh as Standford Triangle Format file (.ply)." << std::endl;
-        this->write_ply(filename, path.filename().string(), path.filename().string());
+        this->write_ply(filename, header, name);
     } else if(filename.substr(filename.size()-4) == ".stl") {
         std::cout << "Writing mesh as Stereolithography file (.stl)." << std::endl;
         this->write_stl(filename);
