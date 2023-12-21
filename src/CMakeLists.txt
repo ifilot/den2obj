@@ -91,6 +91,7 @@ find_package(BZip2 REQUIRED)
 find_package(CPPUNIT REQUIRED) # for unit tests
 pkg_check_modules(TCLAP tclap REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
+pkg_check_modules(CRYPTO libcrypto REQUIRED) # for unit tests
 
 # Set include folders
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}

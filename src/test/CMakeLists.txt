@@ -21,11 +21,16 @@
 add_library(unittest STATIC unittest.cpp)
 
 # set executables
-SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestFileCreation)
+SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
 
-# remove this test from the list as it takes too long
+# only add this test when not using GCOV
 if(NOT USE_GCOV)
     list(APPEND EXECUTABLES TestGenerator)
+endif()
+
+# only add this test when not using GCOV
+if(USE_GCOV)
+    list(APPEND EXECUTABLES TestFileCreation)
 endif()
 
 #######################################################
@@ -34,11 +39,15 @@ endif()
 add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
-add_executable(TestFileCreation test_file_creation.cpp)
 
-# remove this test from the list as it takes too long
+# only add this test when not using GCOV
 if(NOT USE_GCOV)
     add_executable(TestGenerator test_generator.cpp)
+endif()
+
+# only add this test when not using OpenVDB
+if(USE_GCOV)
+    add_executable(TestFileCreation test_file_creation.cpp)
 endif()
 
 #######################################################
@@ -67,8 +76,8 @@ foreach(testexec ${EXECUTABLES})
                           ${LIBLZMA_LIBRARIES}
                           ${ZLIB_LIBRARIES}
                           ${BZIP2_LIBRARIES}
-                          -lgcov
-                          -lcrypto)
+                          ${CRYPTO_LIBRARIES}
+                          -lgcov)
     set_target_properties(${testexec} PROPERTIES COMPILE_FLAGS "--coverage")
     add_test(NAME ${testexec} COMMAND ${testexec})
     set_tests_properties(${testexec} PROPERTIES FIXTURES_REQUIRED Dataset)
