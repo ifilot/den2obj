@@ -49,12 +49,10 @@ jobs:
     - name: Configure CMake
       run: mkdir build && cd build && cmake ../src
     - name: Build
-      run: cd build && make -j
-    - name: Perform unit tests
-      run: cd build && sudo make install
+      run: cd build && make -j && sudo make install
     - name: Produce compilation using shared library
       run: |
         cd examples && mkdir build && cd build
         cmake ../shared
         make -j
-        ./den2obj-shared-example
+        LD_LIBRARY_PATH=/usr/local/lib ./den2obj-shared-example
