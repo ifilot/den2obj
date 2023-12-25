@@ -116,11 +116,7 @@ add_library(den2objsources STATIC ${SOURCES})
 add_library(den2obj SHARED ${SOURCES})
 add_executable(den2obj_exec ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 set_property(TARGET den2obj_exec PROPERTY OUTPUT_NAME den2obj)
-set(DEN2OBJ_HEADERS 
-    isosurface_mesh.h
-    isosurface.h
-    scalar_field.h
-)
+file(GLOB DEN2OBJ_HEADERS "*.h")
 set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
 # Set C++17
