@@ -31,6 +31,7 @@ build/*
 CHGCAR*
 *.png
 src/config.h
+src/den2obj.pc
 
 # do not save doc build
 docs/_build/

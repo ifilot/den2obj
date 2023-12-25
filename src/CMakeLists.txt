@@ -55,6 +55,7 @@ SET(VERSION_MINOR "2")
 SET(VERSION_MICRO "0")
 message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_BINARY_DIR}/den2obj.pc @ONLY)
 
 # Enable release build
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -147,7 +148,12 @@ endif()
 # Installing
 ##
 include(GNUInstallDirs)
+
+# install shared library and header files
 install (TARGETS den2obj 
          DESTINATION bin
          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
          PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/den2obj)
+
+# install pkg-config files
+install(FILES ${CMAKE_BINARY_DIR}/den2obj.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
