@@ -55,4 +55,5 @@ jobs:
         cd examples && mkdir build && cd build
         cmake ../shared
         make -j
+        ldd ./den2obj-shared-example
         LD_LIBRARY_PATH=/usr/local/lib ./den2obj-shared-example
