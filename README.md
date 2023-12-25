@@ -22,7 +22,7 @@ Gaussian .cube files as well as its own .d2o format.
 Getting the dependencies
 ```
 sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
-pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev
+pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev libssl-dev
 ```
 
 To compile, run the following commands:
