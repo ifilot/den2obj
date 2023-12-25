@@ -20,13 +20,15 @@ Gaussian .cube files as well as its own .d2o format.
 ### Debian Latest
 
 Getting the dependencies
-```
+
+```bash
 sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
 pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev libssl-dev
 ```
 
 To compile, run the following commands:
-```
+
+```bash
 git clone https://github.com/ifilot/den2obj.git
 cd den2obj
 mkdir build
@@ -37,9 +39,20 @@ make -j5
 
 ### Ubuntu Latest
 
-The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the Threading Building Blocks (`libtbb`) library. To solve this, manually compile and install OpenVDB 8.2 using the following instructions.
+The stable OpenVDB library (`libopenvdb`) under Ubuntu is incompatible with the 
+Threading Building Blocks (`libtbb`) library. To solve this, manually compile 
+and install OpenVDB 8.2 using the following instructions.
 
+Getting the dependencies
+
+```bash
+sudo apt install build-essential cmake libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev \
+pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev libssl-dev
 ```
+
+Next download and install OpenVDB.
+
+```bash
 get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz
 tar -xvzf v8.2.0.tar.gz
 mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb
@@ -48,7 +61,7 @@ make -j9 && sudo make install
 
 Thereafter, clone, configure and compile Den2Obj and link against OpenVDB 8.2.
 
-```
+```bash
 git clone https://github.com/ifilot/den2obj.git
 cd den2obj
 mkdir build
@@ -108,3 +121,8 @@ The D2O file format is native to `Den2Obj`. This file format stores the scalarfi
 in binary format and uses compression to generate small files which are fast to
 read from. More information on the file format can be found in the
 [documentation](https://den2obj.imc-tue.nl).
+
+## Shared library
+
+`Den2Obj` can also be used as a shared library in your own code. See the
+[examples/shared](examples/shared) for an example.
