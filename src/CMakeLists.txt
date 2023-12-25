@@ -51,7 +51,7 @@ execute_process(
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "1")
+SET(VERSION_MINOR "2")
 SET(VERSION_MICRO "0")
 message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
@@ -112,14 +112,22 @@ endif()
 file(GLOB SOURCES "*.cpp")
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 add_library(den2objsources STATIC ${SOURCES})
-add_executable(den2obj ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
+add_library(den2obj SHARED ${SOURCES})
+add_executable(den2obj_exec ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
+set_property(TARGET den2obj_exec PROPERTY OUTPUT_NAME den2obj)
+set(DEN2OBJ_HEADERS 
+    isosurface_mesh.h
+    isosurface.h
+    scalar_field.h
+)
+set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
 # Set C++17
 add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj 
+target_link_libraries(den2obj_exec 
                       den2objsources 
                       ${OPENVDB_LIBS} 
                       ${Boost_LIBRARIES} 
@@ -138,4 +146,8 @@ endif()
 ###
 # Installing
 ##
-install (TARGETS den2obj DESTINATION bin)
+include(GNUInstallDirs)
+install (TARGETS den2obj 
+         DESTINATION bin
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/den2obj)
