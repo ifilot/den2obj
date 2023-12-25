@@ -34,7 +34,7 @@ if(USE_GCOV)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgcov -fprofile-arcs -ftest-coverage")
 
   # Link flags used for creating shared libraries
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -profile-arcs -ftest-coverage")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -ftest-coverage")
 endif()
 
 # add custom directory to look for .cmake files
