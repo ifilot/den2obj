@@ -37,6 +37,7 @@ class TestD2OFileFormat : public CppUnit::TestFixture
 
 public:
   void setUp();
+
   void tearDown();
 
   void test_gzip_compression();

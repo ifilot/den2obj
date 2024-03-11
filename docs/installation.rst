@@ -46,7 +46,7 @@ looks as follows::
     cmake ../src
     make -j9
 
-To install :program:`EDP`, you can in addition run::
+To install :program:`Den2Obj`, you can in addition run::
 
     sudo make install
 
