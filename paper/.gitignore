@@ -1,0 +1,5 @@
+paper.jats
+paper.pdf
+!img/*.png
+!img/*.jpg
+!img/*.jpeg
