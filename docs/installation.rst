@@ -21,6 +21,7 @@ libraries are available to you:
 * `GZIP <https://www.gnu.org/software/gzip/>`_ (gzip data compression)
 * `LZMA <https://7-zip.org/>`_ (lzma data compression)
 * `CPPUnit <https://sourceforge.net/projects/cppunit/>`_ (unit testing)
+* `OpenSSL <https://www.openssl.org/>`_ (unit testing; MD5 checksums)
 
 .. note::
    * The instructions covered in this guide assume you are running a  
@@ -32,7 +33,8 @@ libraries are available to you:
 To ensure that all the packages are installed, one can run the following::
 
     sudo apt install build-essential cmake libtclap-dev libboost-all-dev \ 
-    pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev
+    pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev \
+    libssl-dev
 
 Standard compilation
 --------------------
