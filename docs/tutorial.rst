@@ -174,7 +174,7 @@ Observe that two isosurfaces are created and stored as ``.ply`` files:
 
 Importing these two files in Blender gives us the following result
 
-.. figure:: _static/img/tutorials/benzene_homo_blender_01.JPG
+.. figure:: _static/img/tutorials/benzene_homo_blender_01.jpg
    :alt: HOMO orbital of benzene imported into Blender
 
 Of course, this result is rather blend and we would like to add
@@ -253,7 +253,7 @@ This will generate all the atoms and bonds between them. Next,
 materials are assigned to all atoms and bonds and the final result
 looks as seen in the image below.
 
-.. figure:: _static/img/tutorials/benzene_homo_blender_02.JPG
+.. figure:: _static/img/tutorials/benzene_homo_blender_02.jpg
    :alt: HOMO orbital of benzene together with the atoms and bonds
 
 Finally, we can render the scene to create a nice picture of the molecular orbital.
