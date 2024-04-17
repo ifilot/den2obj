@@ -19,7 +19,7 @@
  #*************************************************************************/
 
 # set minimum cmake requirements
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 project (den2obj)
 
 # change compiler directives when code coverage is required
@@ -34,7 +34,7 @@ if(USE_GCOV)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgcov -fprofile-arcs -ftest-coverage")
 
   # Link flags used for creating shared libraries
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -profile-arcs -ftest-coverage")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -ftest-coverage")
 endif()
 
 # add custom directory to look for .cmake files
@@ -51,10 +51,11 @@ execute_process(
 # prepare configuration file
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "1")
+SET(VERSION_MINOR "2")
 SET(VERSION_MICRO "0")
 message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_BINARY_DIR}/den2obj.pc @ONLY)
 
 # Enable release build
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -112,14 +113,18 @@ endif()
 file(GLOB SOURCES "*.cpp")
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 add_library(den2objsources STATIC ${SOURCES})
-add_executable(den2obj ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
+add_library(den2obj SHARED ${SOURCES})
+add_executable(den2obj_exec ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
+set_property(TARGET den2obj_exec PROPERTY OUTPUT_NAME den2obj)
+file(GLOB DEN2OBJ_HEADERS "*.h")
+set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
 # Set C++17
 add_definitions(-std=c++17 -march=native)
 
 # Link libraries
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj 
+target_link_libraries(den2obj_exec 
                       den2objsources 
                       ${OPENVDB_LIBS} 
                       ${Boost_LIBRARIES} 
@@ -138,4 +143,13 @@ endif()
 ###
 # Installing
 ##
-install (TARGETS den2obj DESTINATION bin)
+include(GNUInstallDirs)
+
+# install shared library and header files
+install (TARGETS den2obj 
+         DESTINATION bin
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/den2obj)
+
+# install pkg-config files
+install(FILES ${CMAKE_BINARY_DIR}/den2obj.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
