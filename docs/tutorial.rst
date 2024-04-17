@@ -103,7 +103,7 @@ the drop-down menu as follows::
 Select the file and click on ``Import PLY``. You should now see something
 similar as to the image below.
 
-.. figure:: _static/img/tutorials/genus2_blender_01.JPG
+.. figure:: _static/img/tutorials/genus2_blender_01.jpg
    :alt: The imported Genus 2 isosurface in Blender.
 
 Finally, we assign a material to the object, tune the camera to bring the
@@ -111,7 +111,7 @@ object fully into view, set the color of the background to black, add
 two sun-type light sources and set the film to transparent. For the material,
 we have used the settings as can be seen in the figure below.
 
-.. figure:: _static/img/tutorials/genus2_blender_02.JPG
+.. figure:: _static/img/tutorials/genus2_blender_02.jpg
    :alt: The imported Genus 2 isosurface in Blender.
 
 The only step that remains is to render the image, which will give the image
