@@ -18,8 +18,8 @@
 <article-id pub-id-type="publisher-id">0</article-id>
 <article-id pub-id-type="doi">N/A</article-id>
 <title-group>
-<article-title>Den2Obj: A command line program for producing isosurfaces
-from density files</article-title>
+<article-title>Den2Obj: A command line tool for producing isosurfaces
+from electron density data files</article-title>
 </title-group>
 <contrib-group>
 <contrib contrib-type="author" corresp="yes">
@@ -67,9 +67,129 @@ a Creative Commons Attribution 4.0 International License (CC BY
 <body>
 <sec id="summary">
   <title>Summary</title>
+  <p>The concept of electron density lies at the heart of electronic
+  structure calculations, offering a precise depiction of how electrons
+  are distributed within a material or molecule. Across various
+  electronic structure methodologies, electron density serves as the
+  cornerstone, enabling derivation of crucial properties like energy,
+  potential, and forces. It unravels the intricacies of chemical bonding
+  and reactivity, playing a pivotal role in anticipating and
+  interpreting the characteristics of both materials and molecules,
+  particularly in discerning electron redistribution during bond
+  formation or rupture</p>
+  <p>The electron density is a scalar field, which means that it is a
+  function that assigns a scalar value to each point in space. In the
+  case of the electron density, this scalar value represents the
+  probability density of finding an electron at that point in space.
+  Specialized visualization tools and techniques are often required to
+  effectively visualize scalar fields such as the electron density.
+  These tools may include contour plots, isosurface rendering, or volume
+  rendering, among others. Visualizing the electron density is essential
+  for gaining insights into the electronic properties and behavior of
+  materials and molecules.</p>
+  <p><monospace>Den2Obj</monospace> is a C++-based command-line tool
+  designed to construct isosurfaces of an electron density scalar field.
+  It can parse CHGCAR and PARCHG files of VASP as well as Gaussian Cube
+  files. <monospace>Den2Obj</monospace> also supports converting these
+  into native <monospace>.d2o</monospace> files which offer a
+  significant compression with respect to these former files. The
+  resulting isosurfaces can be stored in Stereolitography
+  (<monospace>.stl</monospace>), Polygon File Format
+  (<monospace>.ply</monospace>) and Wavefront
+  (<monospace>.obj</monospace>) files.</p>
 </sec>
 <sec id="statement-of-need">
   <title>Statement of need</title>
+  <p>Isosurfaces play a pivotal role in both scientific research and
+  engineering applications, offering a powerful tool for visualizing
+  complex data sets and understanding intricate phenomena. These
+  surfaces represent points in a field where a specific value, known as
+  the isovalue, is constant. Due to its importance, there exists many
+  programs that readily support isosurface generation, such as
+  <monospace>Open Data Explorer</monospace>
+  (<xref alt="Thompson et al., 2004" rid="ref-OpenDX" ref-type="bibr">Thompson
+  et al., 2004</xref>), <monospace>Matlab</monospace>
+  (<xref alt="The MathWorks Inc., 2022" rid="ref-MATLAB" ref-type="bibr">The
+  MathWorks Inc., 2022</xref>), <monospace>ParaView</monospace>
+  (<xref alt="Ahrens et al., 2005" rid="ref-ParaView" ref-type="bibr">Ahrens
+  et al., 2005</xref>), and <monospace>Vesta</monospace>
+  (<xref alt="Momma &amp; Izumi, 2011" rid="ref-mommaU003A2011" ref-type="bibr">Momma
+  &amp; Izumi, 2011</xref>). These tools are mainly designed for
+  interactive use and utilize a graphical user interface of some
+  sort.</p>
+  <p>In contrast, <monospace>Den2Obj</monospace> is a C++-based
+  command-line tool that performs isosurface construction from
+  <monospace>VASP</monospace>
+  (<xref alt="Hafner, 2008" rid="ref-hafnerU003A2008" ref-type="bibr">Hafner,
+  2008</xref>) <monospace>CHGCAR</monospace> or
+  <monospace>PARCHG</monospace> and and Gaussian
+  (<xref alt="Frisch et al., 2016" rid="ref-gaussian" ref-type="bibr">Frisch
+  et al., 2016</xref>) Cube files. The resulting isosurfaces can be
+  stored as Stereolitography (<monospace>.stl</monospace>), Polygon File
+  Format (<monospace>.ply</monospace>) or Wavefront
+  (<monospace>.obj</monospace>) files. Furthermore,
+  <monospace>Den2Obj</monospace> is able to convert isosurfaces to the
+  OpenVDB
+  (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
+  2013</xref>) format allowing for volumetric rendering in programs such
+  as Blender or to convert these files to <monospace>d2o</monospace>
+  which offers a significant reduction in size as compared to the
+  above-mentioned input files.</p>
+  <p>Isosurfaces can be constructed using the marching cubes
+  (<xref alt="Lorensen &amp; Cline, 1987" rid="ref-lorensenU003A1987" ref-type="bibr">Lorensen
+  &amp; Cline, 1987</xref>) or the marching tetrahedra
+  (<xref alt="Burke, 1994" rid="ref-burkeU003A1994" ref-type="bibr">Burke,
+  1994</xref>) algorithms, which the user is free to decide. Both these
+  algorithms are implemented using OpenMP parallelization making optimal
+  use of modern multi-core CPUs. Upon conversion of input files to the
+  native <monospace>d2o</monospace> file type, the program explores
+  various compression algorithms, i.e. <monospace>lzma</monospace>
+  (<xref alt="Pavlov, 1996" rid="ref-lzmaweb" ref-type="bibr">Pavlov,
+  1996</xref>), <monospace>bzip2</monospace>
+  (<xref alt="Wielaard et al., 1996" rid="ref-bzip2web" ref-type="bibr">Wielaard
+  et al., 1996</xref>) and <monospace>gzip</monospace>
+  (<xref alt="Gailly &amp; Adler, 1992" rid="ref-gzipweb" ref-type="bibr">Gailly
+  &amp; Adler, 1992</xref>), and uses the one that yields optimal
+  results. For demonstration and testing purposes, also a scalar field
+  generator functionality is included that can create a number of
+  relevant scalar fields to test the algorithms on. An example is
+  provided in
+  <xref alt="[fig:isosurface_examples]" rid="figU003Aisosurface_examples">[fig:isosurface_examples]</xref>.</p>
+  <fig>
+    <caption><p>Examples of isosurfaces generated. (left) HOMO orbital
+    of the benzene molecule. (right) Genus2 body.
+    <styled-content id="figU003Aisosurface_examples"></styled-content></p></caption>
+    <graphic mimetype="image" mime-subtype="jpeg" xlink:href="media/img/isosurface_examples.jpg" />
+  </fig>
+  <p><monospace>Den2Obj</monospace> requires a relatively small set of
+  dependencies, being Eigen3
+  (<xref alt="Guennebaud et al., 2010" rid="ref-eigenweb" ref-type="bibr">Guennebaud
+  et al., 2010</xref>), Boost
+  (<xref alt="Koranne, 2011" rid="ref-BoostLibrary" ref-type="bibr">Koranne,
+  2011</xref>), <monospace>TCLAP</monospace>
+  (<xref alt="Smoot et al., 2009" rid="ref-TclapLibrary" ref-type="bibr">Smoot
+  et al., 2009</xref>), <monospace>lzma</monospace>
+  (<xref alt="Pavlov, 1996" rid="ref-lzmaweb" ref-type="bibr">Pavlov,
+  1996</xref>), <monospace>bzip2</monospace>
+  (<xref alt="Wielaard et al., 1996" rid="ref-bzip2web" ref-type="bibr">Wielaard
+  et al., 1996</xref>) and <monospace>gzip</monospace>
+  (<xref alt="Gailly &amp; Adler, 1992" rid="ref-gzipweb" ref-type="bibr">Gailly
+  &amp; Adler, 1992</xref>). Creation of VDB files requires the presence
+  of the OpenVDB library
+  (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
+  2013</xref>). The user can select during compilation whether they want
+  to include this functionality or not. <monospace>Den2Obj</monospace>
+  is designed to be used by researchers and students working in
+  computational materials modelling using the quantum chemical software.
+  It has already been used in a number of scientific publications.
+  (<xref alt="Filot et al., 2016" rid="ref-filotU003A2016" ref-type="bibr">Filot
+  et al., 2016</xref>;
+  <xref alt="Su et al., 2016" rid="ref-suU003A2016" ref-type="bibr">Su
+  et al., 2016</xref>,
+  <xref alt="2018" rid="ref-suU003A2018" ref-type="bibr">2018</xref>)</p>
+  <p>An extensive user guide including examples, compilation
+  instructions and documentation of the command-line arguments is
+  available at https://den2obj.imc-tue.nl/.</p>
 </sec>
 <sec id="acknowledgements">
   <title>Acknowledgements</title>
@@ -81,5 +201,368 @@ a Creative Commons Attribution 4.0 International License (CC BY
 </sec>
 </body>
 <back>
+<ref-list>
+  <ref id="ref-hafnerU003A2008">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Hafner</surname><given-names>Jürgen</given-names></name>
+      </person-group>
+      <article-title>Ab-initio simulations of materials using VASP: Density-functional theory and beyond</article-title>
+      <source>Journal of Computational Chemistry</source>
+      <year iso-8601-date="2008">2008</year>
+      <volume>29</volume>
+      <issue>13</issue>
+      <pub-id pub-id-type="doi">10.1002/jcc.21057</pub-id>
+      <fpage>2044</fpage>
+      <lpage>2078</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-mommaU003A2011">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Momma</surname><given-names>Koichi</given-names></name>
+        <name><surname>Izumi</surname><given-names>Fujio</given-names></name>
+      </person-group>
+      <article-title>VESTA3 for three-dimensional visualization of crystal, volumetric and morphology data</article-title>
+      <source>Journal of Applied Crystallography</source>
+      <year iso-8601-date="2011-12">2011</year><month>12</month>
+      <volume>44</volume>
+      <issue>6</issue>
+      <pub-id pub-id-type="doi">10.1107/S0021889811038970</pub-id>
+      <fpage>1272</fpage>
+      <lpage>1276</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-eigenweb">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Guennebaud</surname><given-names>Gaël</given-names></name>
+        <name><surname>Jacob</surname><given-names>Benoît</given-names></name>
+        <name><surname>others</surname></name>
+      </person-group>
+      <article-title>Eigen v3</article-title>
+      <publisher-name>http://eigen.tuxfamily.org</publisher-name>
+      <year iso-8601-date="2010">2010</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-bzip2web">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Wielaard</surname><given-names>Mark</given-names></name>
+        <name><surname>Mena</surname><given-names>Federico</given-names></name>
+        <name><surname>Snyder</surname><given-names>Micah</given-names></name>
+      </person-group>
+      <article-title>bzip2</article-title>
+      <publisher-name>https://sourceware.org/bzip2/</publisher-name>
+      <year iso-8601-date="1996">1996</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-gzipweb">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Gailly</surname><given-names>Jean-loup</given-names></name>
+        <name><surname>Adler</surname><given-names>Mark</given-names></name>
+      </person-group>
+      <article-title>Gzip</article-title>
+      <publisher-name>https://www.gnu.org/software/gzip/</publisher-name>
+      <year iso-8601-date="1992">1992</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-lzmaweb">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Pavlov</surname><given-names>Igor</given-names></name>
+      </person-group>
+      <article-title>Lzma</article-title>
+      <publisher-name>https://www.7-zip.org/</publisher-name>
+      <year iso-8601-date="1996">1996</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-BoostLibrary">
+    <element-citation publication-type="chapter">
+      <person-group person-group-type="author">
+        <name><surname>Koranne</surname><given-names>Sandeep</given-names></name>
+      </person-group>
+      <article-title>Boost c++ libraries</article-title>
+      <source>Handbook of open source tools</source>
+      <publisher-name>Springer US</publisher-name>
+      <publisher-loc>Boston, MA</publisher-loc>
+      <year iso-8601-date="2011">2011</year>
+      <isbn>978-1-4419-7719-9</isbn>
+      <uri>https://doi.org/10.1007/978-1-4419-7719-9_6</uri>
+      <pub-id pub-id-type="doi">10.1007/978-1-4419-7719-9_6</pub-id>
+      <fpage>127</fpage>
+      <lpage>143</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-TclapLibrary">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Smoot</surname><given-names>Michael E.</given-names></name>
+        <name><surname>Aarno</surname><given-names>Daniel</given-names></name>
+        <name><surname>others</surname></name>
+      </person-group>
+      <article-title>Templatized c++ command line parser library</article-title>
+      <publisher-name>https://tclap.sourceforge.net/</publisher-name>
+      <year iso-8601-date="2009">2009</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-gaussian">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Frisch</surname><given-names>M. J.</given-names></name>
+        <name><surname>Trucks</surname><given-names>G. W.</given-names></name>
+        <name><surname>Schlegel</surname><given-names>H. B.</given-names></name>
+        <name><surname>Scuseria</surname><given-names>G. E.</given-names></name>
+        <name><surname>Robb</surname><given-names>M. A.</given-names></name>
+        <name><surname>Cheeseman</surname><given-names>J. R.</given-names></name>
+        <name><surname>Scalmani</surname><given-names>G.</given-names></name>
+        <name><surname>Barone</surname><given-names>V.</given-names></name>
+        <name><surname>Petersson</surname><given-names>G. A.</given-names></name>
+        <name><surname>Nakatsuji</surname><given-names>H.</given-names></name>
+        <name><surname>Li</surname><given-names>X.</given-names></name>
+        <name><surname>Caricato</surname><given-names>M.</given-names></name>
+        <name><surname>Marenich</surname><given-names>A. V.</given-names></name>
+        <name><surname>Bloino</surname><given-names>J.</given-names></name>
+        <name><surname>Janesko</surname><given-names>B. G.</given-names></name>
+        <name><surname>Gomperts</surname><given-names>R.</given-names></name>
+        <name><surname>Mennucci</surname><given-names>B.</given-names></name>
+        <name><surname>Hratchian</surname><given-names>H. P.</given-names></name>
+        <name><surname>Ortiz</surname><given-names>J. V.</given-names></name>
+        <name><surname>Izmaylov</surname><given-names>A. F.</given-names></name>
+        <name><surname>Sonnenberg</surname><given-names>J. L.</given-names></name>
+        <name><surname>Williams-Young</surname><given-names>D.</given-names></name>
+        <name><surname>Ding</surname><given-names>F.</given-names></name>
+        <name><surname>Lipparini</surname><given-names>F.</given-names></name>
+        <name><surname>Egidi</surname><given-names>F.</given-names></name>
+        <name><surname>Goings</surname><given-names>J.</given-names></name>
+        <name><surname>Peng</surname><given-names>B.</given-names></name>
+        <name><surname>Petrone</surname><given-names>A.</given-names></name>
+        <name><surname>Henderson</surname><given-names>T.</given-names></name>
+        <name><surname>Ranasinghe</surname><given-names>D.</given-names></name>
+        <name><surname>Zakrzewski</surname><given-names>V. G.</given-names></name>
+        <name><surname>Gao</surname><given-names>J.</given-names></name>
+        <name><surname>Rega</surname><given-names>N.</given-names></name>
+        <name><surname>Zheng</surname><given-names>G.</given-names></name>
+        <name><surname>Liang</surname><given-names>W.</given-names></name>
+        <name><surname>Hada</surname><given-names>M.</given-names></name>
+        <name><surname>Ehara</surname><given-names>M.</given-names></name>
+        <name><surname>Toyota</surname><given-names>K.</given-names></name>
+        <name><surname>Fukuda</surname><given-names>R.</given-names></name>
+        <name><surname>Hasegawa</surname><given-names>J.</given-names></name>
+        <name><surname>Ishida</surname><given-names>M.</given-names></name>
+        <name><surname>Nakajima</surname><given-names>T.</given-names></name>
+        <name><surname>Honda</surname><given-names>Y.</given-names></name>
+        <name><surname>Kitao</surname><given-names>O.</given-names></name>
+        <name><surname>Nakai</surname><given-names>H.</given-names></name>
+        <name><surname>Vreven</surname><given-names>T.</given-names></name>
+        <name><surname>Throssell</surname><given-names>K.</given-names></name>
+        <name><surname>Montgomery</surname><given-names>J. A.</given-names><suffix>Jr.</suffix></name>
+        <name><surname>Peralta</surname><given-names>J. E.</given-names></name>
+        <name><surname>Ogliaro</surname><given-names>F.</given-names></name>
+        <name><surname>Bearpark</surname><given-names>M. J.</given-names></name>
+        <name><surname>Heyd</surname><given-names>J. J.</given-names></name>
+        <name><surname>Brothers</surname><given-names>E. N.</given-names></name>
+        <name><surname>Kudin</surname><given-names>K. N.</given-names></name>
+        <name><surname>Staroverov</surname><given-names>V. N.</given-names></name>
+        <name><surname>Keith</surname><given-names>T. A.</given-names></name>
+        <name><surname>Kobayashi</surname><given-names>R.</given-names></name>
+        <name><surname>Normand</surname><given-names>J.</given-names></name>
+        <name><surname>Raghavachari</surname><given-names>K.</given-names></name>
+        <name><surname>Rendell</surname><given-names>A. P.</given-names></name>
+        <name><surname>Burant</surname><given-names>J. C.</given-names></name>
+        <name><surname>Iyengar</surname><given-names>S. S.</given-names></name>
+        <name><surname>Tomasi</surname><given-names>J.</given-names></name>
+        <name><surname>Cossi</surname><given-names>M.</given-names></name>
+        <name><surname>Millam</surname><given-names>J. M.</given-names></name>
+        <name><surname>Klene</surname><given-names>M.</given-names></name>
+        <name><surname>Adamo</surname><given-names>C.</given-names></name>
+        <name><surname>Cammi</surname><given-names>R.</given-names></name>
+        <name><surname>Ochterski</surname><given-names>J. W.</given-names></name>
+        <name><surname>Martin</surname><given-names>R. L.</given-names></name>
+        <name><surname>Morokuma</surname><given-names>K.</given-names></name>
+        <name><surname>Farkas</surname><given-names>O.</given-names></name>
+        <name><surname>Foresman</surname><given-names>J. B.</given-names></name>
+        <name><surname>Fox</surname><given-names>D. J.</given-names></name>
+      </person-group>
+      <article-title>Gaussian16 Revision C.01</article-title>
+      <year iso-8601-date="2016">2016</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-hafnerU003A2008">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Hafner</surname><given-names>Jürgen</given-names></name>
+      </person-group>
+      <article-title>Ab-initio simulations of materials using VASP: Density-functional theory and beyond</article-title>
+      <source>Journal of Computational Chemistry</source>
+      <year iso-8601-date="2008">2008</year>
+      <volume>29</volume>
+      <issue>13</issue>
+      <pub-id pub-id-type="doi">10.1002/jcc.21057</pub-id>
+      <fpage>2044</fpage>
+      <lpage>2078</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-ParaView">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Ahrens</surname><given-names>James</given-names></name>
+        <name><surname>Geveci</surname><given-names>Berk</given-names></name>
+        <name><surname>Law</surname><given-names>Charles</given-names></name>
+      </person-group>
+      <article-title>ParaView: An end-user tool for large-data visualization</article-title>
+      <person-group person-group-type="editor">
+        <name><surname>Hansen</surname><given-names>Charles D.</given-names></name>
+        <name><surname>Johnson</surname><given-names>Chris R.</given-names></name>
+      </person-group>
+      <publisher-name>Butterworth-Heinemann</publisher-name>
+      <publisher-loc>Burlington</publisher-loc>
+      <year iso-8601-date="2005">2005</year>
+      <isbn>978-0-12-387582-2</isbn>
+      <pub-id pub-id-type="doi">10.1016/B978-012387582-2/50038-1</pub-id>
+      <fpage>717</fpage>
+      <lpage>731</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-OpenDX">
+    <element-citation publication-type="book">
+      <person-group person-group-type="author">
+        <name><surname>Thompson</surname><given-names>David L.</given-names></name>
+        <name><surname>Braun</surname><given-names>Jeff A.</given-names></name>
+        <name><surname>Ford</surname><given-names>Ray</given-names></name>
+      </person-group>
+      <source>OpenDX paths to visualization</source>
+      <publisher-name>Visualization; Imagery Solutions Inc.</publisher-name>
+      <publisher-loc>Missoula</publisher-loc>
+      <year iso-8601-date="2004">2004</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-mommaU003A2011">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Momma</surname><given-names>Koichi</given-names></name>
+        <name><surname>Izumi</surname><given-names>Fujio</given-names></name>
+      </person-group>
+      <article-title>VESTA3 for three-dimensional visualization of crystal, volumetric and morphology data</article-title>
+      <source>Journal of Applied Crystallography</source>
+      <year iso-8601-date="2011-12">2011</year><month>12</month>
+      <volume>44</volume>
+      <issue>6</issue>
+      <pub-id pub-id-type="doi">10.1107/S0021889811038970</pub-id>
+      <fpage>1272</fpage>
+      <lpage>1276</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-MATLAB">
+    <element-citation>
+      <person-group person-group-type="author">
+        <string-name>The MathWorks Inc.</string-name>
+      </person-group>
+      <article-title>MATLAB version: 9.13.0 (R2022b)</article-title>
+      <publisher-name>The MathWorks Inc.</publisher-name>
+      <publisher-loc>Natick, Massachusetts, United States</publisher-loc>
+      <year iso-8601-date="2022">2022</year>
+      <uri>https://www.mathworks.com</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-musethU003A2013">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Museth</surname><given-names>Ken</given-names></name>
+      </person-group>
+      <article-title>VDB: High-resolution sparse volumes with dynamic topology</article-title>
+      <source>ACM Trans. Graph.</source>
+      <year iso-8601-date="2013">2013</year>
+      <volume>32</volume>
+      <issue>3</issue>
+      <issn>0730-0301</issn>
+      <uri>https://doi.org/10.1145/2487228.2487235</uri>
+      <pub-id pub-id-type="doi">10.1145/2487228.2487235</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-lorensenU003A1987">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Lorensen</surname><given-names>William E.</given-names></name>
+        <name><surname>Cline</surname><given-names>Harvey E.</given-names></name>
+      </person-group>
+      <article-title>Marching cubes: A high resolution 3D surface construction algorithm</article-title>
+      <source>SIGGRAPH Comput. Graph.</source>
+      <year iso-8601-date="1987">1987</year>
+      <volume>21</volume>
+      <issue>4</issue>
+      <uri>https://doi.org/10.1145/37402.37422</uri>
+      <pub-id pub-id-type="doi">10.1145/37402.37422</pub-id>
+      <fpage>163</fpage>
+      <lpage>169</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-burkeU003A1994">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Burke</surname><given-names>Paul</given-names></name>
+      </person-group>
+      <article-title>Polygonising a scalar field</article-title>
+      <year iso-8601-date="1994">1994</year>
+      <uri>https://paulbourke.net/geometry/polygonise/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-filotU003A2016">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Filot</surname><given-names>Ivo A. W.</given-names></name>
+        <name><surname>Fariduddin</surname><given-names>Farid</given-names></name>
+        <name><surname>Broos</surname><given-names>Robin J. P.</given-names></name>
+        <name><surname>Zijlstra</surname><given-names>Bart</given-names></name>
+        <name><surname>Hensen</surname><given-names>Emiel J. M.</given-names></name>
+      </person-group>
+      <article-title>A quantum-chemical DFT study of CO dissociation on fe-promoted stepped rh surfaces</article-title>
+      <source>Catalysis Today</source>
+      <year iso-8601-date="2016">2016</year>
+      <volume>275</volume>
+      <pub-id pub-id-type="doi">https://doi.org/10.1016/j.cattod.2015.10.009</pub-id>
+      <fpage>111</fpage>
+      <lpage>118</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-suU003A2016">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Su</surname><given-names>Ya-Qiong</given-names></name>
+        <name><surname>Filot</surname><given-names>Ivo A. W.</given-names></name>
+        <name><surname>Liu</surname><given-names>Jin-Xun</given-names></name>
+        <name><surname>Tranca</surname><given-names>Ionut</given-names></name>
+        <name><surname>Hensen</surname><given-names>Emiel J. M.</given-names></name>
+      </person-group>
+      <article-title>Charge transport over the defective CeO2(111) surface</article-title>
+      <source>Chemistry of Materials</source>
+      <year iso-8601-date="2016">2016</year>
+      <volume>28</volume>
+      <issue>16</issue>
+      <pub-id pub-id-type="doi">10.1021/acs.chemmater.6b01548</pub-id>
+      <fpage>5652</fpage>
+      <lpage>5658</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-suU003A2018">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Su</surname><given-names>Ya-Qiong</given-names></name>
+        <name><surname>Filot</surname><given-names>Ivo A. W.</given-names></name>
+        <name><surname>Liu</surname><given-names>Jin-Xun</given-names></name>
+        <name><surname>Hensen</surname><given-names>Emiel J. M.</given-names></name>
+      </person-group>
+      <article-title>Stable pd-doped ceria structures for CH4 activation and CO oxidation</article-title>
+      <source>ACS Catalysis</source>
+      <year iso-8601-date="2018">2018</year>
+      <volume>8</volume>
+      <issue>1</issue>
+      <pub-id pub-id-type="doi">10.1021/acscatal.7b03295</pub-id>
+      <fpage>75</fpage>
+      <lpage>80</lpage>
+    </element-citation>
+  </ref>
+</ref-list>
 </back>
 </article>

@@ -1,5 +1,5 @@
 ---
-title: 'Den2Obj: A command line tool for producing isosurfaces from density data files'
+title: 'Den2Obj: A command line tool for producing isosurfaces from electron density data files'
 tags:
   -
 authors:
@@ -49,33 +49,45 @@ Isosurfaces play a pivotal role in both scientific research and engineering
 applications, offering a powerful tool for visualizing complex data sets and
 understanding intricate phenomena. These surfaces represent points in a field
 where a specific value, known as the isovalue, is constant. Due to its
-importance, there exists many programs who readily support isosurface
-generation, such as Data Explorer, Matlab, ParaView, and Vesta. These tools are
-mainly designed for interactive use and utilize a graphical user interface of
-some sort.
+importance, there exists many programs that readily support isosurface
+generation, such as `Open Data Explorer` [@OpenDX], `Matlab` [@MATLAB], `ParaView`
+[@ParaView], and `Vesta` [@momma:2011]. These tools are mainly designed for
+interactive use and utilize a graphical user interface of some sort.
 
 In contrast, `Den2Obj` is a C++-based command-line tool that performs isosurface
-construction from VASP CHGCAR or PARCHG and and Gaussian Cube files. The
-resulting isosurfaces can be stored as Stereolitography (`.stl`), Polygon File
-Format (`.ply`) or Wavefront (`.obj`) files. Furthermore, `Den2Obj` is able
-to convert isosurfaces to the OpenVDB format allowing for volumetric rendering
-in programs such as Blender or to convert these files to `d2o` which offers
-a significant reduction in size as compared to the above-mentioned input files.
+construction from `VASP` [@hafner:2008] `CHGCAR` or `PARCHG` and and Gaussian
+[@gaussian] Cube files. The resulting isosurfaces can be stored as
+Stereolitography (`.stl`), Polygon File Format (`.ply`) or Wavefront (`.obj`)
+files. Furthermore, `Den2Obj` is able to convert isosurfaces to the OpenVDB
+[@museth:2013] format allowing for volumetric rendering in programs such as
+Blender or to convert these files to `d2o` which offers a significant reduction
+in size as compared to the above-mentioned input files.
 
-Isosurfaces can be constructed using the marching cubes or the marching
-tetrahedra algorithms, which the user is free to decide. Both these algorithms
-are implemented using OpenMP parallelization making optimal use of modern
-multi-core CPUs. Upon conversion of input files to the native `d2o` file type,
-the program explores various compression algorithms, i.e. `lzma`, `bzip2` and
-`gzip`, and uses the one that yields optimal results. For demonstration and
-testing purposes, also a scalar field generator functionality is included that
-can create a number of relevant scalar fields to test the algorithms on.
+Isosurfaces can be constructed using the marching cubes [@lorensen:1987] or the
+marching tetrahedra [@burke:1994] algorithms, which the user is free to decide. Both these
+algorithms are implemented using OpenMP parallelization making optimal use of
+modern multi-core CPUs. Upon conversion of input files to the native `d2o` file
+type, the program explores various compression algorithms, i.e. `lzma`
+[@lzmaweb], `bzip2` [@bzip2web] and `gzip` [@gzipweb], and uses the one that
+yields optimal results. For demonstration and testing purposes, also a scalar
+field generator functionality is included that can create a number of relevant
+scalar fields to test the algorithms on. An example is provided in
+\autoref{fig:isosurface_examples}.
 
-`Den2Obj` requires a relatively small set of dependencies, being Eigen3, Boost,
-TCLAP, BZIP2, GZIP, LZMA. Creation of VDB files requires the presence of the
-OpenVDB library whereas unit testing uses the CPPUnit and OpenSSL libraries. The
-user can select during compilation whether they want to include these
-functionalities or not.
+![Examples of isosurfaces generated. (left) HOMO orbital of the benzene molecule. (right) Genus2 body. \label{fig:isosurface_examples}](img/isosurface_examples.jpg)
+
+`Den2Obj` requires a relatively small set of dependencies, being Eigen3
+[@eigenweb], Boost [@BoostLibrary], `TCLAP` [@TclapLibrary], `lzma` [@lzmaweb],
+`bzip2` [@bzip2web] and `gzip` [@gzipweb]. Creation of VDB files requires the
+presence of the OpenVDB library [@museth:2013]. The user can select during
+compilation whether they want to include this functionality or not. `Den2Obj`
+is designed to be used by researchers and students working in computational
+materials modelling using the quantum chemical software. It has already been
+used in a number of scientific publications. [@filot:2016; @su:2016; @su:2018]
+
+An extensive user guide including examples, compilation instructions and
+documentation of the command-line arguments is available at
+https://den2obj.imc-tue.nl/.
 
 # Acknowledgements
 
