@@ -67,7 +67,7 @@ void Generator::build_dataset(const std::string& name,
                     mo_id = 21;
                 }
 
-                const unsigned int npts = 150;
+                const unsigned int npts = 100;
                 const fpt sz = 6.0f;
                 std::array<unsigned int, 3> grid_dimensions = {npts, npts, npts};
                 std::vector<fpt> grid = this->benzene_molecular_orbital(sz, npts, mo_id);
@@ -103,11 +103,12 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
 
     // build grid
     std::vector<fpt> f(npts*npts*npts);
-    #pragma omp parallel for schedule(static)
     for(unsigned int i=0; i<npts; i++) { // loop over z
         const float z = xx[i];
+        boost::timer::progress_display progress(npts);
         for(unsigned int j=0; j<npts; j++) { // loop over y
             const float y = xx[j];
+            #pragma omp parallel for schedule(static)
             for(unsigned int k=0; k<npts; k++) { // loop over x
                 const float x = xx[k];
                 const unsigned int idx = i * npts * npts + j * npts + k;
@@ -115,7 +116,9 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
                          (x*x + y*y) * (x*x + y*y) - (9*z*z - 1) * (1 - z*z);
             }
         }
+        ++progress;
     }
+    std::cout << std::endl;
 
     return f;
 }
@@ -140,18 +143,21 @@ std::vector<fpt> Generator::benzene_molecular_orbital(fpt sz, size_t npts,
 
     // build grid
     std::vector<fpt> f(npts*npts*npts);
-    #pragma omp parallel for schedule(static)
+    boost::timer::progress_display progress(npts);
     for(unsigned int i=0; i<npts; i++) { // loop over z
         const float z = xx[i];
         for(unsigned int j=0; j<npts; j++) { // loop over y
             const float y = xx[j];
+            #pragma omp parallel for schedule(static)
             for(unsigned int k=0; k<npts; k++) { // loop over x
                 const float x = xx[k];
-                const unsigned int idx = i * npts * npts + j * npts + k;
+                const unsigned int idx = (i * npts * npts) + (j * npts) + k;
                 f[idx] = this->calculate_mo_amp(Vec3(x,y,z), mo_id);
             }
         }
+        ++progress;
     }
+    std::cout << std::endl;
 
     return f;
 }
