@@ -42,9 +42,9 @@ Eindhoven, The Netherlands</institution>
 <author-notes>
 <corresp id="cor-1">* E-mail: <email></email></corresp>
 </author-notes>
-<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2024-04-10">
-<day>10</day>
-<month>4</month>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2024-06-29">
+<day>29</day>
+<month>6</month>
 <year>2024</year>
 </pub-date>
 <volume>¿VOL?</volume>
@@ -67,16 +67,15 @@ a Creative Commons Attribution 4.0 International License (CC BY
 <body>
 <sec id="summary">
   <title>Summary</title>
-  <p>The concept of electron density lies at the heart of electronic
-  structure calculations, offering a precise depiction of how electrons
-  are distributed within a material or molecule. Across various
-  electronic structure methodologies, electron density serves as the
-  cornerstone, enabling derivation of crucial properties like energy,
-  potential, and forces. It unravels the intricacies of chemical bonding
-  and reactivity, playing a pivotal role in anticipating and
-  interpreting the characteristics of both materials and molecules,
-  particularly in discerning electron redistribution during bond
-  formation or rupture</p>
+  <p>Electron density is central to electronic structure calculations,
+  providing a detailed depiction of electron distribution in materials
+  or molecules. In various methodologies, particularly Density
+  Functional Theory, electron density is crucial for deriving properties
+  such as energy, potential, and forces. It reveals the complexities of
+  chemical bonding and reactivity, crucial for predicting and
+  understanding the characteristics of materials and molecules,
+  especially in terms of electron redistribution during bond formation
+  or rupture.</p>
   <p>The electron density is a scalar field, which means that it is a
   function that assigns a scalar value to each point in space. In the
   case of the electron density, this scalar value represents the
@@ -92,11 +91,12 @@ a Creative Commons Attribution 4.0 International License (CC BY
   It can parse CHGCAR and PARCHG files of VASP as well as Gaussian Cube
   files. <monospace>Den2Obj</monospace> also supports converting these
   into native <monospace>.d2o</monospace> files which offer a
-  significant compression with respect to these former files. The
-  resulting isosurfaces can be stored in Stereolitography
+  significant compression in size with respect to these former files.
+  The resulting isosurfaces can be stored in Stereolitography
   (<monospace>.stl</monospace>), Polygon File Format
   (<monospace>.ply</monospace>) and Wavefront
-  (<monospace>.obj</monospace>) files.</p>
+  (<monospace>.obj</monospace>) files, allowing for facile
+  post-processing in various other programs.</p>
 </sec>
 <sec id="statement-of-need">
   <title>Statement of need</title>
@@ -104,7 +104,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   engineering applications, offering a powerful tool for visualizing
   complex data sets and understanding intricate phenomena. These
   surfaces represent points in a field where a specific value, known as
-  the isovalue, is constant. Due to its importance, there exists many
+  the isovalue, is constant. Due to its importance, there exist many
   programs that readily support isosurface generation, such as
   <monospace>Open Data Explorer</monospace>
   (<xref alt="Thompson et al., 2004" rid="ref-OpenDX" ref-type="bibr">Thompson
@@ -127,30 +127,50 @@ a Creative Commons Attribution 4.0 International License (CC BY
   et al., 2016</xref>) Cube files. The resulting isosurfaces can be
   stored as Stereolitography (<monospace>.stl</monospace>), Polygon File
   Format (<monospace>.ply</monospace>) or Wavefront
-  (<monospace>.obj</monospace>) files. Furthermore,
-  <monospace>Den2Obj</monospace> is able to convert isosurfaces to the
-  OpenVDB
-  (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
-  2013</xref>) format allowing for volumetric rendering in programs such
-  as Blender or to convert these files to <monospace>d2o</monospace>
-  which offers a significant reduction in size as compared to the
-  above-mentioned input files.</p>
-  <p>Isosurfaces can be constructed using the marching cubes
+  (<monospace>.obj</monospace>) files. The isosurfaces can be
+  constructed using the marching cubes
   (<xref alt="Lorensen &amp; Cline, 1987" rid="ref-lorensenU003A1987" ref-type="bibr">Lorensen
   &amp; Cline, 1987</xref>) or the marching tetrahedra
   (<xref alt="Burke, 1994" rid="ref-burkeU003A1994" ref-type="bibr">Burke,
-  1994</xref>) algorithms, which the user is free to decide. Both these
-  algorithms are implemented using OpenMP parallelization making optimal
-  use of modern multi-core CPUs. Upon conversion of input files to the
-  native <monospace>d2o</monospace> file type, the program explores
-  various compression algorithms, i.e. <monospace>lzma</monospace>
+  1994</xref>) algorithms by means of the command-line arguments. Both
+  these algorithms are implemented using OpenMP parallelization making
+  optimal use of modern multi-core CPUs.</p>
+  <p>For efficient research data management purposes,
+  <monospace>Den2Obj</monospace> is also able to convert
+  <monospace>CHGCAR</monospace> and <monospace>PARCHG</monospace> files
+  to its own custom <monospace>d2o</monospace> format, which is a
+  lossless format that stores the scalar field as a collection of floats
+  utilizing compression. Upon conversion of input files to the native
+  <monospace>d2o</monospace> file type, the program explores various
+  compression algorithms, i.e. <monospace>lzma</monospace>
   (<xref alt="Pavlov, 1996" rid="ref-lzmaweb" ref-type="bibr">Pavlov,
   1996</xref>), <monospace>bzip2</monospace>
   (<xref alt="Wielaard et al., 1996" rid="ref-bzip2web" ref-type="bibr">Wielaard
   et al., 1996</xref>) and <monospace>gzip</monospace>
   (<xref alt="Gailly &amp; Adler, 1992" rid="ref-gzipweb" ref-type="bibr">Gailly
   &amp; Adler, 1992</xref>), and uses the one that yields optimal
-  results. For demonstration and testing purposes, also a scalar field
+  results. In comparison to the original <monospace>CHGCAR</monospace>
+  or <monospace>PARCHG</monospace> files, <monospace>d2o</monospace>
+  files are able to achieve a compression ratio around 10%.</p>
+  <p>Besides building isosurfaces, <monospace>Den2Obj</monospace> can
+  also produce OpenVDB
+  (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
+  2013</xref>) files allowing for volumetric rendering in programs such
+  as Blender. In contrast to the rendering of isosurfaces, the main
+  advantage of volumetric rendering is that internal details and density
+  variations are more prominently shown, providing a comprehensive and
+  nuanced understanding of the scalar field. In a way, volumetric
+  rendering lies in between isosurfaces and contour plots in terms of
+  visualizing a scalar field. An example for the molecular orbitals of
+  benzene is provided in
+  <xref alt="[fig:volumetric_rendering]" rid="figU003Avolumetric_rendering">[fig:volumetric_rendering]</xref>.</p>
+  <fig>
+    <caption><p>Volumetric rendering of the molecular orbitals of
+    benzene using the OpenVDB format.
+    <styled-content id="figU003Avolumetric_rendering"></styled-content></p></caption>
+    <graphic mimetype="image" mime-subtype="jpeg" xlink:href="media/img/benzene_mos_denscloud.jpg" />
+  </fig>
+  <p>For demonstration and testing purposes, also a scalar field
   generator functionality is included that can create a number of
   relevant scalar fields to test the algorithms on. An example is
   provided in
@@ -188,7 +208,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   et al., 2016</xref>,
   <xref alt="2018" rid="ref-suU003A2018" ref-type="bibr">2018</xref>)</p>
   <p>An extensive user guide including examples, compilation
-  instructions and documentation of the command-line arguments is
+  instructions and documentation of the command-line arguments, is
   available at https://den2obj.imc-tue.nl/.</p>
 </sec>
 <sec id="acknowledgements">
