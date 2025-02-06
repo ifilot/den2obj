@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorials &mdash; Den2Obj  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e4fd04e9" />
+      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Background" href="background.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Den2Obj
+              <img src="_static/den2obj_logo_128.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#genus2-dataset">Genus2 dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#benzene-highest-occupied-molecular-orbital">Benzene highest occupied molecular orbital</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_interface.html">User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="d2o_fileformat.html">D2O File Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community_guidelines.html">Community guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Den2Obj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div style="text-align: right;">
+<a href="https://github.com/ifilot/den2obj" target="_blank"><i class="fa-brands fa-github"></i> Github</a>
+</div>
+<hr>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorials">
+<span id="index-0"></span><span id="tutorial"></span><h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#genus2-dataset" id="id1">Genus2 dataset</a></p></li>
+<li><p><a class="reference internal" href="#benzene-highest-occupied-molecular-orbital" id="id2">Benzene highest occupied molecular orbital</a></p></li>
+</ul>
+</nav>
+<p>This tutorial describes in a step-by-step procedure how to use <strong class="program">Den2Obj</strong>.
+<strong class="program">Den2Obj</strong> comes bundled with a generator to produce scalar fields. As
+such, no additional calculations on your side are required to follow this
+tutorial.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>To follow along with this tutorial, ensure you have compiled
+<strong class="program">Den2Obj</strong> and tested that it is working. See the
+<a class="reference internal" href="installation.html#index-0"><span class="std std-ref">installation section</span></a> for more information.</p></li>
+<li><p>For the visualization of the isosurfaces, we will be making use of
+Blender. To follow along, please make sure you use
+<a class="reference external" href="https://www.blender.org/download/lts/3-3/">Blender 3.3 LTS</a>.</p></li>
+<li><p>We will not explain how to set materials to objects or how to perform
+image rendering in Blender. If you are unfamiliar with Blender and wish
+to learn upon these matters, we can warmly recommend the
+<a class="reference external" href="https://www.youtube.com/watch?v=nIoXOplUvAw">tutorials by Blender Guru</a>.</p></li>
+</ul>
+</div>
+<section id="genus2-dataset">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Genus2 dataset</a><a class="headerlink" href="#genus2-dataset" title="Link to this heading"></a></h2>
+<p>In this tutorial, we will be reproducing the Figure as shown below.</p>
+<figure class="align-default">
+<img alt="Genus 2 object" src="_images/genus2_result.png" />
+</figure>
+<p>First, we need to build the scalar field. To produce the Genus 2 scalar field,
+run the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">g</span> <span class="n">genus2</span> <span class="o">-</span><span class="n">o</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span>
+</pre></div>
+</div>
+<p>You should see the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--------------------------------------------------------------</span>
+<span class="n">Executing</span> <span class="n">DEN2OBJ</span> <span class="n">v</span><span class="mf">.1.1.0</span>
+<span class="n">Author</span><span class="p">:</span>  <span class="n">Ivo</span> <span class="n">Filot</span> <span class="o">&lt;</span><span class="n">i</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">filot</span><span class="nd">@tue</span><span class="o">.</span><span class="n">nl</span><span class="o">&gt;</span>
+<span class="n">Website</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">den2obj</span><span class="o">.</span><span class="n">imc</span><span class="o">-</span><span class="n">tue</span><span class="o">.</span><span class="n">nl</span>
+<span class="n">Github</span><span class="p">:</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ifilot</span><span class="o">/</span><span class="n">den2obj</span>
+<span class="o">--------------------------------------------------------------</span>
+<span class="n">Building</span> <span class="n">grid</span> <span class="n">using</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">genus2</span>
+<span class="n">Looking</span> <span class="k">for</span> <span class="n">best</span> <span class="n">compression</span> <span class="n">algorithm</span><span class="o">.</span>
+<span class="n">Trying</span> <span class="n">GZIP</span><span class="p">:</span> <span class="mf">2720.5</span> <span class="n">kb</span> <span class="p">(</span><span class="mf">69.64</span> <span class="o">%</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Trying</span> <span class="n">LZMA</span><span class="p">:</span> <span class="mf">1781.2</span> <span class="n">kb</span> <span class="p">(</span><span class="mf">45.60</span> <span class="o">%</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Trying</span> <span class="n">BZIP2</span><span class="p">:</span> <span class="mf">3149.8</span> <span class="n">kb</span> <span class="p">(</span><span class="mf">80.63</span> <span class="o">%</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Floating</span> <span class="n">point</span> <span class="n">size</span> <span class="n">determined</span> <span class="n">at</span><span class="p">:</span> <span class="mi">4</span> <span class="nb">bytes</span>
+<span class="n">Writing</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="p">(</span><span class="mf">1781.3</span><span class="n">kb</span><span class="p">)</span><span class="o">.</span>
+<span class="o">-------------------------------------------------------------------------------</span>
+<span class="n">Done</span> <span class="ow">in</span> <span class="mf">1.42421</span> <span class="n">seconds</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>This will generate a <a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">.d2o file</span></a> containing the Genus 2
+scalar field named <code class="docutils literal notranslate"><span class="pre">genus2.d2o</span></code>. Observe that <strong class="program">Den2Obj</strong> tests three
+different compression algorithms and automatically selects the best algorithm
+for the data compression.</p>
+<p>To construct the isosurface with an isovalue of 0.1, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="o">-</span><span class="n">o</span> <span class="n">genus2</span><span class="o">.</span><span class="n">ply</span> <span class="o">-</span><span class="n">v</span> <span class="mf">0.1</span> <span class="o">-</span><span class="n">c</span>
+</pre></div>
+</div>
+<p>Which will give the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--------------------------------------------------------------</span>
+<span class="n">Executing</span> <span class="n">DEN2OBJ</span> <span class="n">v</span><span class="mf">.1.1.0</span>
+<span class="n">Author</span><span class="p">:</span>  <span class="n">Ivo</span> <span class="n">Filot</span> <span class="o">&lt;</span><span class="n">i</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">filot</span><span class="nd">@tue</span><span class="o">.</span><span class="n">nl</span><span class="o">&gt;</span>
+<span class="n">Website</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">den2obj</span><span class="o">.</span><span class="n">imc</span><span class="o">-</span><span class="n">tue</span><span class="o">.</span><span class="n">nl</span>
+<span class="n">Github</span><span class="p">:</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ifilot</span><span class="o">/</span><span class="n">den2obj</span>
+<span class="o">--------------------------------------------------------------</span>
+<span class="n">Opening</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="k">as</span> <span class="n">D2O</span> <span class="n">binary</span> <span class="n">file</span>
+<span class="n">Recognizing</span> <span class="n">floating</span> <span class="n">point</span> <span class="n">size</span><span class="p">:</span> <span class="mi">4</span> <span class="nb">bytes</span><span class="o">.</span>
+<span class="n">Reading</span> <span class="mi">1823992</span> <span class="nb">bytes</span> <span class="kn">from</span><span class="w"> </span><span class="nn">file.</span>
+<span class="n">Building</span> <span class="n">decompressor</span>
+<span class="n">Decompressed</span> <span class="n">data</span>
+<span class="n">Done</span> <span class="n">reading</span> <span class="n">D2O</span> <span class="n">binary</span> <span class="n">file</span>
+<span class="n">Read</span> <span class="mi">1000000</span> <span class="n">values</span><span class="o">.</span>
+<span class="n">Using</span> <span class="n">isovalue</span><span class="p">:</span> <span class="mf">0.1</span>
+<span class="n">Lowest</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">field</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.85503</span>
+<span class="n">Highest</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">field</span><span class="p">:</span> <span class="mi">265</span>
+<span class="n">Identified</span> <span class="mi">48900</span> <span class="n">faces</span><span class="o">.</span>
+<span class="n">Calculating</span> <span class="n">normal</span> <span class="n">vectors</span> <span class="n">using</span> <span class="n">two</span><span class="o">-</span><span class="n">point</span> <span class="n">stencil</span>
+<span class="n">Writing</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">Standford</span> <span class="n">Triangle</span> <span class="n">Format</span> <span class="n">file</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Writing</span> <span class="k">as</span> <span class="n">Stanford</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span> <span class="n">file</span><span class="p">:</span> <span class="n">genus2</span><span class="o">.</span><span class="n">ply</span> <span class="p">(</span><span class="mf">1196.8</span><span class="n">kb</span><span class="p">)</span><span class="o">.</span>
+<span class="o">-------------------------------------------------------------------------------</span>
+<span class="n">Done</span> <span class="ow">in</span> <span class="mf">0.17653</span> <span class="n">seconds</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Observe that we generate the isosurface using the <code class="docutils literal notranslate"><span class="pre">-c</span></code> directive, which
+centers the isosurface at the origin. The scalar field is generated in a
+cubic unit cell with edges of length 4. If we would not center the object
+at the origin, it would be located at position (2,2,2).</p>
+</div>
+<p>Open Blender, remove the original cube and import the <code class="docutils literal notranslate"><span class="pre">genus2.ply</span></code> via
+the drop-down menu as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">File</span> <span class="o">&gt;</span> <span class="n">Import</span> <span class="o">&gt;</span> <span class="n">Stanford</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Select the file and click on <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">PLY</span></code>. You should now see something
+similar as to the image below.</p>
+<figure class="align-default">
+<img alt="The imported Genus 2 isosurface in Blender." src="_images/genus2_blender_01.JPG" />
+</figure>
+<p>Finally, we assign a material to the object, tune the camera to bring the
+object fully into view, set the color of the background to black, add
+two sun-type light sources and set the film to transparent. For the material,
+we have used the settings as can be seen in the figure below.</p>
+<figure class="align-default">
+<img alt="The imported Genus 2 isosurface in Blender." src="_images/genus2_blender_02.JPG" />
+</figure>
+<p>The only step that remains is to render the image, which will give the image
+as shown at the start of this section.</p>
+</section>
+<section id="benzene-highest-occupied-molecular-orbital">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Benzene highest occupied molecular orbital</a><a class="headerlink" href="#benzene-highest-occupied-molecular-orbital" title="Link to this heading"></a></h2>
+<p>In this tutorial, we will be reproducing the Figure as shown below.</p>
+<figure class="align-default">
+<img alt="Benzene highest occupied molecular orbital" src="_images/benzene_homo_result.png" />
+</figure>
+<p>To generate the scalar field, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">g</span> <span class="n">benzene_homo</span> <span class="o">-</span><span class="n">o</span> <span class="n">benzene_homo</span><span class="o">.</span><span class="n">d2o</span>
+</pre></div>
+</div>
+<p>Next, the isosurface is generated. An isovalue of 0.03 is chosen. Because
+molecular orbital have positive and negative lobes, we use the <code class="docutils literal notranslate"><span class="pre">-d</span></code> tag
+to create both isosurfaces. Furthermore, we center the object by defining
+<code class="docutils literal notranslate"><span class="pre">-c</span></code> and we explicitly ask to use the marching tetrahedra algorithm
+via <code class="docutils literal notranslate"><span class="pre">--algo</span> <span class="pre">marching-tetrahedra</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="n">benzene_homo</span><span class="o">.</span><span class="n">d2o</span> <span class="o">-</span><span class="n">o</span> <span class="n">benzene_homo</span><span class="o">.</span><span class="n">ply</span> <span class="o">-</span><span class="n">v</span> <span class="mf">0.03</span> <span class="o">-</span><span class="n">c</span> <span class="o">-</span><span class="n">d</span> <span class="o">--</span><span class="n">algo</span> <span class="n">marching</span><span class="o">-</span><span class="n">tetrahedra</span>
+</pre></div>
+</div>
+<p>The following output (or similar) is generated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--------------------------------------------------------------</span>
+<span class="n">Executing</span> <span class="n">DEN2OBJ</span> <span class="n">v</span><span class="mf">.1.1.0</span>
+<span class="n">Author</span><span class="p">:</span>  <span class="n">Ivo</span> <span class="n">Filot</span> <span class="o">&lt;</span><span class="n">i</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">w</span><span class="o">.</span><span class="n">filot</span><span class="nd">@tue</span><span class="o">.</span><span class="n">nl</span><span class="o">&gt;</span>
+<span class="n">Website</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">den2obj</span><span class="o">.</span><span class="n">imc</span><span class="o">-</span><span class="n">tue</span><span class="o">.</span><span class="n">nl</span>
+<span class="n">Github</span><span class="p">:</span>  <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ifilot</span><span class="o">/</span><span class="n">den2obj</span>
+<span class="o">--------------------------------------------------------------</span>
+<span class="n">Opening</span> <span class="n">benzene_homo</span><span class="o">.</span><span class="n">d2o</span> <span class="k">as</span> <span class="n">D2O</span> <span class="n">binary</span> <span class="n">file</span>
+<span class="n">Recognizing</span> <span class="n">floating</span> <span class="n">point</span> <span class="n">size</span><span class="p">:</span> <span class="mi">4</span> <span class="nb">bytes</span><span class="o">.</span>
+<span class="n">Reading</span> <span class="mi">11415368</span> <span class="nb">bytes</span> <span class="kn">from</span><span class="w"> </span><span class="nn">file.</span>
+<span class="n">Building</span> <span class="n">LZMA</span> <span class="n">decompressor</span>
+<span class="n">Decompressed</span> <span class="n">data</span>
+<span class="n">Done</span> <span class="n">reading</span> <span class="n">D2O</span> <span class="n">binary</span> <span class="n">file</span>
+<span class="n">Read</span> <span class="mi">3375000</span> <span class="n">values</span><span class="o">.</span>
+<span class="n">Using</span> <span class="n">isovalue</span><span class="p">:</span> <span class="mf">0.03</span>
+<span class="n">Lowest</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">field</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.25383</span>
+<span class="n">Highest</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">field</span><span class="p">:</span> <span class="mf">0.25383</span>
+<span class="n">Calculating</span> <span class="n">normal</span> <span class="n">vectors</span> <span class="n">using</span> <span class="n">two</span><span class="o">-</span><span class="n">point</span> <span class="n">stencil</span>
+<span class="n">Centering</span> <span class="n">structure</span>
+<span class="n">Writing</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">Standford</span> <span class="n">Triangle</span> <span class="n">Format</span> <span class="n">file</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Writing</span> <span class="k">as</span> <span class="n">Stanford</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span> <span class="n">file</span><span class="p">:</span> <span class="n">benzene_homo_pos</span><span class="o">.</span><span class="n">ply</span> <span class="p">(</span><span class="mf">4560.3</span><span class="n">kb</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Identified</span> <span class="mi">59512</span> <span class="n">faces</span><span class="o">.</span>
+<span class="n">Calculating</span> <span class="n">normal</span> <span class="n">vectors</span> <span class="n">using</span> <span class="n">two</span><span class="o">-</span><span class="n">point</span> <span class="n">stencil</span>
+<span class="n">Centering</span> <span class="n">structure</span>
+<span class="n">Writing</span> <span class="n">mesh</span> <span class="k">as</span> <span class="n">Standford</span> <span class="n">Triangle</span> <span class="n">Format</span> <span class="n">file</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Writing</span> <span class="k">as</span> <span class="n">Stanford</span> <span class="p">(</span><span class="o">.</span><span class="n">ply</span><span class="p">)</span> <span class="n">file</span><span class="p">:</span> <span class="n">benzene_homo_neg</span><span class="o">.</span><span class="n">ply</span> <span class="p">(</span><span class="mf">1454.4</span><span class="n">kb</span><span class="p">)</span><span class="o">.</span>
+<span class="o">-------------------------------------------------------------------------------</span>
+<span class="n">Done</span> <span class="ow">in</span> <span class="mf">2.17096</span> <span class="n">seconds</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Observe that two isosurfaces are created and stored as <code class="docutils literal notranslate"><span class="pre">.ply</span></code> files:</p>
+<ul class="simple">
+<li><p>benzene_homo_pos.ply</p></li>
+<li><p>benzene_homo_neg.ply</p></li>
+</ul>
+<p>Importing these two files in Blender gives us the following result</p>
+<figure class="align-default">
+<img alt="HOMO orbital of benzene imported into Blender" src="_images/benzene_homo_blender_01.jpg" />
+</figure>
+<p>Of course, this result is rather blend and we would like to add
+the positions of the carbon and hydrogen atoms and the bonds between
+them. For this, we are going to use the hardcoded Python script as shown
+below which we can readily execute in Blender</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">bpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># define molecule</span>
+    <span class="n">mol</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">0.0000000015</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.3868467444</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">1.2010445126</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6934233709</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">1.2010445111</span><span class="p">,</span>  <span class="mf">0.6934233735</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0000000015</span><span class="p">,</span>  <span class="mf">1.3868467444</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2010445126</span><span class="p">,</span>  <span class="mf">0.6934233709</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2010445111</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6934233735</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span>  <span class="mf">0.0000000027</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.4694205285</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span>  <span class="mf">2.1385809117</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2347102619</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span>  <span class="mf">2.1385809090</span><span class="p">,</span>  <span class="mf">1.2347102666</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.0000000027</span><span class="p">,</span>  <span class="mf">2.4694205285</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.1385809117</span><span class="p">,</span>  <span class="mf">1.2347102619</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+    <span class="n">mol</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.1385809090</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2347102666</span><span class="p">,</span> <span class="mf">0.0000000000</span><span class="p">])</span>
+
+    <span class="n">build_atoms</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+    <span class="n">build_bonds</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_atoms</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">at</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="mf">0.4</span> <span class="k">if</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span> <span class="k">else</span> <span class="mf">0.3</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">primitive_ico_sphere_add</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">sc</span><span class="p">,</span>
+                                                    <span class="n">enter_editmode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                    <span class="n">align</span><span class="o">=</span><span class="s1">&#39;WORLD&#39;</span><span class="p">,</span>
+                                                    <span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="n">at</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">at</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">at</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
+                                                    <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                                    <span class="n">subdivisions</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">selected_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">at</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">shade_smooth</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_bonds</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">at1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecule</span><span class="p">):</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">at1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">at1</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">at1</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">at2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">molecule</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">at2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">at2</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">at2</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1</span><span class="o">-</span><span class="n">p2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mf">1.5</span><span class="p">:</span>
+                <span class="n">ctr</span> <span class="o">=</span> <span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="n">p2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">(</span><span class="n">p2</span><span class="o">-</span><span class="n">p1</span><span class="p">)</span> <span class="o">/</span> <span class="n">d</span><span class="p">))</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">(</span><span class="n">p2</span><span class="o">-</span><span class="n">p1</span><span class="p">)</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span>
+                <span class="n">axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+
+                <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">primitive_cylinder_add</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                                                    <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                                    <span class="n">enter_editmode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                    <span class="n">align</span><span class="o">=</span><span class="s1">&#39;WORLD&#39;</span><span class="p">,</span>
+                                                    <span class="n">location</span><span class="o">=</span><span class="p">(</span><span class="n">ctr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ctr</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ctr</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                                                    <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">rotation_mode</span> <span class="o">=</span> <span class="s1">&#39;AXIS_ANGLE&#39;</span>
+                <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">rotation_axis_angle</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+                <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">rotation_axis_angle</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">axis</span>
+                <span class="n">bpy</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">selected_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;bond&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">bpy</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">shade_smooth</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will generate all the atoms and bonds between them. Next,
+materials are assigned to all atoms and bonds and the final result
+looks as seen in the image below.</p>
+<figure class="align-default">
+<img alt="HOMO orbital of benzene together with the atoms and bonds" src="_images/benzene_homo_blender_02.jpg" />
+</figure>
+<p>Finally, we can render the scene to create a nice picture of the molecular orbital.</p>
+<figure class="align-default">
+<img alt="Benzene highest occupied molecular orbital" src="_images/benzene_homo_result.png" />
+</figure>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="background.html" class="btn btn-neutral float-left" title="Background" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Inorganic Materials and Catalysis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

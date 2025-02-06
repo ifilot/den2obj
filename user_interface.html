@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Interface &mdash; Den2Obj  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e4fd04e9" />
+      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="D2O File Format" href="d2o_fileformat.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Den2Obj
+              <img src="_static/den2obj_logo_128.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#operational-modes">Operational modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#isosurface-generation">Isosurface generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filetype-conversion">Filetype conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-generation">Dataset generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="d2o_fileformat.html">D2O File Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community_guidelines.html">Community guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Den2Obj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div style="text-align: right;">
+<a href="https://github.com/ifilot/den2obj" target="_blank"><i class="fa-brands fa-github"></i> Github</a>
+</div>
+<hr>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-interface">
+<span id="index-0"></span><span id="userinterface"></span><h1>User Interface<a class="headerlink" href="#user-interface" title="Link to this heading"></a></h1>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#operational-modes" id="id2">Operational modes</a></p></li>
+<li><p><a class="reference internal" href="#isosurface-generation" id="id3">Isosurface generation</a></p></li>
+<li><p><a class="reference internal" href="#filetype-conversion" id="id4">Filetype conversion</a></p></li>
+<li><p><a class="reference internal" href="#dataset-generation" id="id5">Dataset generation</a></p></li>
+</ul>
+</nav>
+<section id="operational-modes">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Operational modes</a><a class="headerlink" href="#operational-modes" title="Link to this heading"></a></h2>
+<p><strong class="program">Den2Obj</strong> has three operational modes</p>
+<ol class="arabic simple">
+<li><p>Isosurface generation</p></li>
+<li><p>Filetype conversion</p></li>
+<li><p>Dataset generation</p></li>
+</ol>
+<p>Isosurface generation is the default mode and is used to generate isosurfaces
+from scalar fields. Filetype conversion is mainly used to convert relatively
+large storage formats such as CHGCAR or Gaussian cube files to the compressed
+<a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">.d2o file format</span></a>. Finally, dataset generation is mainly
+used for testing or educational purposes.</p>
+</section>
+<section id="isosurface-generation">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Isosurface generation</a><a class="headerlink" href="#isosurface-generation" title="Link to this heading"></a></h2>
+<p>To perform an isosurface creation, one simply runs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">scalarfield</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">mesh</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">v</span> <span class="o">&lt;</span><span class="n">isovalue</span><span class="o">&gt;</span> <span class="p">[</span><span class="o">-</span><span class="n">c</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="o">&lt;</span><span class="n">algo</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>wherein <code class="docutils literal notranslate"><span class="pre">path-to-scalarfield</span></code> is a scalar field file format of either
+of the following types</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.vasp.at/wiki/index.php/CHGCAR">CHGCAR</a>, <a class="reference external" href="https://www.vasp.at/wiki/index.php/PARCHG">PARCHG</a> or <a class="reference external" href="https://www.vasp.at/wiki/index.php/LOCPOT">LOCPOT</a></p></li>
+<li><p><a class="reference external" href="https://gaussian.com/cubegen/">Gaussian Cube file</a></p></li>
+<li><p><a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">Den2Obj .d2o file format</span></a></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">mesh-file</span></code> is any of the following supported formats</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/STL_(file_format)">Stereolitography (.stl) file</a></p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/PLY_(file_format)">Stanford (.ply) file</a></p></li>
+<li><p><a class="reference external" href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront (.obj) file</a></p></li>
+</ul>
+<p>and <code class="docutils literal notranslate"><span class="pre">isovalue</span></code> the isovalue for the isosurface.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>For visualizing wave functions, two isosurfaces are needed. One for the
+positive part and one for the negative part of the wave function. Simply
+run <strong class="program">Den2Obj</strong> with the <code class="docutils literal notranslate"><span class="pre">-d</span></code> directive to generate an isosurface
+for both signs (+/-) of the isovalue.</p>
+</div>
+<ul class="simple">
+<li><p>The argument <code class="docutils literal notranslate"><span class="pre">-c</span></code> is optional. If used, the isosurface will be rendered such
+that the center of the unit cell is located at the origin.</p></li>
+<li><p>The argument <code class="docutils literal notranslate"><span class="pre">-d</span></code> is optional. If used, both signs of the isosurface will be
+rendered. This is useful when rendering wave functions rather than densities.</p></li>
+<li><p>The argument <code class="docutils literal notranslate"><span class="pre">--algo</span></code> is optional. It can be set to either <code class="docutils literal notranslate"><span class="pre">marching-cubes</span></code>
+or to <code class="docutils literal notranslate"><span class="pre">marching-tetrahedra</span></code>. The default option is <code class="docutils literal notranslate"><span class="pre">marching-cubes</span></code>.</p></li>
+</ul>
+<figure class="align-default" id="id1">
+<img alt="Marching tetrahedra versus marching cubes" src="_images/genus2_tetrahedra_versus_cubes.png" />
+<figcaption>
+<p><span class="caption-text">Marching tetrahedra (left) versus marching cubes (right). Edges are explicitly
+visualized. Observe that whilst using the same resolution of the dataset,
+when using marching tetrahedra more facets are created and thus a higher
+resolution isosurface.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="filetype-conversion">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Filetype conversion</a><a class="headerlink" href="#filetype-conversion" title="Link to this heading"></a></h2>
+<p><strong class="program">Den2Obj</strong> offers the conversion to two different file types.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">Den2Obj .d2o file format</span></a></p></li>
+<li><p><a class="reference external" href="https://www.openvdb.org/">OpenVDB</a></p></li>
+</ul>
+<p>To perform the conversion, one executes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">scalarfield</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">o</span> <span class="o">&lt;</span><span class="n">mesh</span><span class="o">-</span><span class="n">file</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">t</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="o">&lt;</span><span class="n">algo</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Creating <cite>OpenVDB</cite> files requires the OpenVDB module to be compiled. See
+the <a class="reference internal" href="installation.html#index-0"><span class="std std-ref">installation</span></a> section for more details.</p>
+</div>
+<p>With the optional <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;algo&gt;</span></code> tag, the compression algorithm can be selected.
+<code class="docutils literal notranslate"><span class="pre">&lt;algo&gt;</span></code> can be anything of the following values.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">auto</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lzma</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bzip2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gzip</span></code></p></li>
+</ul>
+<p>When <code class="docutils literal notranslate"><span class="pre">auto</span></code> is selected or when no <code class="docutils literal notranslate"><span class="pre">-a</span></code> directive is provided, automatically
+the best compression algorithm is taken by checking all possible compressions.</p>
+</section>
+<section id="dataset-generation">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Dataset generation</a><a class="headerlink" href="#dataset-generation" title="Link to this heading"></a></h2>
+<p>For testing and learning purposes, <strong class="program">Den2Obj</strong> can generate a number of datasets. This
+is done via the <code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">&lt;dataset</span> <span class="pre">name&gt;</span></code> directive, which takes a valid <code class="docutils literal notranslate"><span class="pre">dataset</span> <span class="pre">name</span></code> as input.</p>
+<p>For example, to build the <code class="docutils literal notranslate"><span class="pre">genus2</span></code> dataset, one runs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">g</span> <span class="n">genus2</span> <span class="o">-</span><span class="n">o</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span> <span class="o">&lt;</span><span class="n">algo</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It is possible to overrule the preferred compression algorithm using the <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;algo&gt;</span></code>
+directive. For example, to force BZIP2 type of compression, one runs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">g</span> <span class="n">genus2</span> <span class="o">-</span><span class="n">o</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="o">-</span><span class="n">a</span> <span class="n">bzip2</span>
+</pre></div>
+</div>
+<p>When no <code class="docutils literal notranslate"><span class="pre">-a</span></code> is provided, automatically the best compression algorithm is used by
+checking the inflation ratio of all possible compression algorithms.</p>
+<p>The following datasets are available:
+* <code class="docutils literal notranslate"><span class="pre">genus2</span></code>
+* <code class="docutils literal notranslate"><span class="pre">benzene_homo</span></code>
+* <code class="docutils literal notranslate"><span class="pre">benzene_lumo</span></code></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="d2o_fileformat.html" class="btn btn-neutral float-right" title="D2O File Format" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Inorganic Materials and Catalysis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
