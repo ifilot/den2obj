@@ -16,7 +16,7 @@ jobs:
     - name: Collect package statistics
       run:  cloc . --report-file=stats.txt
     - name: Store package statistics
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: stats
         path: ./stats.txt
