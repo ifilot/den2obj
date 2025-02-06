@@ -4,7 +4,7 @@
 [![C/C++ CI](https://github.com/ifilot/den2obj/actions/workflows/build.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build.yml)
 [![OpenVDB build CI](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml/badge.svg)](https://github.com/ifilot/den2obj/actions/workflows/build-openvdb.yml)
 [![codecov](https://codecov.io/gh/ifilot/den2obj/graph/badge.svg?token=IZ7OGUR6DY)](https://codecov.io/gh/ifilot/den2obj)
-[![Documentation](https://github.com/ifilot/den2obj/actions/workflows/docs.yml/badge.svg)](https://den2obj.imc-tue.nl)
+[![Documentation](https://github.com/ifilot/den2obj/actions/workflows/docs.yml/badge.svg)](https://ifilot.github.io/den2obj/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Purpose
@@ -120,7 +120,7 @@ Converting CHGCAR to D2O
 The D2O file format is native to `Den2Obj`. This file format stores the scalarfield
 in binary format and uses compression to generate small files which are fast to
 read from. More information on the file format can be found in the
-[documentation](https://den2obj.imc-tue.nl).
+[documentation](https://ifilot.github.io/den2obj/).
 
 ## Shared library
 
