@@ -53,7 +53,7 @@ pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev libssl
 Next download and install OpenVDB.
 
 ```bash
-get https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz
+wget https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v8.2.0.tar.gz
 tar -xvzf v8.2.0.tar.gz
 mkdir openvdb-build && cd openvdb-build && cmake ../openvdb-8.2.0 -DCMAKE_INSTALL_PREFIX=/opt/openvdb
 make -j9 && sudo make install

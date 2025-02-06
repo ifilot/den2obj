@@ -105,7 +105,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 # enable OpenVDB support
 if(MOD_OPENVDB)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMOD_OPENVDB -I/opt/openvdb/include")
-    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "Half" "blosc" "-lz")
+    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "blosc" "-lz")
     MESSAGE("Compiling with OpenVDB module")
 endif()
 
