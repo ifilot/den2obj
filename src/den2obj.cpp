@@ -62,8 +62,8 @@ int main(int argc, char* argv[]) {
         TCLAP::ValueArg<std::string> arg_generator("g","dataset","Dataset name",false,"","string");
         cmd.add(arg_generator);
 
-        // select compression algorithm
-        TCLAP::ValueArg<std::string> arg_algo("a","algo","Compression algorithm",false,"","string");
+        // select algorithm for either compression or for tesselation
+        TCLAP::ValueArg<std::string> arg_algo("a","algo","Algorithm selection",false,"","string");
         cmd.add(arg_algo);
 
         cmd.parse(argc, argv);
@@ -237,7 +237,13 @@ int main(int argc, char* argv[]) {
                     output_filename = stem.string().substr(0,stem.string().size()-4) + "_neg" + ext.string();
 
                     IsoSurface is_neg(sf.get());
-                    is_neg.marching_cubes(-isovalue);
+                    if(arg_algo.getValue().empty() || arg_algo.getValue() == "marching-cubes") {
+                        is_neg.marching_cubes(-isovalue);    
+                    } else if(arg_algo.getValue() == "marching-tetrahedra") {
+                        is_neg.marching_tetrahedra(-isovalue);
+                    } else {
+                        throw std::runtime_error("Invalid isosurface generation algo: " + arg_algo.getValue());
+                    }
 
                     IsoSurfaceMesh ism_neg(sf.get(), &is_neg);
                     ism_neg.construct_mesh(arg_c.getValue());

@@ -52,7 +52,7 @@ execute_process(
 SET(PROGNAME "DEN2OBJ")
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "2")
-SET(VERSION_MICRO "0")
+SET(VERSION_MICRO "1")
 message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_BINARY_DIR}/den2obj.pc @ONLY)
@@ -105,7 +105,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 # enable OpenVDB support
 if(MOD_OPENVDB)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMOD_OPENVDB -I/opt/openvdb/include")
-    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "Half" "blosc" "-lz")
+    SET(OPENVDB_LIBS "/opt/openvdb/lib/libopenvdb.a" "tbb" "blosc" "-lz")
     MESSAGE("Compiling with OpenVDB module")
 endif()
 

@@ -21,14 +21,14 @@
 add_library(unittest STATIC unittest.cpp)
 
 # set executables
-SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestGenerator)
+SET(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat)
 
 # only add this test when not using GCOV
 if(NOT USE_GCOV)
     list(APPEND EXECUTABLES TestGenerator)
 endif()
 
-# only add this test when not using GCOV
+# only add this test when using GCOV
 if(USE_GCOV)
     list(APPEND EXECUTABLES TestFileCreation)
 endif()
@@ -39,14 +39,13 @@ endif()
 add_executable(TestIsosurface test_isosurface.cpp)
 add_executable(TestScalarField test_scalarfield.cpp)
 add_executable(TestD2OFileFormat test_d2o_fileformat.cpp)
-add_executable(TestGenerator test_generator.cpp)
 
 # only add this test when not using GCOV
 if(NOT USE_GCOV)
     add_executable(TestGenerator test_generator.cpp)
 endif()
 
-# only add this test when not using OpenVDB
+# only add this test when using GCOV
 if(USE_GCOV)
     add_executable(TestFileCreation test_file_creation.cpp)
 endif()
