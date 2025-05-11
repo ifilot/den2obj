@@ -103,9 +103,9 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
 
     // build grid
     std::vector<fpt> f(npts*npts*npts);
+    boost::timer::progress_display progress(npts);
     for(unsigned int i=0; i<npts; i++) { // loop over z
         const float z = xx[i];
-        boost::timer::progress_display progress(npts);
         for(unsigned int j=0; j<npts; j++) { // loop over y
             const float y = xx[j];
             #pragma omp parallel for schedule(static)

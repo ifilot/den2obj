@@ -79,6 +79,9 @@ int main(int argc, char* argv[]) {
         std::cout << "--------------------------------------------------------------" << std::endl;
         std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
         std::cout << "Git Hash: " << PROGRAM_GIT_HASH << std::endl;
+        #ifdef MOD_OPENVDB
+        std::cout << "Compiled with OpenVDB module" << std::endl;
+        #endif
         std::cout << "--------------------------------------------------------------" << std::endl;
 
         //**************************************
