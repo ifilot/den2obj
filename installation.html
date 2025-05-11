@@ -150,10 +150,13 @@ of <strong class="program">Den2Obj</strong> using this module requires supplying
 argument to CMake.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The OpenVDB package in the latest Ubuntu LTS (22.04 LTS) is incompatible with the Thread Building Blocks (tbb) library. As a workaround, one is
-required to compile a newer OpenVDB. OpenVDB v8.2 has been tried and
-tested by us. If you are compiling for Ubuntu 22.04 LTS, please read the
-additional instructions to compile OpenVDB.</p>
+<p>A fairly recent version of OpenVDB is required for compatibility with
+modern dependencies. The version packaged in Ubuntu 22.04 LTS is
+incompatible with the current Thread Building Blocks (TBB) library.
+We have tested and verified compatibility with OpenVDB on Ubuntu 24.04 LTS.
+If you are working on Ubuntu 22.04 LTS, you might need to compile a recent
+version of OpenVDB from source. The instructions below are for Ubuntu
+24.04 LTS.</p>
 </div>
 <p>Ensure that the following libraries are installed by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">cmake</span> <span class="n">libtclap</span><span class="o">-</span><span class="n">dev</span> <span class="n">libboost</span><span class="o">-</span><span class="nb">all</span><span class="o">-</span><span class="n">dev</span> \

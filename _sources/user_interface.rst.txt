@@ -78,6 +78,10 @@ To perform the conversion, one executes::
 
     ./den2obj -i <path-to-scalarfield> -o <mesh-file> -t [-a <algo>]
 
+For example, to convert `genus.d2o` to a `vdb` file, one runs::
+
+    ./den2obj -i genus.d2o -o genus.vdb -t
+
 .. note::
 
     Creating `OpenVDB` files requires the OpenVDB module to be compiled. See
