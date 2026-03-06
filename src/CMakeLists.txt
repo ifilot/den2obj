@@ -18,138 +18,124 @@
  #                                                                        *
  #*************************************************************************/
 
-# set minimum cmake requirements
-cmake_minimum_required(VERSION 3.5)
-project (den2obj)
+cmake_minimum_required(VERSION 3.16)
+project(den2obj VERSION 1.2.2 LANGUAGES CXX)
 
-# change compiler directives when code coverage is required
-if(USE_GCOV)
-  set(CMAKE_BUILD_TYPE "Debug")
+option(USE_GCOV "Build with gcov coverage instrumentation" OFF)
+option(MOD_OPENVDB "Enable OpenVDB support" OFF)
+option(HAS_OPENMP "Enable OpenMP support when available" ON)
+option(DISABLE_TEST "Disable building tests" OFF)
 
-  # Set global c and c++ flags
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-
-  # Link flags used for creating executables
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lgcov -fprofile-arcs -ftest-coverage")
-
-  # Link flags used for creating shared libraries
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov -ftest-coverage")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# add custom directory to look for .cmake files
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules )
+set(PROGNAME "DEN2OBJ")
+set(VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+set(VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+set(VERSION_MICRO "${PROJECT_VERSION_PATCH}")
 
-# store git hash
 execute_process(
     COMMAND git log -1 --format=%h
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     OUTPUT_VARIABLE GIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
 )
 
-# prepare configuration file
-SET(PROGNAME "DEN2OBJ")
-SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "2")
-SET(VERSION_MICRO "2")
-message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_SOURCE_DIR}/config.h")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_BINARY_DIR}/den2obj.pc @ONLY)
+message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_BINARY_DIR}/config.h")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_CURRENT_BINARY_DIR}/den2obj.pc @ONLY)
 
-# Enable release build
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Setting build type to 'Release' as none was specified.")
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    # Set the possible values of build type for cmake-gui
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-# add OS specific
-SET(BOOST_INCLUDEDIR "/usr/include")
-SET(BOOST_LIBRARYDIR "/usr/lib/x86_64-linux-gnu")
-
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    option(HAS_OPENMP "OpenMP enabled" ON)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
-
-# set Boost
-set (Boost_NO_SYSTEM_PATHS ON)
-set (Boost_USE_MULTITHREADED ON)
-set (Boost_USE_STATIC_LIBS ON)
-set (Boost_USE_STATIC_RUNTIME OFF)
-set (BOOST_ALL_DYN_LINK OFF)
-
-# Include libraries
 find_package(PkgConfig REQUIRED)
-find_package(Boost COMPONENTS regex iostreams filesystem REQUIRED)
+find_package(Boost REQUIRED COMPONENTS regex iostreams filesystem)
 find_package(LibLZMA REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
-find_package(CPPUNIT REQUIRED) # for unit tests
-pkg_check_modules(TCLAP tclap REQUIRED)
-pkg_check_modules(EIGEN eigen3 REQUIRED)
-pkg_check_modules(CRYPTO libcrypto REQUIRED) # for unit tests
+pkg_check_modules(TCLAP REQUIRED IMPORTED_TARGET tclap)
+pkg_check_modules(EIGEN REQUIRED IMPORTED_TARGET eigen3)
 
-# Set include folders
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_BINARY_DIR}
-                    ${EIGEN_INCLUDE_DIRS}
-                    ${TCLAP_INCLUDE_DIR}
-                    ${Boost_INCLUDE_DIRS}
-                    ${CPPUNIT_INCLUDE_DIR})
-
-# enable OpenVDB support
-if(MOD_OPENVDB)
-    SET(OPENVDB_LIBS "openvdb" "tbb" "blosc" "-lz")
-    MESSAGE("Compiling with OpenVDB module")
-    add_compile_definitions(MOD_OPENVDB)
+if(HAS_OPENMP)
+    find_package(OpenMP)
 endif()
 
-# Add sources
-file(GLOB SOURCES "*.cpp")
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
+set(OPENVDB_LIBS "")
+if(MOD_OPENVDB)
+    set(OPENVDB_LIBS openvdb tbb blosc ZLIB::ZLIB)
+    message(STATUS "Compiling with OpenVDB module")
+endif()
+
+file(GLOB SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp")
+file(GLOB DEN2OBJ_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 add_library(den2objsources STATIC ${SOURCES})
 add_library(den2obj SHARED ${SOURCES})
 add_executable(den2obj_exec ${CMAKE_CURRENT_SOURCE_DIR}/den2obj.cpp)
 set_property(TARGET den2obj_exec PROPERTY OUTPUT_NAME den2obj)
-file(GLOB DEN2OBJ_HEADERS "*.h")
 set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
-# Set C++17
-add_definitions(-std=c++17 -march=native)
+foreach(target den2objsources den2obj den2obj_exec)
+    target_compile_features(${target} PUBLIC cxx_std_17)
+    target_compile_options(${target} PRIVATE -march=native)
+    target_include_directories(${target}
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_CURRENT_BINARY_DIR}
+            ${Boost_INCLUDE_DIRS}
+            ${TCLAP_INCLUDE_DIRS}
+            ${EIGEN_INCLUDE_DIRS}
+    )
 
-# Link libraries
-#SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath=\$ORIGIN/lib")
-target_link_libraries(den2obj_exec 
-                      den2objsources 
-                      ${OPENVDB_LIBS} 
-                      ${Boost_LIBRARIES} 
-                      ${LIBLZMA_LIBRARIES} 
-                      ${ZLIB_LIBRARIES}
-                      ${BZIP2_LIBRARIES})
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${target} PUBLIC OpenMP::OpenMP_CXX)
+    endif()
 
-if(NOT DISABLE_TEST)
-    message("[USER] Performing unit tests")
-    enable_testing ()
-    add_subdirectory("test")
-else()
-    message("[USER] Testing routine disabled")
+    if(MOD_OPENVDB)
+        target_compile_definitions(${target} PUBLIC MOD_OPENVDB)
+    endif()
+endforeach()
+
+if(USE_GCOV)
+    foreach(target den2objsources den2obj den2obj_exec)
+        target_compile_options(${target} PRIVATE --coverage)
+        target_link_options(${target} PRIVATE --coverage)
+    endforeach()
 endif()
 
-###
-# Installing
-##
+target_link_libraries(den2objsources
+    PUBLIC
+        Boost::regex
+        Boost::iostreams
+        Boost::filesystem
+        LibLZMA::LibLZMA
+        ZLIB::ZLIB
+        BZip2::BZip2
+        ${OPENVDB_LIBS}
+)
+
+target_link_libraries(den2obj PUBLIC den2objsources)
+target_link_libraries(den2obj_exec PRIVATE den2objsources)
+
+include(CTest)
+if(DISABLE_TEST)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+endif()
+
+if(BUILD_TESTING)
+    message(STATUS "[USER] Performing unit tests")
+    add_subdirectory(test)
+else()
+    message(STATUS "[USER] Testing routine disabled")
+endif()
+
 include(GNUInstallDirs)
 
-# install shared library and header files
-install (TARGETS den2obj 
-         DESTINATION bin
-         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/den2obj)
+install(TARGETS den2obj den2obj_exec
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/den2obj)
 
-# install pkg-config files
-install(FILES ${CMAKE_BINARY_DIR}/den2obj.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/den2obj.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
