@@ -19,8 +19,6 @@
  #*************************************************************************/
 
 pkg_check_modules(CPPUNIT REQUIRED IMPORTED_TARGET cppunit)
-pkg_check_modules(CRYPTO REQUIRED IMPORTED_TARGET libcrypto)
-
 add_library(unittest STATIC unittest.cpp)
 target_compile_features(unittest PUBLIC cxx_std_17)
 
@@ -63,7 +61,6 @@ foreach(testexec ${EXECUTABLES})
             unittest
             den2objsources
             PkgConfig::CPPUNIT
-            PkgConfig::CRYPTO
     )
 
     add_test(NAME ${testexec} COMMAND ${testexec})

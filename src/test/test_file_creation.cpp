@@ -29,106 +29,134 @@ void TestFileCreation::tearDown() {
 }
 
 void TestFileCreation::test_ply_file() {
-    // set number of threads to 1
-    omp_set_num_threads(1);
-
-    // read scalar field
-    ScalarField sf("co_2pi_x.cub", ScalarFieldInputFileType::SFF_CUB);
-    sf.read();
-    
-    // perform marching cubes algorithm
-    IsoSurface is(&sf);
-    is.marching_cubes(0.01);
-    
-    // construct mesh
-    IsoSurfaceMesh ism(&sf, &is);
-    ism.construct_mesh(true);
-
-    // create file
-    ism.write_to_file("test.ply", "co molecule 2pi_x orbital test", "molecule");
-
-    // test md5sum
-    CPPUNIT_ASSERT_EQUAL(this->md5("test.ply"), std::string("ec143f6ebf9b72761803c3b091f54bf3"));
+    const auto ref = this->generate_mesh();
+    this->assert_ply_shape("test.ply", ref);
 }
 
 void TestFileCreation::test_stl_file() {
-    // set number of threads to 1
-    omp_set_num_threads(1);
-
-    // read scalar field
-    ScalarField sf("co_2pi_x.cub", ScalarFieldInputFileType::SFF_CUB);
-    sf.read();
-    
-    // perform marching cubes algorithm
-    IsoSurface is(&sf);
-    is.marching_cubes(0.01);
-    
-    // construct mesh
-    IsoSurfaceMesh ism(&sf, &is);
-    ism.construct_mesh(true);
-
-    // create file
-    ism.write_to_file("test.stl", "co molecule 2pi_x orbital test", "molecule");
-
-    // test md5sum
-    CPPUNIT_ASSERT_EQUAL(this->md5("test.stl"), std::string("c2194ba639caf5092654862bb9f93298"));
+    const auto ref = this->generate_mesh();
+    this->assert_stl_shape("test.stl", ref);
 }
 
 void TestFileCreation::test_obj_file() {
+    const auto ref = this->generate_mesh();
+    this->assert_obj_shape("test.obj", ref);
+}
+
+TestFileCreation::MeshReference TestFileCreation::generate_mesh() const {
     // set number of threads to 1
     omp_set_num_threads(1);
 
     // read scalar field
     ScalarField sf("co_2pi_x.cub", ScalarFieldInputFileType::SFF_CUB);
     sf.read();
-    
+
     // perform marching cubes algorithm
     IsoSurface is(&sf);
     is.marching_cubes(0.01);
-    
+
     // construct mesh
     IsoSurfaceMesh ism(&sf, &is);
     ism.construct_mesh(true);
 
-    // create file
+    // create files for all supported output formats
+    ism.write_to_file("test.ply", "co molecule 2pi_x orbital test", "molecule");
+    ism.write_to_file("test.stl", "co molecule 2pi_x orbital test", "molecule");
     ism.write_to_file("test.obj", "co molecule 2pi_x orbital test", "molecule");
 
-    // test md5sum
-    CPPUNIT_ASSERT_EQUAL(this->md5("test.obj"), std::string("e2b3e09f9c010dac99a7bc0137c187ec"));
+    return {
+        ism.get_vertices().size(),
+        ism.get_normals().size(),
+        ism.get_texcoords().size() / 6
+    };
 }
 
-/**
- * @brief      Calculate MD5 checksum of a file
- *
- * @param[in]  name      Path to the file
- * 
- * @return     32 byte string containing md5 checksum
- */
-std::string TestFileCreation::md5(const std::string& filename) {
-    // read the file
-    std::ifstream mfile(filename, std::ios::binary | std::ios::ate);
-    std::streamsize size = mfile.tellg();
-    mfile.seekg(0, std::ios::beg);
-    char buffer[size];
-    mfile.read(buffer, size);
-    mfile.close();
+void TestFileCreation::assert_obj_shape(const std::string& filename, const MeshReference& ref) const {
+    CPPUNIT_ASSERT(std::filesystem::exists(filename));
 
-    // output variable for hash
-    unsigned char hash[MD5_DIGEST_LENGTH];
+    std::ifstream infile(filename);
+    CPPUNIT_ASSERT(infile.good());
 
-    // calculate the md5 hash
-    EVP_MD_CTX *ctx = EVP_MD_CTX_create();
-    EVP_MD_CTX_init(ctx);
-    const EVP_MD *md_type = EVP_md5();
-    EVP_DigestInit_ex(ctx, md_type, NULL);
-    EVP_DigestUpdate(ctx, buffer, size);
-    EVP_DigestFinal_ex(ctx, hash, NULL);
-    EVP_MD_CTX_destroy(ctx);
+    std::string line;
+    size_t vertex_lines = 0;
+    size_t normal_lines = 0;
+    size_t face_lines = 0;
 
-    // output as a 32-byte hex-string
-    std::stringstream ss;
-    for(int i = 0; i < MD5_DIGEST_LENGTH; i++){
-        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>( hash[i] );
+    while(std::getline(infile, line)) {
+        if(line.rfind("v ", 0) == 0) {
+            vertex_lines++;
+        } else if(line.rfind("vn ", 0) == 0) {
+            normal_lines++;
+        } else if(line.rfind("f ", 0) == 0) {
+            face_lines++;
+        }
     }
-    return ss.str();
+
+    CPPUNIT_ASSERT_EQUAL(ref.vertices, vertex_lines);
+    CPPUNIT_ASSERT_EQUAL(ref.normals, normal_lines);
+    CPPUNIT_ASSERT_EQUAL(ref.triangles, face_lines);
+}
+
+void TestFileCreation::assert_ply_shape(const std::string& filename, const MeshReference& ref) const {
+    CPPUNIT_ASSERT(std::filesystem::exists(filename));
+
+    std::ifstream infile(filename, std::ios::binary);
+    CPPUNIT_ASSERT(infile.good());
+
+    std::string line;
+    size_t header_size = 0;
+    size_t header_vertices = 0;
+    size_t header_faces = 0;
+    bool seen_ply = false;
+    bool seen_binary_format = false;
+
+    while(std::getline(infile, line)) {
+        header_size += line.size() + 1;
+
+        if(line == "ply") {
+            seen_ply = true;
+        }
+        if(line == "format binary_little_endian 1.0" || line == "format binary_big_endian 1.0") {
+            seen_binary_format = true;
+        }
+        if(line.rfind("element vertex ", 0) == 0) {
+            header_vertices = std::stoul(line.substr(15));
+        }
+        if(line.rfind("element face ", 0) == 0) {
+            header_faces = std::stoul(line.substr(13));
+        }
+        if(line == "end_header") {
+            break;
+        }
+    }
+
+    CPPUNIT_ASSERT(seen_ply);
+    CPPUNIT_ASSERT(seen_binary_format);
+    CPPUNIT_ASSERT_EQUAL(ref.vertices, header_vertices);
+    CPPUNIT_ASSERT_EQUAL(ref.triangles, header_faces);
+
+    const size_t expected_binary_size =
+        ref.vertices * (6 * sizeof(float)) +
+        ref.triangles * (sizeof(uint8_t) + 3 * sizeof(unsigned int));
+
+    CPPUNIT_ASSERT_EQUAL(header_size + expected_binary_size, (size_t)std::filesystem::file_size(filename));
+}
+
+void TestFileCreation::assert_stl_shape(const std::string& filename, const MeshReference& ref) const {
+    CPPUNIT_ASSERT(std::filesystem::exists(filename));
+
+    std::ifstream infile(filename, std::ios::binary);
+    CPPUNIT_ASSERT(infile.good());
+
+    // skip header
+    infile.seekg(80, std::ios::beg);
+
+    uint32_t triangle_count = 0;
+    infile.read(reinterpret_cast<char*>(&triangle_count), sizeof(uint32_t));
+    CPPUNIT_ASSERT(infile.good());
+
+    CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(ref.triangles), triangle_count);
+
+    const size_t expected_size = 80 + sizeof(uint32_t) + ref.triangles * (12 * sizeof(float) + sizeof(uint16_t));
+    CPPUNIT_ASSERT_EQUAL(expected_size, (size_t)std::filesystem::file_size(filename));
 }

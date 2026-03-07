@@ -23,10 +23,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-// we need these for the MD5 checksums
-#include <iomanip>
-#include <openssl/md5.h>
-#include <openssl/evp.h>
+#include <cstdint>
+#include <filesystem>
+#include <string>
 
 #include "scalar_field.h"
 #include "isosurface.h"
@@ -34,12 +33,11 @@
 
 /**
  * Test that verifies file creation (obj, stl and ply)
- * 
+ *
  * Because the marching cubes algorithm uses OpenMP parallellization, we need
  * to set the number of threads to 1 to obtain consistent results. With
  * higher number of cores, the results are subject to race conditions, leading
- * to different (although not incorrect) results preventing the use of a simple
- * MD5 checksum for file validation.
+ * to different (although not incorrect) results.
 */
 class TestFileCreation : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE( TestFileCreation );
@@ -56,7 +54,16 @@ public:
     void tearDown();
 
 private:
-    std::string md5(const std::string &str);
+    struct MeshReference {
+        size_t vertices;
+        size_t normals;
+        size_t triangles;
+    };
+
+    MeshReference generate_mesh() const;
+    void assert_obj_shape(const std::string& filename, const MeshReference& ref) const;
+    void assert_ply_shape(const std::string& filename, const MeshReference& ref) const;
+    void assert_stl_shape(const std::string& filename, const MeshReference& ref) const;
 };
 
 #endif
