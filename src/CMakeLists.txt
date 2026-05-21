@@ -19,7 +19,7 @@
  #*************************************************************************/
 
 cmake_minimum_required(VERSION 3.16)
-project(den2obj VERSION 1.2.2 LANGUAGES CXX)
+project(den2obj VERSION 1.3.0 LANGUAGES CXX)
 
 option(USE_GCOV "Build with gcov coverage instrumentation" OFF)
 option(MOD_OPENVDB "Enable OpenVDB support" OFF)
