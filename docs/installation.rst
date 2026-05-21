@@ -20,6 +20,8 @@ libraries are available to you:
 * `BZIP2 <https://sourceware.org/bzip2/>`_ (bzip2 data compression)
 * `GZIP <https://www.gnu.org/software/gzip/>`_ (gzip data compression)
 * `LZMA <https://7-zip.org/>`_ (lzma data compression)
+* `Zstandard <https://facebook.github.io/zstd/>`_ (zstd data compression)
+* `Blosc <https://www.blosc.org/>`_ (blocked and shuffled data compression)
 * `CPPUnit <https://sourceforge.net/projects/cppunit/>`_ (unit testing)
 
 .. note::
@@ -32,7 +34,8 @@ libraries are available to you:
 To ensure that all the packages are installed, one can run the following::
 
     sudo apt install build-essential cmake libtclap-dev libboost-all-dev \ 
-    pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev
+    pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev \
+    libzstd-dev libblosc-dev
 
 Standard compilation
 --------------------
@@ -74,7 +77,7 @@ Ensure that the following libraries are installed by running::
 
 	sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
 	libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev \
-    liblzma-dev zlib1g-dev libbz2-dev
+    liblzma-dev zlib1g-dev libbz2-dev libzstd-dev libblosc-dev
 
 Compilation :program:`Den2Obj` with the OpenVDB module is as follows::
 

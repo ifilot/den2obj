@@ -19,6 +19,7 @@
  **************************************************************************/
 
 #include "generator.h"
+#include "cli_format.h"
 
 /**
  * @brief      Constructs a new instance.
@@ -103,7 +104,7 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
 
     // build grid
     std::vector<fpt> f(npts*npts*npts);
-    boost::timer::progress_display progress(npts);
+    CLIFormat::ProgressBar progress("Building grid", npts);
     for(unsigned int i=0; i<npts; i++) { // loop over z
         const float z = xx[i];
         for(unsigned int j=0; j<npts; j++) { // loop over y
@@ -116,10 +117,8 @@ std::vector<fpt> Generator::genus2(fpt sz, size_t npts) const {
                          (x*x + y*y) * (x*x + y*y) - (9*z*z - 1) * (1 - z*z);
             }
         }
-        ++progress;
+        progress.tick();
     }
-    std::cout << std::endl;
-
     return f;
 }
 
@@ -143,7 +142,7 @@ std::vector<fpt> Generator::benzene_molecular_orbital(fpt sz, size_t npts,
 
     // build grid
     std::vector<fpt> f(npts*npts*npts);
-    boost::timer::progress_display progress(npts);
+    CLIFormat::ProgressBar progress("Building grid", npts);
     for(unsigned int i=0; i<npts; i++) { // loop over z
         const float z = xx[i];
         for(unsigned int j=0; j<npts; j++) { // loop over y
@@ -155,10 +154,8 @@ std::vector<fpt> Generator::benzene_molecular_orbital(fpt sz, size_t npts,
                 f[idx] = this->calculate_mo_amp(Vec3(x,y,z), mo_id);
             }
         }
-        ++progress;
+        progress.tick();
     }
-    std::cout << std::endl;
-
     return f;
 }
 

@@ -47,6 +47,8 @@ namespace D2OFormat {
         GZIP,
         LZMA,
         BZIP2,
+        ZSTD,
+        BLOSC,
     };
 
     // list of compression algos
@@ -54,7 +56,9 @@ namespace D2OFormat {
         {"auto", CompressionAlgo::AUTO},
         {"gzip", CompressionAlgo::GZIP},
         {"lzma", CompressionAlgo::LZMA},
-        {"bzip2", CompressionAlgo::BZIP2}
+        {"bzip2", CompressionAlgo::BZIP2},
+        {"zstd", CompressionAlgo::ZSTD},
+        {"blosc", CompressionAlgo::BLOSC}
     };
 
     /**
@@ -81,6 +85,28 @@ namespace D2OFormat {
      * @return     Compressed stream
      */
     std::string compress_stream(const std::string& originstr, D2OFormat::CompressionAlgo algo_id);
+
+    /**
+     * @brief      Get a human-readable compression algorithm name
+     *
+     * @param[in]  algo_id  The algorithm identifier
+     *
+     * @return     Algorithm name
+     */
+    std::string compression_algo_name(D2OFormat::CompressionAlgo algo_id);
+
+    /**
+     * @brief      Decompress a stream
+     *
+     * @param[in]  algo_id        The algorithm identifier
+     * @param[in]  compressedstr  Compressed data stream
+     * @param[in]  expected_size  Expected uncompressed byte size; 0 disables validation
+     *
+     * @return     Decompressed stream
+     */
+    std::string decompress_stream(D2OFormat::CompressionAlgo algo_id,
+                                  const std::string& compressedstr,
+                                  size_t expected_size = 0);
 
     /**
      * @brief      Compress data stream using all possible compression algos

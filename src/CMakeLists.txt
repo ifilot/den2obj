@@ -56,6 +56,8 @@ find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
 pkg_check_modules(TCLAP REQUIRED IMPORTED_TARGET tclap)
 pkg_check_modules(EIGEN REQUIRED IMPORTED_TARGET eigen3)
+pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
+pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
 
 if(HAS_OPENMP)
     find_package(OpenMP)
@@ -63,7 +65,7 @@ endif()
 
 set(OPENVDB_LIBS "")
 if(MOD_OPENVDB)
-    set(OPENVDB_LIBS openvdb tbb blosc ZLIB::ZLIB)
+    set(OPENVDB_LIBS openvdb tbb PkgConfig::BLOSC ZLIB::ZLIB)
     message(STATUS "Compiling with OpenVDB module")
 endif()
 
@@ -113,6 +115,8 @@ target_link_libraries(den2objsources
         LibLZMA::LibLZMA
         ZLIB::ZLIB
         BZip2::BZip2
+        PkgConfig::ZSTD
+        PkgConfig::BLOSC
         ${OPENVDB_LIBS}
 )
 

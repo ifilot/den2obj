@@ -733,7 +733,8 @@ void ScalarField::load_d2o_binary() {
     infile.read((char*)&protocol_id, sizeof(uint32_t));
 
     // check token id
-    if(protocol_id == 0 || protocol_id > 3) {
+    static const uint32_t max_protocol_id = static_cast<uint32_t>(D2OFormat::CompressionAlgo::BLOSC);
+    if(protocol_id == static_cast<uint32_t>(D2OFormat::CompressionAlgo::AUTO) || protocol_id > max_protocol_id) {
         throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
     }
 
@@ -779,41 +780,13 @@ void ScalarField::load_d2o_binary() {
     char* data = new char[compdatasize];
     infile.read(data, compdatasize);
 
-    // decompress
-    std::istringstream compressed(std::string(data, compdatasize));
-    boost::iostreams::filtering_istreambuf in;
+    const std::string compressed_data(data, compdatasize);
+    delete[] data;
 
-    switch(protocol_id) {
-        case 1:
-        {
-            // GZIP compression
-            std::cout << "Building GZIP decompressor" << std::endl;
-            in.push(boost::iostreams::gzip_decompressor());
-        }
-        break;
-        case 2:
-        {
-            std::cout << "Building LZMA decompressor" << std::endl;
-            in.push(boost::iostreams::lzma_decompressor());
-        }
-        break;
-        case 3:
-        {
-            std::cout << "Building BZIP2 decompressor" << std::endl;
-            in.push(boost::iostreams::bzip2_decompressor());
-        }
-        break;
-        default:
-            throw std::runtime_error("Invalid protocol id for d2o file: " + std::to_string(protocol_id));
-        break;
-    }
-
+    const std::string gridptrdata = D2OFormat::decompress_stream(static_cast<D2OFormat::CompressionAlgo>(protocol_id),
+                                                                 compressed_data,
+                                                                 this->gridptr.size() * sizeof(fpt));
     std::cout << "Decompressed data" << std::endl;
-    in.push(compressed);
-
-    std::ostringstream origin;
-    boost::iostreams::copy(in, origin);
-    const std::string gridptrdata = origin.str();
     memcpy(&this->gridptr[0], gridptrdata.data(), this->gridptr.size() * sizeof(fpt));
 
     this->scalar = 1.0;
@@ -821,7 +794,6 @@ void ScalarField::load_d2o_binary() {
     this->header_read = true;
 
     // clean up
-    delete[] data;
     infile.close();
 
     std::cout << "Done reading D2O binary file" << std::endl;

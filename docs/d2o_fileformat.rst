@@ -28,7 +28,7 @@ The organization of this file is given in the Table 1.
     * - 0x03-0x07
       - uint32_t
       - 4 bytes
-      - Protocol identifier token (see below). Default = 2.
+      - Protocol identifier token (see below). Selected automatically by default.
     * - 0x08-0x2B
       - float[9]
       - 36 bytes
@@ -57,7 +57,8 @@ To convert a ``CHGCAR`` file to ``.d2o`` file format, run the following command:
 .. note::
    :program:`Den2Obj` will automatically look for the best compression algorithm
    when converting a scalar field to the ``.d2o`` format. For the majority of the
-   cases, this corresponds to the `LZMA type of compression <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_.
+   cases, this corresponds to either the `LZMA type of compression <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_
+   or one of the newer array-oriented compression methods.
 
 Protocol tokens
 ---------------
@@ -65,3 +66,5 @@ Protocol tokens
 1. GZIP compression
 2. LZMA compression
 3. BZIP2 compression
+4. ZSTD compression
+5. Blosc compression

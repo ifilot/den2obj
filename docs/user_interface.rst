@@ -38,7 +38,7 @@ of the following types
 
 ``mesh-file`` is any of the following supported formats
 
-* `Stereolitography (.stl) file <https://en.wikipedia.org/wiki/STL_(file_format)>`_
+* `Stereolithography (.stl) file <https://en.wikipedia.org/wiki/STL_(file_format)>`_
 * `Stanford (.ply) file <https://en.wikipedia.org/wiki/PLY_(file_format)>`_
 * `Wavefront (.obj) file <https://en.wikipedia.org/wiki/Wavefront_.obj_file>`_
 
@@ -94,6 +94,8 @@ With the optional ``-a <algo>`` tag, the compression algorithm can be selected.
 * ``lzma``
 * ``bzip2``
 * ``gzip``
+* ``zstd``
+* ``blosc``
 
 When ``auto`` is selected or when no ``-a`` directive is provided, automatically
 the best compression algorithm is taken by checking all possible compressions.

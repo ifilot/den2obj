@@ -18,14 +18,15 @@ PARCHG, LOCPOT) and [Gaussian](https://gaussian.com/) (`.cub`) and extracts
 isosurfaces using the marching cubes or marching tetrahedra algorithm. The
 resulting surfaces — representing quantities such as electron density, partial
 charge density, or electrostatic potential — are written to standard 3D mesh
-formats (`.obj`, `.ply`) that can be directly imported into tools like Blender
-or MeshLab for high-quality rendering.
+formats (`.obj`, `.ply`, `.stl`) that can be directly imported into tools like
+Blender or MeshLab for high-quality rendering.
 
 Den2Obj also supports format conversion: VASP and Gaussian files can be
 converted to the native `.d2o` compressed binary format or to OpenVDB (`.vdb`)
 for volumetric rendering workflows. When writing `.d2o`, Den2Obj benchmarks all
-supported compression algorithms (gzip, lzma, bzip2) and automatically selects
-the one that produces the smallest file, so no manual tuning is needed.
+supported compression algorithms (gzip, lzma, bzip2, zstd, blosc) and
+automatically selects the one that produces the smallest file, so no manual
+tuning is needed.
 
 ## Example images
 
@@ -57,7 +58,7 @@ dependencies:
 ```bash
 sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
 libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev liblzma-dev \
-zlib1g-dev libbz2-dev libssl-dev
+zlib1g-dev libbz2-dev libzstd-dev libblosc-dev libssl-dev
 ```
 
 Compile:
@@ -76,8 +77,8 @@ make -j5
 ### Isosurfaces
 
 Reads a scalar field from `<input file>` and extracts a surface at the given
-isovalue, writing a 3D mesh to `<output file>`. The output format (`.obj` or
-`.ply`) is determined by the file extension.
+isovalue, writing a 3D mesh to `<output file>`. The output format (`.obj`,
+`.ply`, or `.stl`) is determined by the file extension.
 
 ```bash
 den2obj -i <input file> -o <output file> -v <isovalue>
@@ -149,7 +150,8 @@ Specifying a compression algorithm for D2O output:
 ./den2obj -i CHGCAR_xxx -o xxx.d2o -t -a lzma
 ```
 
-Available compression algorithms: `auto` (default), `gzip`, `lzma`, `bzip2`.
+Available compression algorithms: `auto` (default), `gzip`, `lzma`, `bzip2`,
+`zstd`, `blosc`.
 
 ### Built-in dataset generation
 
@@ -179,7 +181,7 @@ the output is always a `.d2o` file:
 | `-c` | `--center` | Center the structure at the origin |
 | `-d` | `--dual` | Produce both positive and negative isosurfaces |
 | `-t` | `--transform` | Convert input file to a different format (no isosurface) |
-| `-a` | `--algo` | Algorithm for isosurface (`marching-cubes`, `marching-tetrahedra`) or compression for D2O (`auto`, `gzip`, `lzma`, `bzip2`) |
+| `-a` | `--algo` | Algorithm for isosurface (`marching-cubes`, `marching-tetrahedra`) or compression for D2O (`auto`, `gzip`, `lzma`, `bzip2`, `zstd`, `blosc`) |
 | `-g` | `--dataset` | Generate a built-in test dataset |
 
 **Supported input types:**
@@ -195,6 +197,7 @@ the output is always a `.d2o` file:
 
 **Supported isosurface output types:**
 * [Stanford .ply file](https://en.wikipedia.org/wiki/PLY_(file_format))
+* [Stereolithography .stl file](https://en.wikipedia.org/wiki/STL_(file_format))
 * [Wavefront .obj file](https://en.wikipedia.org/wiki/Wavefront_.obj_file)
 
 ## D2O file format

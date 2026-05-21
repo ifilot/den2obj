@@ -67,7 +67,7 @@ TestFileCreation::MeshReference TestFileCreation::generate_mesh() const {
     return {
         ism.get_vertices().size(),
         ism.get_normals().size(),
-        ism.get_texcoords().size() / 6
+        ism.get_texcoords().size() / 3
     };
 }
 
