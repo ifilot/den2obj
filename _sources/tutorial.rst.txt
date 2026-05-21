@@ -56,8 +56,8 @@ You should see the following output::
     Done in 1.42421 seconds.
 
 This will generate a :ref:`.d2o file <D2O file format>` containing the Genus 2
-scalar field named ``genus2.d2o``. Observe that :program:`Den2Obj` tests three
-different compression algorithms and automatically selects the best algorithm
+scalar field named ``genus2.d2o``. Observe that :program:`Den2Obj` tests the
+available compression algorithms and automatically selects the best algorithm
 for the data compression.
 
 To construct the isosurface with an isovalue of 0.1, run::

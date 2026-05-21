@@ -25,7 +25,7 @@ If the decompressed stream is different from the original stream, this
 error is thrown automatically. Although it is very rare for this error
 to be thrown, we have seen it happening for LZMA compression. The
 recommended work-around is to use a different compression routine,
-such as ``gzip`` or ``bzip2``.
+such as ``gzip``, ``bzip2``, ``zstd`` or ``blosc``.
 
 .. seealso::
 

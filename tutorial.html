@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; Den2Obj  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e4fd04e9" />
       <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
 
@@ -17,8 +17,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -137,8 +137,8 @@ run the following:</p>
 </pre></div>
 </div>
 <p>This will generate a <a class="reference internal" href="d2o_fileformat.html#d2o-file-format"><span class="std std-ref">.d2o file</span></a> containing the Genus 2
-scalar field named <code class="docutils literal notranslate"><span class="pre">genus2.d2o</span></code>. Observe that <strong class="program">Den2Obj</strong> tests three
-different compression algorithms and automatically selects the best algorithm
+scalar field named <code class="docutils literal notranslate"><span class="pre">genus2.d2o</span></code>. Observe that <strong class="program">Den2Obj</strong> tests the
+available compression algorithms and automatically selects the best algorithm
 for the data compression.</p>
 <p>To construct the isosurface with an isovalue of 0.1, run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">den2obj</span> <span class="o">-</span><span class="n">i</span> <span class="n">genus2</span><span class="o">.</span><span class="n">d2o</span> <span class="o">-</span><span class="n">o</span> <span class="n">genus2</span><span class="o">.</span><span class="n">ply</span> <span class="o">-</span><span class="n">v</span> <span class="mf">0.1</span> <span class="o">-</span><span class="n">c</span>

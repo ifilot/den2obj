@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D2O File Format &mdash; Den2Obj  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e4fd04e9" />
       <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
 
@@ -17,8 +17,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -106,7 +106,7 @@ converted from a human-readable format to binary.</p>
 <tr class="row-odd"><td><p>0x03-0x07</p></td>
 <td><p>uint32_t</p></td>
 <td><p>4 bytes</p></td>
-<td><p>Protocol identifier token (see below). Default = 2.</p></td>
+<td><p>Protocol identifier token (see below). Selected automatically by default.</p></td>
 </tr>
 <tr class="row-even"><td><p>0x08-0x2B</p></td>
 <td><p>float[9]</p></td>
@@ -143,7 +143,8 @@ converted from a human-readable format to binary.</p>
 <p class="admonition-title">Note</p>
 <p><strong class="program">Den2Obj</strong> will automatically look for the best compression algorithm
 when converting a scalar field to the <code class="docutils literal notranslate"><span class="pre">.d2o</span></code> format. For the majority of the
-cases, this corresponds to the <a class="reference external" href="https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm">LZMA type of compression</a>.</p>
+cases, this corresponds to either the <a class="reference external" href="https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm">LZMA type of compression</a>
+or one of the newer array-oriented compression methods.</p>
 </div>
 <section id="protocol-tokens">
 <h2>Protocol tokens<a class="headerlink" href="#protocol-tokens" title="Link to this heading"></a></h2>
@@ -151,6 +152,8 @@ cases, this corresponds to the <a class="reference external" href="https://en.wi
 <li><p>GZIP compression</p></li>
 <li><p>LZMA compression</p></li>
 <li><p>BZIP2 compression</p></li>
+<li><p>ZSTD compression</p></li>
+<li><p>Blosc compression</p></li>
 </ol>
 </section>
 </section>

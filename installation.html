@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; Den2Obj  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=e4fd04e9" />
       <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
 
@@ -17,8 +17,8 @@
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -104,8 +104,9 @@ libraries are available to you:</p>
 <li><p><a class="reference external" href="https://sourceware.org/bzip2/">BZIP2</a> (bzip2 data compression)</p></li>
 <li><p><a class="reference external" href="https://www.gnu.org/software/gzip/">GZIP</a> (gzip data compression)</p></li>
 <li><p><a class="reference external" href="https://7-zip.org/">LZMA</a> (lzma data compression)</p></li>
+<li><p><a class="reference external" href="https://facebook.github.io/zstd/">Zstandard</a> (zstd data compression)</p></li>
+<li><p><a class="reference external" href="https://www.blosc.org/">Blosc</a> (blocked and shuffled data compression)</p></li>
 <li><p><a class="reference external" href="https://sourceforge.net/projects/cppunit/">CPPUnit</a> (unit testing)</p></li>
-<li><p><a class="reference external" href="https://www.openssl.org/">OpenSSL</a> (unit testing; MD5 checksums)</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -120,7 +121,7 @@ The compilation instructions below can be readily used.</p></li>
 <p>To ensure that all the packages are installed, one can run the following:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">cmake</span> <span class="n">libtclap</span><span class="o">-</span><span class="n">dev</span> <span class="n">libboost</span><span class="o">-</span><span class="nb">all</span><span class="o">-</span><span class="n">dev</span> \
 <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">libcppunit</span><span class="o">-</span><span class="n">dev</span> <span class="n">libeigen3</span><span class="o">-</span><span class="n">dev</span> <span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> \
-<span class="n">libssl</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">libzstd</span><span class="o">-</span><span class="n">dev</span> <span class="n">libblosc</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
 </section>
@@ -161,7 +162,7 @@ version of OpenVDB from source. The instructions below are for Ubuntu
 <p>Ensure that the following libraries are installed by running:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">cmake</span> <span class="n">libtclap</span><span class="o">-</span><span class="n">dev</span> <span class="n">libboost</span><span class="o">-</span><span class="nb">all</span><span class="o">-</span><span class="n">dev</span> \
     <span class="n">libopenvdb</span><span class="o">-</span><span class="n">dev</span> <span class="n">libtbb</span><span class="o">-</span><span class="n">dev</span> <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">libcppunit</span><span class="o">-</span><span class="n">dev</span> <span class="n">libeigen3</span><span class="o">-</span><span class="n">dev</span> \
-<span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libzstd</span><span class="o">-</span><span class="n">dev</span> <span class="n">libblosc</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
 <p>Compilation <strong class="program">Den2Obj</strong> with the OpenVDB module is as follows:</p>
