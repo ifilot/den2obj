@@ -18,7 +18,7 @@
 <article-id pub-id-type="publisher-id">0</article-id>
 <article-id pub-id-type="doi">N/A</article-id>
 <title-group>
-<article-title>Den2Obj: A command line tool for producing isosurfaces
+<article-title>Den2Obj: A command-line tool for producing isosurfaces
 from electron density data files</article-title>
 </title-group>
 <contrib-group>
@@ -67,149 +67,177 @@ a Creative Commons Attribution 4.0 International License (CC BY
 <body>
 <sec id="summary">
   <title>Summary</title>
-  <p>Electron density is central to electronic structure calculations,
-  providing a detailed depiction of electron distribution in materials
-  or molecules. In various methodologies, particularly Density
-  Functional Theory, electron density is crucial for deriving properties
-  such as energy, potential, and forces. It reveals the complexities of
-  chemical bonding and reactivity, crucial for predicting and
-  understanding the characteristics of materials and molecules,
-  especially in terms of electron redistribution during bond formation
-  or rupture.</p>
-  <p>The electron density is a scalar field, which means that it is a
-  function that assigns a scalar value to each point in space. In the
-  case of the electron density, this scalar value represents the
-  probability density of finding an electron at that point in space.
-  Specialized visualization tools and techniques are often required to
-  effectively visualize scalar fields such as the electron density.
-  These tools may include contour plots, isosurface rendering, or volume
-  rendering, among others. Visualizing the electron density is essential
-  for gaining insights into the electronic properties and behavior of
-  materials and molecules.</p>
-  <p><monospace>Den2Obj</monospace> is a C++-based command-line tool
-  designed to construct isosurfaces of an electron density scalar field.
-  It can parse CHGCAR and PARCHG files of VASP as well as Gaussian Cube
-  files. <monospace>Den2Obj</monospace> also supports converting these
-  into native <monospace>.d2o</monospace> files which offer a
-  significant compression in size with respect to these former files.
-  The resulting isosurfaces can be stored in Stereolitography
-  (<monospace>.stl</monospace>), Polygon File Format
-  (<monospace>.ply</monospace>) and Wavefront
-  (<monospace>.obj</monospace>) files, allowing for facile
-  post-processing in various other programs.</p>
+  <p>Electron density is a foundational quantity in electronic structure
+  calculations. It describes the spatial distribution of electrons in
+  molecules and materials, and is used to derive key properties such as
+  total energy, electrostatic potential, and atomic forces. Because
+  electron density is a three-dimensional scalar field, specialized
+  visualization techniques, including contour plotting, isosurface
+  generation, and volumetric rendering, are needed to interpret bonding,
+  reactivity, and electron redistribution.</p>
+  <p><monospace>Den2Obj</monospace> is a C++ command-line program for
+  generating isosurfaces from electron density scalar fields. It
+  supports input formats commonly used in electronic structure
+  calculations, including CHGCAR and PARCHG files produced by VASP, as
+  well as Gaussian Cube files. The resulting isosurfaces can be exported
+  in widely supported geometry file formats, including STL
+  (Stereolithography), PLY (Polygon File Format), and OBJ (Wavefront),
+  enabling integration with visualization, rendering, and
+  post-processing tools. In addition, <monospace>Den2Obj</monospace> can
+  convert scalar fields to a documented native
+  <monospace>.d2o</monospace> format, a lossless binary container that
+  stores the grid and unit-cell metadata while selecting an efficient
+  compression method automatically.</p>
 </sec>
 <sec id="statement-of-need">
   <title>Statement of need</title>
-  <p>Isosurfaces play a pivotal role in both scientific research and
-  engineering applications, offering a powerful tool for visualizing
-  complex data sets and understanding intricate phenomena. These
-  surfaces represent points in a field where a specific value, known as
-  the isovalue, is constant. Due to its importance, there exist many
-  programs that readily support isosurface generation, such as
-  <monospace>Open Data Explorer</monospace>
+  <p>Isosurfaces play a central role in scientific research and
+  engineering applications by providing an effective means of
+  visualizing complex scalar fields and understanding intricate physical
+  phenomena. An isosurface represents a set of points in a field where a
+  scalar quantity, known as the <italic>isovalue</italic>, remains
+  constant. Many software packages support isosurface generation,
+  including <monospace>Open Data Explorer</monospace>
   (<xref alt="Thompson et al., 2004" rid="ref-OpenDX" ref-type="bibr">Thompson
-  et al., 2004</xref>), <monospace>Matlab</monospace>
+  et al., 2004</xref>), <monospace>MATLAB</monospace>
   (<xref alt="The MathWorks Inc., 2022" rid="ref-MATLAB" ref-type="bibr">The
   MathWorks Inc., 2022</xref>), <monospace>ParaView</monospace>
   (<xref alt="Ahrens et al., 2005" rid="ref-ParaView" ref-type="bibr">Ahrens
-  et al., 2005</xref>), and <monospace>Vesta</monospace>
+  et al., 2005</xref>), <monospace>VESTA</monospace>
   (<xref alt="Momma &amp; Izumi, 2011" rid="ref-mommaU003A2011" ref-type="bibr">Momma
-  &amp; Izumi, 2011</xref>). These tools are mainly designed for
-  interactive use and utilize a graphical user interface of some
-  sort.</p>
-  <p>In contrast, <monospace>Den2Obj</monospace> is a C++-based
-  command-line tool that performs isosurface construction from
-  <monospace>VASP</monospace>
+  &amp; Izumi, 2011</xref>), PyVista
+  (<xref alt="Sullivan &amp; Kaszynski, 2019" rid="ref-pyvista" ref-type="bibr">Sullivan
+  &amp; Kaszynski, 2019</xref>), and chemistry-oriented tools built on
+  such libraries, such as ChemVista
+  (<xref alt="ChemParse, 2025" rid="ref-ChemVista" ref-type="bibr">ChemParse,
+  2025</xref>). These packages and libraries are valuable for
+  interactive inspection, scripting, and application-specific
+  visualization workflows.</p>
+  <p><monospace>Den2Obj</monospace> occupies a narrower niche:
+  reproducible, non-interactive conversion of electronic-structure grid
+  data into mesh and volume assets that can be used in automated
+  analysis, documentation, and rendering pipelines. It directly reads
+  formats commonly produced by <monospace>VASP</monospace>
   (<xref alt="Hafner, 2008" rid="ref-hafnerU003A2008" ref-type="bibr">Hafner,
-  2008</xref>) <monospace>CHGCAR</monospace> or
-  <monospace>PARCHG</monospace> and and Gaussian
+  2008</xref>), such as <monospace>CHGCAR</monospace> and
+  <monospace>PARCHG</monospace>, as well as Gaussian
   (<xref alt="Frisch et al., 2016" rid="ref-gaussian" ref-type="bibr">Frisch
   et al., 2016</xref>) Cube files. The resulting isosurfaces can be
-  stored as Stereolitography (<monospace>.stl</monospace>), Polygon File
-  Format (<monospace>.ply</monospace>) or Wavefront
-  (<monospace>.obj</monospace>) files. The isosurfaces can be
-  constructed using the marching cubes
+  exported in widely used 3D geometry formats, including
+  Stereolithography (<monospace>.stl</monospace>), Polygon File Format
+  (<monospace>.ply</monospace>), and Wavefront
+  (<monospace>.obj</monospace>).</p>
+  <p>Isosurface generation in <monospace>Den2Obj</monospace> is carried
+  out using either the marching cubes algorithm
   (<xref alt="Lorensen &amp; Cline, 1987" rid="ref-lorensenU003A1987" ref-type="bibr">Lorensen
-  &amp; Cline, 1987</xref>) or the marching tetrahedra
+  &amp; Cline, 1987</xref>) or the marching tetrahedra algorithm
   (<xref alt="Burke, 1994" rid="ref-burkeU003A1994" ref-type="bibr">Burke,
-  1994</xref>) algorithms by means of the command-line arguments. Both
-  these algorithms are implemented using OpenMP parallelization making
-  optimal use of modern multi-core CPUs.</p>
+  1994</xref>), both of which can be selected via command line
+  arguments. These algorithms are implemented with OpenMP
+  parallelization to leverage the performance of modern multi-core CPUs.
+  When visualizing wavefunctions rather than electron densities, it is
+  often useful to generate separate isosurfaces for positive and
+  negative lobes. <monospace>Den2Obj</monospace> accommodates this by
+  enabling dual isosurface generation through a single command line
+  argument.</p>
+  <p>An illustrative example is presented in
+  <xref alt="[fig:canonical_mo]" rid="figU003Acanonical_mo">[fig:canonical_mo]</xref>,
+  which displays the canonical molecular orbitals of the benzene
+  molecule. These orbitals were computed using the PyQInt program
+  (<xref alt="Filot, 2025" rid="ref-PyQInt" ref-type="bibr">Filot,
+  2025</xref>). Isosurfaces were generated via the marching cubes
+  algorithm as implemented in Den2Obj, producing
+  <monospace>.ply</monospace> files that were subsequently imported into
+  Blender
+  (<xref alt="Blender - a 3D Modelling and Rendering Package, 2018" rid="ref-Blender" ref-type="bibr"><italic>Blender
+  - a 3D Modelling and Rendering Package</italic>, 2018</xref>), along
+  with the atomic coordinates of benzene, for rendering.</p>
+  <fig>
+    <caption><p>Isosurfaces of the first 15 canonical valence molecular
+    orbitals of benzene.
+    <styled-content id="figU003Acanonical_mo"></styled-content></p></caption>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="media/img/MO_benzene_CAN.png" />
+  </fig>
   <p>For efficient research data management purposes,
   <monospace>Den2Obj</monospace> is also able to convert
   <monospace>CHGCAR</monospace> and <monospace>PARCHG</monospace> files
-  to its own custom <monospace>d2o</monospace> format, which is a
-  lossless format that stores the scalar field as a collection of floats
-  utilizing compression. Upon conversion of input files to the native
-  <monospace>d2o</monospace> file type, the program explores various
-  compression algorithms, i.e. <monospace>lzma</monospace>
-  (<xref alt="Pavlov, 1996" rid="ref-lzmaweb" ref-type="bibr">Pavlov,
-  1996</xref>), <monospace>bzip2</monospace>
-  (<xref alt="Wielaard et al., 1996" rid="ref-bzip2web" ref-type="bibr">Wielaard
-  et al., 1996</xref>) and <monospace>gzip</monospace>
-  (<xref alt="Gailly &amp; Adler, 1992" rid="ref-gzipweb" ref-type="bibr">Gailly
-  &amp; Adler, 1992</xref>), and uses the one that yields optimal
-  results. In comparison to the original <monospace>CHGCAR</monospace>
-  or <monospace>PARCHG</monospace> files, <monospace>d2o</monospace>
-  files are able to achieve a compression ratio around 10%.</p>
-  <p>Besides building isosurfaces, <monospace>Den2Obj</monospace> can
-  also produce OpenVDB
+  to its own custom <monospace>.d2o</monospace> format. This format is
+  one of the distinctive components of the software: it provides a
+  documented, lossless binary representation of dense scalar fields,
+  including unit-cell and grid metadata, so that large
+  electronic-structure outputs can be archived and reloaded without
+  reparsing text-based <monospace>CHGCAR</monospace> or
+  <monospace>PARCHG</monospace> files. Upon conversion, the program
+  explores multiple compression algorithms, namely
+  <monospace>gzip</monospace>, <monospace>lzma</monospace>,
+  <monospace>bzip2</monospace>, Zstandard (<monospace>zstd</monospace>)
+  and Blosc, and uses the one that yields optimal results. These options
+  cover Lempel-Ziv and Huffman-style compression
+  (<xref alt="Huffman, 1952" rid="ref-huffmanU003A1952" ref-type="bibr">Huffman,
+  1952</xref>;
+  <xref alt="Ziv &amp; Lempel, 1977" rid="ref-zivU003A1977" ref-type="bibr">Ziv
+  &amp; Lempel, 1977</xref>), block-sorting compression based on the
+  Burrows-Wheeler transform
+  (<xref alt="Fenwick, 1996" rid="ref-fenwickU003A1996" ref-type="bibr">Fenwick,
+  1996</xref>), the Zstandard format
+  (<xref alt="Collet &amp; Kucherawy, 2021" rid="ref-zstandard" ref-type="bibr">Collet
+  &amp; Kucherawy, 2021</xref>), and cache-aware block compression for
+  numerical data
+  (<xref alt="Alted, 2010" rid="ref-altedU003A2010" ref-type="bibr">Alted,
+  2010</xref>). Such size reductions are expected when converting
+  human-readable grid data to compressed binary storage; nevertheless,
+  <monospace>.d2o</monospace> provides a convenient archival and
+  intermediate representation, with files that can be as small as about
+  10% of the original <monospace>CHGCAR</monospace> or
+  <monospace>PARCHG</monospace> file size.</p>
+  <p>Another distinguishing feature is direct conversion of
+  electronic-structure scalar fields to OpenVDB
   (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
-  2013</xref>) files allowing for volumetric rendering in programs such
-  as Blender. In contrast to the rendering of isosurfaces, the main
+  2013</xref>) files for volumetric rendering in programs such as
+  Blender. In contrast to the rendering of isosurfaces, the main
   advantage of volumetric rendering is that internal details and density
   variations are more prominently shown, providing a comprehensive and
   nuanced understanding of the scalar field. In a way, volumetric
   rendering lies in between isosurfaces and contour plots in terms of
   visualizing a scalar field. An example for the molecular orbitals of
   benzene is provided in
-  <xref alt="[fig:volumetric_rendering]" rid="figU003Avolumetric_rendering">[fig:volumetric_rendering]</xref>.</p>
+  <xref alt="[fig:volumetric_rendering]" rid="figU003Avolumetric_rendering">[fig:volumetric_rendering]</xref>.
+  For demonstration and testing purposes, also a scalar field generator
+  functionality is included that can create a number of relevant scalar
+  fields to test the algorithms on.</p>
   <fig>
-    <caption><p>Volumetric rendering of the molecular orbitals of
-    benzene using the OpenVDB format.
+    <caption><p>Volumetric rendering of the electron density associated
+    with the first 15 canonical valence molecular orbitals of benzene
+    using the OpenVDB format.
     <styled-content id="figU003Avolumetric_rendering"></styled-content></p></caption>
     <graphic mimetype="image" mime-subtype="jpeg" xlink:href="media/img/benzene_mos_denscloud.jpg" />
   </fig>
-  <p>For demonstration and testing purposes, also a scalar field
-  generator functionality is included that can create a number of
-  relevant scalar fields to test the algorithms on. An example is
-  provided in
-  <xref alt="[fig:isosurface_examples]" rid="figU003Aisosurface_examples">[fig:isosurface_examples]</xref>.</p>
-  <fig>
-    <caption><p>Examples of isosurfaces generated. (left) HOMO orbital
-    of the benzene molecule. (right) Genus2 body.
-    <styled-content id="figU003Aisosurface_examples"></styled-content></p></caption>
-    <graphic mimetype="image" mime-subtype="jpeg" xlink:href="media/img/isosurface_examples.jpg" />
-  </fig>
   <p><monospace>Den2Obj</monospace> requires a relatively small set of
-  dependencies, being Eigen3
+  dependencies: Eigen3
   (<xref alt="Guennebaud et al., 2010" rid="ref-eigenweb" ref-type="bibr">Guennebaud
   et al., 2010</xref>), Boost
   (<xref alt="Koranne, 2011" rid="ref-BoostLibrary" ref-type="bibr">Koranne,
   2011</xref>), <monospace>TCLAP</monospace>
   (<xref alt="Smoot et al., 2009" rid="ref-TclapLibrary" ref-type="bibr">Smoot
-  et al., 2009</xref>), <monospace>lzma</monospace>
-  (<xref alt="Pavlov, 1996" rid="ref-lzmaweb" ref-type="bibr">Pavlov,
-  1996</xref>), <monospace>bzip2</monospace>
-  (<xref alt="Wielaard et al., 1996" rid="ref-bzip2web" ref-type="bibr">Wielaard
-  et al., 1996</xref>) and <monospace>gzip</monospace>
-  (<xref alt="Gailly &amp; Adler, 1992" rid="ref-gzipweb" ref-type="bibr">Gailly
-  &amp; Adler, 1992</xref>). Creation of VDB files requires the presence
-  of the OpenVDB library
+  et al., 2009</xref>), and compression libraries for
+  <monospace>gzip</monospace>, <monospace>lzma</monospace>,
+  <monospace>bzip2</monospace>, Zstandard and Blosc. Creation of VDB
+  files requires the presence of the OpenVDB library
   (<xref alt="Museth, 2013" rid="ref-musethU003A2013" ref-type="bibr">Museth,
   2013</xref>). The user can select during compilation whether they want
   to include this functionality or not. <monospace>Den2Obj</monospace>
   is designed to be used by researchers and students working in
-  computational materials modelling using the quantum chemical software.
-  It has already been used in a number of scientific publications.
+  computational materials modelling and quantum chemistry. It has
+  already been used in a number of scientific publications.
   (<xref alt="Filot et al., 2016" rid="ref-filotU003A2016" ref-type="bibr">Filot
   et al., 2016</xref>;
   <xref alt="Su et al., 2016" rid="ref-suU003A2016" ref-type="bibr">Su
   et al., 2016</xref>,
   <xref alt="2018" rid="ref-suU003A2018" ref-type="bibr">2018</xref>)</p>
   <p>An extensive user guide including examples, compilation
-  instructions and documentation of the command-line arguments, is
-  available at https://den2obj.imc-tue.nl/.</p>
+  instructions, tutorials (including a rendering tutorial in Blender)
+  and documentation of the command-line arguments, is available at
+  https://den2obj.imc-tue.nl/.</p>
 </sec>
 <sec id="acknowledgements">
   <title>Acknowledgements</title>
@@ -222,37 +250,6 @@ a Creative Commons Attribution 4.0 International License (CC BY
 </body>
 <back>
 <ref-list>
-  <ref id="ref-hafnerU003A2008">
-    <element-citation publication-type="article-journal">
-      <person-group person-group-type="author">
-        <name><surname>Hafner</surname><given-names>Jürgen</given-names></name>
-      </person-group>
-      <article-title>Ab-initio simulations of materials using VASP: Density-functional theory and beyond</article-title>
-      <source>Journal of Computational Chemistry</source>
-      <year iso-8601-date="2008">2008</year>
-      <volume>29</volume>
-      <issue>13</issue>
-      <pub-id pub-id-type="doi">10.1002/jcc.21057</pub-id>
-      <fpage>2044</fpage>
-      <lpage>2078</lpage>
-    </element-citation>
-  </ref>
-  <ref id="ref-mommaU003A2011">
-    <element-citation publication-type="article-journal">
-      <person-group person-group-type="author">
-        <name><surname>Momma</surname><given-names>Koichi</given-names></name>
-        <name><surname>Izumi</surname><given-names>Fujio</given-names></name>
-      </person-group>
-      <article-title>VESTA3 for three-dimensional visualization of crystal, volumetric and morphology data</article-title>
-      <source>Journal of Applied Crystallography</source>
-      <year iso-8601-date="2011-12">2011</year><month>12</month>
-      <volume>44</volume>
-      <issue>6</issue>
-      <pub-id pub-id-type="doi">10.1107/S0021889811038970</pub-id>
-      <fpage>1272</fpage>
-      <lpage>1276</lpage>
-    </element-citation>
-  </ref>
   <ref id="ref-eigenweb">
     <element-citation>
       <person-group person-group-type="author">
@@ -265,37 +262,94 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <year iso-8601-date="2010">2010</year>
     </element-citation>
   </ref>
-  <ref id="ref-bzip2web">
-    <element-citation>
+  <ref id="ref-huffmanU003A1952">
+    <element-citation publication-type="article-journal">
       <person-group person-group-type="author">
-        <name><surname>Wielaard</surname><given-names>Mark</given-names></name>
-        <name><surname>Mena</surname><given-names>Federico</given-names></name>
-        <name><surname>Snyder</surname><given-names>Micah</given-names></name>
+        <name><surname>Huffman</surname><given-names>David A.</given-names></name>
       </person-group>
-      <article-title>bzip2</article-title>
-      <publisher-name>https://sourceware.org/bzip2/</publisher-name>
-      <year iso-8601-date="1996">1996</year>
+      <article-title>A method for the construction of minimum-redundancy codes</article-title>
+      <source>Proceedings of the IRE</source>
+      <year iso-8601-date="1952">1952</year>
+      <volume>40</volume>
+      <issue>9</issue>
+      <pub-id pub-id-type="doi">10.1109/JRPROC.1952.273898</pub-id>
+      <fpage>1098</fpage>
+      <lpage>1101</lpage>
     </element-citation>
   </ref>
-  <ref id="ref-gzipweb">
-    <element-citation>
+  <ref id="ref-zivU003A1977">
+    <element-citation publication-type="article-journal">
       <person-group person-group-type="author">
-        <name><surname>Gailly</surname><given-names>Jean-loup</given-names></name>
-        <name><surname>Adler</surname><given-names>Mark</given-names></name>
+        <name><surname>Ziv</surname><given-names>Jacob</given-names></name>
+        <name><surname>Lempel</surname><given-names>Abraham</given-names></name>
       </person-group>
-      <article-title>Gzip</article-title>
-      <publisher-name>https://www.gnu.org/software/gzip/</publisher-name>
-      <year iso-8601-date="1992">1992</year>
+      <article-title>A universal algorithm for sequential data compression</article-title>
+      <source>IEEE Transactions on Information Theory</source>
+      <year iso-8601-date="1977">1977</year>
+      <volume>23</volume>
+      <issue>3</issue>
+      <pub-id pub-id-type="doi">10.1109/TIT.1977.1055714</pub-id>
+      <fpage>337</fpage>
+      <lpage>343</lpage>
     </element-citation>
   </ref>
-  <ref id="ref-lzmaweb">
-    <element-citation>
+  <ref id="ref-fenwickU003A1996">
+    <element-citation publication-type="article-journal">
       <person-group person-group-type="author">
-        <name><surname>Pavlov</surname><given-names>Igor</given-names></name>
+        <name><surname>Fenwick</surname><given-names>Peter M.</given-names></name>
       </person-group>
-      <article-title>Lzma</article-title>
-      <publisher-name>https://www.7-zip.org/</publisher-name>
+      <article-title>The burrows-wheeler transform for block sorting text compression: Principles and improvements</article-title>
+      <source>The Computer Journal</source>
       <year iso-8601-date="1996">1996</year>
+      <volume>39</volume>
+      <issue>9</issue>
+      <pub-id pub-id-type="doi">10.1093/comjnl/39.9.731</pub-id>
+      <fpage>731</fpage>
+      <lpage>740</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-altedU003A2010">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Alted</surname><given-names>Francesc</given-names></name>
+      </person-group>
+      <article-title>Why modern CPUs are starving and what can be done about it</article-title>
+      <source>Computing in Science &amp; Engineering</source>
+      <year iso-8601-date="2010">2010</year>
+      <volume>12</volume>
+      <issue>2</issue>
+      <pub-id pub-id-type="doi">10.1109/MCSE.2010.51</pub-id>
+      <fpage>68</fpage>
+      <lpage>71</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-zstandard">
+    <element-citation publication-type="report">
+      <person-group person-group-type="author">
+        <name><surname>Collet</surname><given-names>Yann</given-names></name>
+        <name><surname>Kucherawy</surname><given-names>Murray S.</given-names></name>
+      </person-group>
+      <article-title>Zstandard compression and the ‘application/zstd’ media type</article-title>
+      <publisher-name>RFC Editor</publisher-name>
+      <year iso-8601-date="2021">2021</year>
+      <uri>https://www.rfc-editor.org/info/rfc8878</uri>
+      <pub-id pub-id-type="doi">10.17487/RFC8878</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-pyvista">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Sullivan</surname><given-names>C. Bane</given-names></name>
+        <name><surname>Kaszynski</surname><given-names>Alexander</given-names></name>
+      </person-group>
+      <article-title>PyVista: 3D plotting and mesh analysis through a streamlined interface for the visualization toolkit (VTK)</article-title>
+      <source>Journal of Open Source Software</source>
+      <year iso-8601-date="2019">2019</year>
+      <volume>4</volume>
+      <issue>37</issue>
+      <pub-id pub-id-type="doi">10.21105/joss.01450</pub-id>
+      <fpage>1450</fpage>
+      <lpage></lpage>
     </element-citation>
   </ref>
   <ref id="ref-BoostLibrary">
@@ -325,6 +379,22 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <article-title>Templatized c++ command line parser library</article-title>
       <publisher-name>https://tclap.sourceforge.net/</publisher-name>
       <year iso-8601-date="2009">2009</year>
+    </element-citation>
+  </ref>
+  <ref id="ref-PyQInt">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Filot</surname><given-names>Ivo A. W.</given-names></name>
+      </person-group>
+      <article-title>PyQInt: A teaching-oriented hartree-fock implementation in python</article-title>
+      <source>Journal of Open Source Education</source>
+      <year iso-8601-date="2025">2025</year>
+      <volume>8</volume>
+      <issue>94</issue>
+      <uri>https://doi.org/10.21105/jose.00286</uri>
+      <pub-id pub-id-type="doi">10.21105/jose.00286</pub-id>
+      <fpage>286</fpage>
+      <lpage></lpage>
     </element-citation>
   </ref>
   <ref id="ref-gaussian">
@@ -541,7 +611,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <source>Catalysis Today</source>
       <year iso-8601-date="2016">2016</year>
       <volume>275</volume>
-      <pub-id pub-id-type="doi">https://doi.org/10.1016/j.cattod.2015.10.009</pub-id>
+      <pub-id pub-id-type="doi">10.1016/j.cattod.2015.10.009</pub-id>
       <fpage>111</fpage>
       <lpage>118</lpage>
     </element-citation>
@@ -581,6 +651,25 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <pub-id pub-id-type="doi">10.1021/acscatal.7b03295</pub-id>
       <fpage>75</fpage>
       <lpage>80</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-Blender">
+    <element-citation publication-type="software">
+      <article-title>Blender - a 3D modelling and rendering package</article-title>
+      <publisher-name>Blender Foundation</publisher-name>
+      <publisher-loc>Stichting Blender Foundation, Amsterdam</publisher-loc>
+      <year iso-8601-date="2018">2018</year>
+      <uri>http://www.blender.org</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-ChemVista">
+    <element-citation publication-type="software">
+      <person-group person-group-type="author">
+        <string-name>ChemParse</string-name>
+      </person-group>
+      <article-title>ChemVista</article-title>
+      <year iso-8601-date="2025">2025</year>
+      <uri>https://github.com/ChemParse/ChemVista</uri>
     </element-citation>
   </ref>
 </ref-list>
