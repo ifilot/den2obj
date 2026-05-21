@@ -9,21 +9,27 @@ on:
       - master
 
 permissions:
-  contents: write  # Grants write access to the repository contents
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
-    name: Build and Deploy Sphinx Documentation
+    name: Build Sphinx Documentation
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.13.1
+        python-version: "3.13"
 
     - name: Install Dependencies
       run: |
@@ -34,13 +40,33 @@ jobs:
               sphinx_design \
               sphinx_subfigure \
               myst_parser
+
     - name: Build Documentation
       run: |
         cd docs
         make html
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Configure GitHub Pages
+      if: github.event_name == 'push'
+      uses: actions/configure-pages@v5
+
+    - name: Upload GitHub Pages artifact
+      if: github.event_name == 'push'
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/_build/html
+        path: docs/_build/html
+
+  deploy:
+    name: Deploy GitHub Pages
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

@@ -127,7 +127,7 @@ public:
     /**
      * @brief      Write to a binary D2O file
      *
-     * Preferred protocol is set to 2, which corresponds to LZMA compression.
+     * Compression algorithm is selected automatically unless explicitly supplied.
      */
     void write_d2o_binary(const std::string filename, D2OFormat::CompressionAlgo = D2OFormat::CompressionAlgo::AUTO);
 

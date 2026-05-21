@@ -8,52 +8,86 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev gcovr
-    - name: Configure CMake
-      run: mkdir build && cd build && cmake ../src -DUSE_GCOV=1
-    - name: Build
-      run: cd build && make -j
-    - name: Perform unit tests
-      run: cd build && make test
-    - name: Perform code coverage
-      run: |
-        cd build
-        gcovr -r ../ . --xml-pretty -e ".*\.h" > coverage.xml
-        gcovr -r ../ . --html -e ".*\.h" > report.html
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: code-coverage-report
-        path: ./build/report.html
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./build/coverage.xml
-  
-  test-shared:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            cmake \
+            libglm-dev \
+            libtclap-dev \
+            libboost-all-dev \
+            libopenvdb-dev \
+            libtbb-dev \
+            libcppunit-dev \
+            libeigen3-dev \
+            liblzma-dev \
+            zlib1g-dev \
+            libbz2-dev \
+            libzstd-dev \
+            libblosc-dev \
+            pkg-config \
+            gcovr
+      - name: Configure CMake
+        run: cmake -S src -B build -DUSE_GCOV=ON
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Run unit tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Collect coverage report
+        run: |
+          gcovr -r . build --xml-pretty -e ".*\\.h" > build/coverage.xml
+          gcovr -r . build --html -e ".*\\.h" > build/report.html
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: ./build/report.html
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./build/coverage.xml
 
+  test-shared:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: sudo apt install -y build-essential cmake libglm-dev libtclap-dev libboost-all-dev libopenvdb-dev libtbb-dev libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev gcovr
-    - name: Configure CMake
-      run: mkdir build && cd build && cmake ../src
-    - name: Build
-      run: cd build && make -j && sudo make install
-    - name: Produce compilation using shared library
-      run: |
-        cd examples && mkdir build && cd build
-        cmake ../shared
-        make -j
-        ldd ./den2obj-shared-example
-        LD_LIBRARY_PATH=/usr/local/lib ./den2obj-shared-example
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            cmake \
+            libglm-dev \
+            libtclap-dev \
+            libboost-all-dev \
+            libopenvdb-dev \
+            libtbb-dev \
+            libcppunit-dev \
+            libeigen3-dev \
+            liblzma-dev \
+            zlib1g-dev \
+            libbz2-dev \
+            libzstd-dev \
+            libblosc-dev \
+            pkg-config \
+            gcovr
+      - name: Configure CMake
+        run: cmake -S src -B build
+      - name: Build and install
+        run: |
+          cmake --build build --parallel
+          sudo cmake --install build
+      - name: Produce compilation using shared library
+        run: |
+          cmake -S examples/shared -B examples/shared/build
+          cmake --build examples/shared/build --parallel
+          ldd examples/shared/build/den2obj-shared-example
+          LD_LIBRARY_PATH=/usr/local/lib ./examples/shared/build/den2obj-shared-example

@@ -20,8 +20,9 @@ libraries are available to you:
 * `BZIP2 <https://sourceware.org/bzip2/>`_ (bzip2 data compression)
 * `GZIP <https://www.gnu.org/software/gzip/>`_ (gzip data compression)
 * `LZMA <https://7-zip.org/>`_ (lzma data compression)
+* `Zstandard <https://facebook.github.io/zstd/>`_ (zstd data compression)
+* `Blosc <https://www.blosc.org/>`_ (blocked and shuffled data compression)
 * `CPPUnit <https://sourceforge.net/projects/cppunit/>`_ (unit testing)
-* `OpenSSL <https://www.openssl.org/>`_ (unit testing; MD5 checksums)
 
 .. note::
    * The instructions covered in this guide assume you are running a  
@@ -32,9 +33,9 @@ libraries are available to you:
 
 To ensure that all the packages are installed, one can run the following::
 
-    sudo apt install build-essential cmake libtclap-dev libboost-all-dev \ 
+    sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
     pkg-config libcppunit-dev libeigen3-dev liblzma-dev zlib1g-dev libbz2-dev \
-    libssl-dev
+    libzstd-dev libblosc-dev
 
 Standard compilation
 --------------------
@@ -46,78 +47,28 @@ looks as follows::
     cd den2obj
     mkdir build && cd build
     cmake ../src
-    make -j9
+    cmake --build . --parallel
 
 To install :program:`Den2Obj`, you can in addition run::
 
-    sudo make install
+    sudo cmake --install .
 
 which will place a copy of the ``den2obj`` executable in ``/usr/local/bin/den2obj``.
-
-Compilation with OpenVDB module
--------------------------------
-
-Using the `OpenVDB <https://www.openvdb.org/>`_ library, it is possible
-to convert a density object to an OpenVDB file which can be used to render
-the density clouds in `Blender <https://www.blender.org/>`_. Compilation
-of :program:`Den2Obj` using this module requires supplying an additional
-argument to CMake.
-
-.. warning::
-    A fairly recent version of OpenVDB is required for compatibility with 
-    modern dependencies. The version packaged in Ubuntu 22.04 LTS is 
-    incompatible with the current Thread Building Blocks (TBB) library. 
-    We have tested and verified compatibility with OpenVDB on Ubuntu 24.04 LTS. 
-    If you are working on Ubuntu 22.04 LTS, you might need to compile a recent
-    version of OpenVDB from source. The instructions below are for Ubuntu 
-    24.04 LTS.
-
-Ensure that the following libraries are installed by running::
-
-	sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
-	libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev \
-    liblzma-dev zlib1g-dev libbz2-dev
-
-Compilation :program:`Den2Obj` with the OpenVDB module is as follows::
-
-    git clone https://github.com/ifilot/den2obj.git
-    cd den2obj
-    mkdir build && cd build
-    cmake -DMOD_OPENVDB=1 ../src
-    make -j9
 
 Testing
 -------
 
 To test :program:`Den2Obj`, one can run the following after compilation::
 
-	make test
+	ctest --output-on-failure
 
-A succesfull test should produce an output similar to the one found below::
-
-    Running tests...
-    Test project /mnt/c/PROGRAMMING/CPP/den2obj/build
-        Start 1: DatasetSetup
-    1/6 Test #1: DatasetSetup .....................   Passed    2.49 sec
-        Start 3: TestIsosurface
-    2/6 Test #3: TestIsosurface ...................   Passed    1.07 sec
-        Start 4: TestScalarField
-    3/6 Test #4: TestScalarField ..................   Passed    0.39 sec
-        Start 5: TestD2OFileFormat
-    4/6 Test #5: TestD2OFileFormat ................   Passed    0.02 sec
-        Start 6: TestGenerator
-    5/6 Test #6: TestGenerator ....................   Passed    8.34 sec
-        Start 2: DatasetCleanup
-    6/6 Test #2: DatasetCleanup ...................   Passed    0.00 sec
-
-    100% tests passed, 0 tests failed out of 6
-
-    Total Test time (real) =  12.45 sec
+A successful test run should report that all tests passed. The exact number of
+tests and their timings can differ between standard and coverage builds.
 
 If the test is for some reason failing, one can run the following to produce
 more output::
 
-    CTEST_OUTPUT_ON_FAILURE=TRUE make test
+    ctest --output-on-failure
 
 .. note::
 

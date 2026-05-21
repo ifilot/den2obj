@@ -32,6 +32,8 @@ class TestD2OFileFormat : public CppUnit::TestFixture
   CPPUNIT_TEST( test_gzip_compression );
   CPPUNIT_TEST( test_lzma_compression );
   CPPUNIT_TEST( test_bzip2_compression );
+  CPPUNIT_TEST( test_zstd_compression );
+  CPPUNIT_TEST( test_blosc_compression );
   CPPUNIT_TEST( test_autocompression );
   CPPUNIT_TEST_SUITE_END();
 
@@ -43,9 +45,14 @@ public:
   void test_gzip_compression();
   void test_lzma_compression();
   void test_bzip2_compression();
+  void test_zstd_compression();
+  void test_blosc_compression();
   void test_autocompression();
 
 private:
+  void assert_compression_roundtrip(D2OFormat::CompressionAlgo algo_id,
+                                    uint32_t protocol_id,
+                                    const std::string& filename);
   uint32_t get_protocol_id(const std::string& filename);
   const std::string basefile = "chgcar_ch4_base.d2o";
 };

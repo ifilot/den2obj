@@ -27,10 +27,11 @@
 #include "generator.h"
 #include "isosurface.h"
 #include "isosurface_mesh.h"
+#include "cli_format.h"
 
 int main(int argc, char* argv[]) {
     try {
-        TCLAP::CmdLine cmd("Converts VASP density file to wavefront object.", ' ', PROGRAM_VERSION);
+        TCLAP::CmdLine cmd("Converts scalar field data to mesh and volumetric formats.", ' ', PROGRAM_VERSION);
 
         //**************************************
         // declare values to be parsed
@@ -71,18 +72,16 @@ int main(int argc, char* argv[]) {
         //**************************************
         // Inform user about execution
         //**************************************
-        std::cout << "--------------------------------------------------------------" << std::endl;
-        std::cout << "Executing "<< PROGRAM_NAME << " v." << PROGRAM_VERSION << std::endl;
-        std::cout << "Author:  Ivo Filot <i.a.w.filot@tue.nl>" << std::endl;
-        std::cout << "Website: https://den2obj.imc-tue.nl" << std::endl;
-        std::cout << "Github:  https://github.com/ifilot/den2obj" << std::endl;
-        std::cout << "--------------------------------------------------------------" << std::endl;
-        std::cout << "Compilation time: " << __DATE__ << " " << __TIME__ << std::endl;
-        std::cout << "Git Hash: " << PROGRAM_GIT_HASH << std::endl;
         #ifdef MOD_OPENVDB
-        std::cout << "Compiled with OpenVDB module" << std::endl;
+        const bool openvdb_enabled = true;
+        #else
+        const bool openvdb_enabled = false;
         #endif
-        std::cout << "--------------------------------------------------------------" << std::endl;
+        CLIFormat::print_banner(PROGRAM_VERSION,
+                                PROGRAM_GIT_HASH,
+                                __DATE__,
+                                __TIME__,
+                                openvdb_enabled);
 
         //**************************************
         // parsing values
@@ -121,7 +120,9 @@ int main(int argc, char* argv[]) {
                 throw std::runtime_error("Invalid extension for dataset generation. Filename has to end in .d2o.");
             }
 
-            std::cout << "Building grid using dataset: " << arg_generator.getValue() << std::endl;
+            CLIFormat::print_section("Dataset generation");
+            CLIFormat::print_kv("Dataset", arg_generator.getValue());
+            CLIFormat::print_kv("Output", output_filename);
             gen.build_dataset(arg_generator.getValue(), output_filename, algo_id);
         } else {
             const std::string input_filename = arg_input_filename.getValue();
@@ -260,8 +261,7 @@ int main(int argc, char* argv[]) {
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end-start;
 
-        std::cout << "-------------------------------------------------------------------------------" << std::endl;
-        std::cout << "Done in " << elapsed_seconds.count() << " seconds." << std::endl << std::endl;
+        CLIFormat::print_done_summary(CLIFormat::format_seconds(elapsed_seconds.count()));
 
         return 0;
 

@@ -60,12 +60,16 @@ find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
 pkg_check_modules(DEN2OBJ den2obj REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
+pkg_check_modules(ZSTD libzstd REQUIRED)
+pkg_check_modules(BLOSC blosc REQUIRED)
 
 # Set include folders
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_BINARY_DIR}
                     ${EIGEN_INCLUDE_DIRS}
                     ${DEN2OBJ_INCLUDE_DIR}
+                    ${ZSTD_INCLUDE_DIRS}
+                    ${BLOSC_INCLUDE_DIRS}
                     ${Boost_INCLUDE_DIRS})
 
 # Add sources
@@ -81,4 +85,6 @@ target_link_libraries(den2obj-shared-example
                       ${Boost_LIBRARIES}
                       ${LIBLZMA_LIBRARIES} 
                       ${ZLIB_LIBRARIES}
-                      ${BZIP2_LIBRARIES})
+                      ${BZIP2_LIBRARIES}
+                      ${ZSTD_LIBRARIES}
+                      ${BLOSC_LIBRARIES})

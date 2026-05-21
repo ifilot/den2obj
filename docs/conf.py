@@ -13,8 +13,6 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-import sphinx_rtd_theme
-
 # -- Project information -----------------------------------------------------
 
 project = 'Den2Obj'
@@ -31,8 +29,9 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.autosectionlabel',
     'sphinx_rtd_theme',
-    'sphinx.ext.mathjax'
 ]
+
+autosectionlabel_prefix_document = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -55,7 +54,6 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 master_doc = 'index'
 html_static_path = ['_static']
-html_theme_options = {'display_version': True}
 html_logo = "_static/img/den2obj_logo_128.png"
 html_favicon = "_static/img/favicon.ico"
 html_css_files = [

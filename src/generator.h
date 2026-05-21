@@ -23,7 +23,6 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/factorials.hpp>
-#include <boost/timer/progress_display.hpp>
 
 #include "d2o_format.h"
 #include "generator_benzene_data.h"

@@ -12,6 +12,8 @@ link against `libden2obj.so` as well as against a number of required libraries:
 * GZIP
 * LZMA
 * BZ2
+* ZSTD
+* Blosc
 
 Besides these libraries, there is also a header-only dependency on the Eigen3
 library.
@@ -47,6 +49,8 @@ find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
 pkg_check_modules(DEN2OBJ den2obj REQUIRED)
 pkg_check_modules(EIGEN eigen3 REQUIRED)
+pkg_check_modules(ZSTD libzstd REQUIRED)
+pkg_check_modules(BLOSC blosc REQUIRED)
 ```
 
 and finally add the required libraries to your executable
@@ -57,7 +61,9 @@ target_link_libraries(den2obj-shared-example
                       ${Boost_LIBRARIES}
                       ${LIBLZMA_LIBRARIES} 
                       ${ZLIB_LIBRARIES}
-                      ${BZIP2_LIBRARIES})
+                      ${BZIP2_LIBRARIES}
+                      ${ZSTD_LIBRARIES}
+                      ${BLOSC_LIBRARIES})
 ```
 
 An example of this is provided in [shared/CMakeLists.txt](shared/CMakeLists.txt).

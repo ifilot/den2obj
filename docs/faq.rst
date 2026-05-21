@@ -20,12 +20,12 @@ Why do I see the error "Decompression could not be verified."?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After compression, :program:`Den2Obj` checks whether the compression
-is succesfull by decompressing the stream and tesing for similarity.
+is successful by decompressing the stream and testing for similarity.
 If the decompressed stream is different from the original stream, this
 error is thrown automatically. Although it is very rare for this error
 to be thrown, we have seen it happening for LZMA compression. The
 recommended work-around is to use a different compression routine,
-such as ``gzip`` or ``bzip2``.
+such as ``gzip``, ``bzip2``, ``zstd`` or ``blosc``.
 
 .. seealso::
 

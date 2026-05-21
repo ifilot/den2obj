@@ -32,69 +32,23 @@ void TestD2OFileFormat::setUp() {
 }
 
 void TestD2OFileFormat::test_gzip_compression() {
-    // create scalar field
-    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
-
-    static const std::string filename = "chgcar_ch4_gzip.d2o";
-
-    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::GZIP);
-    CPPUNIT_ASSERT_EQUAL((uint32_t)1, this->get_protocol_id(filename));
-
-    const auto nrgridpts = sf.get_grid().size();
-    const auto grid = sf.get_grid();
-
-    sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
-
-    // compare vector points
-    for(unsigned int i=0; i<grid.size(); i++) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
-    }
+    this->assert_compression_roundtrip(D2OFormat::CompressionAlgo::GZIP, 1, "chgcar_ch4_gzip.d2o");
 }
 
 void TestD2OFileFormat::test_lzma_compression() {
-    // create scalar field
-    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
-
-    static const std::string filename = "chgcar_ch4_lzma.d2o";
-
-    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::LZMA);
-    CPPUNIT_ASSERT_EQUAL((uint32_t)2, this->get_protocol_id(filename));
-
-    const auto nrgridpts = sf.get_grid().size();
-    const auto grid = sf.get_grid();
-
-    sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
-
-    // compare vector points
-    for(unsigned int i=0; i<grid.size(); i++) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
-    }
+    this->assert_compression_roundtrip(D2OFormat::CompressionAlgo::LZMA, 2, "chgcar_ch4_lzma.d2o");
 }
 
 void TestD2OFileFormat::test_bzip2_compression() {
-    // create scalar field
-    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
+    this->assert_compression_roundtrip(D2OFormat::CompressionAlgo::BZIP2, 3, "chgcar_ch4_bzip2.d2o");
+}
 
-    static const std::string filename = "chgcar_ch4_bzip2.d2o";
+void TestD2OFileFormat::test_zstd_compression() {
+    this->assert_compression_roundtrip(D2OFormat::CompressionAlgo::ZSTD, 4, "chgcar_ch4_zstd.d2o");
+}
 
-    sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::BZIP2);
-    CPPUNIT_ASSERT_EQUAL((uint32_t)3, this->get_protocol_id(filename));
-
-    const auto nrgridpts = sf.get_grid().size();
-    const auto grid = sf.get_grid();
-
-    sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
-
-    // compare vector points
-    for(unsigned int i=0; i<grid.size(); i++) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
-    }
+void TestD2OFileFormat::test_blosc_compression() {
+    this->assert_compression_roundtrip(D2OFormat::CompressionAlgo::BLOSC, 5, "chgcar_ch4_blosc.d2o");
 }
 
 void TestD2OFileFormat::test_autocompression() {
@@ -105,7 +59,30 @@ void TestD2OFileFormat::test_autocompression() {
     static const std::string filename = "chgcar_ch4_auto.d2o";
 
     sf.write_d2o_binary(filename, D2OFormat::CompressionAlgo::AUTO);
-    CPPUNIT_ASSERT_EQUAL((uint32_t)2, this->get_protocol_id(filename));
+    CPPUNIT_ASSERT_GREATEREQUAL((uint32_t)1, this->get_protocol_id(filename));
+    CPPUNIT_ASSERT_LESSEQUAL((uint32_t)5, this->get_protocol_id(filename));
+
+    const auto nrgridpts = sf.get_grid().size();
+    const auto grid = sf.get_grid();
+
+    sf = ScalarField(filename, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL(nrgridpts, sf.get_grid().size());
+
+    // compare vector points
+    for(unsigned int i=0; i<grid.size(); i++) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(grid[i], sf.get_grid()[i], 1e-12);
+    }
+}
+
+void TestD2OFileFormat::assert_compression_roundtrip(D2OFormat::CompressionAlgo algo_id,
+                                                     uint32_t protocol_id,
+                                                     const std::string& filename) {
+    // create scalar field
+    ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
+    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
+
+    sf.write_d2o_binary(filename, algo_id);
+    CPPUNIT_ASSERT_EQUAL(protocol_id, this->get_protocol_id(filename));
 
     const auto nrgridpts = sf.get_grid().size();
     const auto grid = sf.get_grid();
