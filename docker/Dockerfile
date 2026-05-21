@@ -32,8 +32,7 @@ RUN apt-get update && apt-get install -y \
   zlib1g-dev \
   libbz2-dev \
   libzstd-dev \
-  libblosc-dev \
-  libssl-dev
+  libblosc-dev
 
 RUN apt-get install curl wget
 

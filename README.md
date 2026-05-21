@@ -58,7 +58,7 @@ dependencies:
 ```bash
 sudo apt install build-essential cmake libtclap-dev libboost-all-dev \
 libopenvdb-dev libtbb-dev pkg-config libcppunit-dev libeigen3-dev liblzma-dev \
-zlib1g-dev libbz2-dev libzstd-dev libblosc-dev libssl-dev
+zlib1g-dev libbz2-dev libzstd-dev libblosc-dev
 ```
 
 Compile:
@@ -221,8 +221,8 @@ git clone https://github.com/ifilot/den2obj.git
 cd den2obj
 mkdir build && cd build
 cmake ../src
-make -j5
-./src/test/unittest
+cmake --build . --parallel
+ctest --output-on-failure
 ```
 
 ## License

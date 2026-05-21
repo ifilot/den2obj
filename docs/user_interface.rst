@@ -19,7 +19,7 @@ Operational modes
 Isosurface generation is the default mode and is used to generate isosurfaces
 from scalar fields. Filetype conversion is mainly used to convert relatively
 large storage formats such as CHGCAR or Gaussian cube files to the compressed
-:ref:`.d2o file format<D2O file format>`. Finally, dataset generation is mainly
+:ref:`.d2o file format<d2ofileformat>`. Finally, dataset generation is mainly
 used for testing or educational purposes.
 
 Isosurface generation
@@ -34,7 +34,7 @@ of the following types
 
 * `CHGCAR <https://www.vasp.at/wiki/index.php/CHGCAR>`_, `PARCHG <https://www.vasp.at/wiki/index.php/PARCHG>`_ or `LOCPOT <https://www.vasp.at/wiki/index.php/LOCPOT>`_
 * `Gaussian Cube file <https://gaussian.com/cubegen/>`_
-* :ref:`Den2Obj .d2o file format<D2O file format>`
+* :ref:`Den2Obj .d2o file format<d2ofileformat>`
 
 ``mesh-file`` is any of the following supported formats
 
@@ -71,12 +71,12 @@ Filetype conversion
 
 :program:`Den2Obj` offers the conversion to two different file types.
 
-* :ref:`Den2Obj .d2o file format<D2O file format>`
+* :ref:`Den2Obj .d2o file format<d2ofileformat>`
 * `OpenVDB <https://www.openvdb.org/>`_
 
 To perform the conversion, one executes::
 
-    ./den2obj -i <path-to-scalarfield> -o <mesh-file> -t [-a <algo>]
+    ./den2obj -i <path-to-scalarfield> -o <output-file> -t [-a <algo>]
 
 For example, to convert `genus.d2o` to a `vdb` file, one runs::
 
@@ -119,6 +119,7 @@ When no ``-a`` is provided, automatically the best compression algorithm is used
 checking the inflation ratio of all possible compression algorithms.
 
 The following datasets are available:
+
 * ``genus2``
 * ``benzene_homo``
 * ``benzene_lumo``

@@ -25,27 +25,27 @@ The organization of this file is given in the Table 1.
       - char
       - 3 bytes
       - Fixed token of "D2O" to identify the file.
-    * - 0x03-0x07
+    * - 0x03-0x06
       - uint32_t
       - 4 bytes
       - Protocol identifier token (see below). Selected automatically by default.
-    * - 0x08-0x2B
+    * - 0x07-0x2A
       - float[9]
       - 36 bytes
       - Unit cell matrix
-    * - 0x2C-0x37
+    * - 0x2B-0x36
       - uint32_t[3]
       - 12 bytes
       - Grid dimensions (its product is the number of data points)
-    * - 0x38
+    * - 0x37
       - uint8_t
       - 1 byte
       - Floating point bytesize (float = 4, double = 8). Mainly used for validation purposes.
-    * - 0x39-0x41
+    * - 0x38-0x3F
       - uint64_t
       - 8 bytes
       - Size of the compressed data stream
-    * - 0x42..
+    * - 0x40..
       - char[DATASIZE]
       - DATASIZE bytes
       - Compressed data stream containing densely packed scalar field.

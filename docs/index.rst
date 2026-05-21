@@ -18,7 +18,7 @@ Den2Obj - A command line program for producing isosurfaces from density files
 :program:`Den2Obj` is a command-line tool that construct isosurfaces from
 densely packed scalar fields. :program:`Den2Obj` supports VASP charge files
 such as CHGCAR and PARCHG, Gaussian .cube files as well as its own
-:ref:`.d2o file format<D2O file format>`.
+:ref:`.d2o file format<d2ofileformat>`.
 
 :program:`Den2Obj` can be used together with popular 3D rendering programs
 such as `Blender <https://www.blender.org/>`_ to produce stunning visuals
