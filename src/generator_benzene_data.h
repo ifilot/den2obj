@@ -21,7 +21,7 @@
 #ifndef _GENERATOR_BENZENE_DATA_H
 #define _GENERATOR_BENZENE_DATA_H
 
-#include "math.h"
+#include "den2obj_math.h"
 
 namespace GeneratorData {
 

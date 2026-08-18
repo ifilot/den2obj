@@ -18,8 +18,8 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef _MATRICES_H
-#define _MATRICES_H
+#ifndef DEN2OBJ_MATH_H
+#define DEN2OBJ_MATH_H
 
 #include <Eigen/Dense>
 
@@ -33,4 +33,4 @@ template <typename T> T sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-#endif // _MATRICES_H
+#endif // DEN2OBJ_MATH_H

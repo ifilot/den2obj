@@ -27,7 +27,7 @@
 #include <omp.h>
 #include <boost/filesystem.hpp>
 
-#include "math.h"
+#include "den2obj_math.h"
 #include "isosurface.h"
 #include "check_endian.h"
 
