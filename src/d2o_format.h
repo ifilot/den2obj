@@ -38,7 +38,7 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
-#include "math.h"
+#include "den2obj_math.h"
 
 namespace D2OFormat {
 
