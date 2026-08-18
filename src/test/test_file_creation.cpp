@@ -20,6 +20,10 @@
 
 #include "test_file_creation.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 CPPUNIT_TEST_SUITE_REGISTRATION( TestFileCreation );
 
 void TestFileCreation::setUp() {
@@ -44,8 +48,10 @@ void TestFileCreation::test_obj_file() {
 }
 
 TestFileCreation::MeshReference TestFileCreation::generate_mesh() const {
+#ifdef _OPENMP
     // set number of threads to 1
     omp_set_num_threads(1);
+#endif
 
     // read scalar field
     ScalarField sf("co_2pi_x.cub", ScalarFieldInputFileType::SFF_CUB);

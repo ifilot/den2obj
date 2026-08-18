@@ -40,7 +40,7 @@
 #include <boost/iostreams/filter/lzma.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 
-#include "math.h"
+#include "den2obj_math.h"
 #include "float_parser.h"
 #include "periodic_table.h"
 #include "d2o_format.h"

@@ -1,0 +1,41 @@
+name: macOS build
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Apple Silicon with OpenVDB
+    runs-on: macos-26
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify runner architecture
+        run: |
+          test "$(uname -m)" = "arm64"
+          clang++ --version
+
+      - name: Install dependencies
+        run: brew install cmake tclap boost openvdb tbb pkgconf cppunit eigen xz zstd c-blosc
+
+      # Keep these commands aligned with the macOS reproduction in issue #14.
+      - name: Configure CMake with OpenVDB
+        run: |
+          mkdir build
+          cd build
+          cmake -DMOD_OPENVDB=1 ../src
+
+      - name: Build
+        working-directory: build
+        run: make -j5
+
+      - name: Run unit tests
+        working-directory: build
+        run: ctest --output-on-failure

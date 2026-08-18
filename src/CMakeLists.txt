@@ -19,7 +19,7 @@
  #*************************************************************************/
 
 cmake_minimum_required(VERSION 3.16)
-project(den2obj VERSION 1.3.0 LANGUAGES CXX)
+project(den2obj VERSION 1.3.1 LANGUAGES CXX)
 
 option(USE_GCOV "Build with gcov coverage instrumentation" OFF)
 option(MOD_OPENVDB "Enable OpenVDB support" OFF)
@@ -65,8 +65,35 @@ endif()
 
 set(OPENVDB_LIBS "")
 if(MOD_OPENVDB)
-    set(OPENVDB_LIBS openvdb tbb PkgConfig::BLOSC ZLIB::ZLIB)
-    message(STATUS "Compiling with OpenVDB module")
+    # OpenVDB currently installs a Find-module rather than a Config package.
+    # Locate that module relative to its headers so this works with Homebrew's
+    # /opt/homebrew prefix as well as Linux multiarch installations.
+    find_package(OpenVDB CONFIG QUIET)
+    if(NOT TARGET OpenVDB::openvdb)
+        find_path(OpenVDB_INCLUDE_DIR NAMES openvdb/openvdb.h)
+        if(NOT OpenVDB_INCLUDE_DIR)
+            message(FATAL_ERROR "Could not locate the OpenVDB headers")
+        endif()
+
+        get_filename_component(_OPENVDB_INSTALL_PREFIX "${OpenVDB_INCLUDE_DIR}" DIRECTORY)
+        find_path(OpenVDB_CMAKE_MODULE_DIR
+            NAMES FindOpenVDB.cmake
+            HINTS "${_OPENVDB_INSTALL_PREFIX}" ${CMAKE_PREFIX_PATH}
+            PATH_SUFFIXES
+                lib/cmake/OpenVDB
+                "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/OpenVDB"
+                share/cmake/OpenVDB
+        )
+        if(NOT OpenVDB_CMAKE_MODULE_DIR)
+            message(FATAL_ERROR "Could not locate OpenVDB's FindOpenVDB.cmake module")
+        endif()
+
+        list(PREPEND CMAKE_MODULE_PATH "${OpenVDB_CMAKE_MODULE_DIR}")
+        find_package(OpenVDB REQUIRED)
+    endif()
+
+    set(OPENVDB_LIBS OpenVDB::openvdb)
+    message(STATUS "Compiling with OpenVDB module: ${OpenVDB_VERSION}")
 endif()
 
 file(GLOB SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")

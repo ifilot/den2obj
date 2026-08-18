@@ -21,6 +21,7 @@
 pkg_check_modules(CPPUNIT REQUIRED IMPORTED_TARGET cppunit)
 add_library(unittest STATIC unittest.cpp)
 target_compile_features(unittest PUBLIC cxx_std_17)
+target_link_libraries(unittest PRIVATE PkgConfig::CPPUNIT)
 
 set(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestGenerator)
 

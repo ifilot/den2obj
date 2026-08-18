@@ -29,7 +29,7 @@
 #include "edgetable.h"
 #include "triangletable.h"
 #include "scalar_field.h"
-#include "math.h"
+#include "den2obj_math.h"
 
 #define PRECISION_LIMIT 0.000000001
 
