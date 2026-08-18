@@ -20,6 +20,30 @@
 
 #include "isosurface_mesh.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+namespace {
+
+size_t get_max_thread_count() {
+#ifdef _OPENMP
+    return static_cast<size_t>(omp_get_max_threads());
+#else
+    return 1;
+#endif
+}
+
+size_t get_thread_number() {
+#ifdef _OPENMP
+    return static_cast<size_t>(omp_get_thread_num());
+#else
+    return 0;
+#endif
+}
+
+} // namespace
+
 /**
  * @brief      build isosurface mesh object
  *
@@ -176,14 +200,16 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
     outfile << "o " << name << std::endl;
 
     // calculate number of threads
-    size_t nrthreads = omp_get_max_threads();
-    omp_set_num_threads(nrthreads); // always allocate max threads
-    std::stringstream local[nrthreads];
+    const size_t nrthreads = get_max_thread_count();
+#ifdef _OPENMP
+    omp_set_num_threads(static_cast<int>(nrthreads)); // always allocate max threads
+#endif
+    std::vector<std::stringstream> local(nrthreads);
 
     // parallel writing vertices
     #pragma omp parallel
     {
-        size_t threadnum = omp_get_thread_num();
+        const size_t threadnum = get_thread_number();
 
         // calculate size
         size_t rem = this->vertices.size() % nrthreads;
@@ -215,7 +241,7 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
 
     #pragma omp parallel
     {
-        size_t threadnum = omp_get_thread_num();
+        const size_t threadnum = get_thread_number();
 
         // calculate size
         size_t rem = this->normals.size() % nrthreads;
@@ -249,7 +275,7 @@ void IsoSurfaceMesh::write_obj(const std::string& filename, const std::string& h
 
     #pragma omp parallel
     {
-        size_t threadnum = omp_get_thread_num();
+        const size_t threadnum = get_thread_number();
 
         // calculate size
         size_t rem = (this->indices.size() / 3) % nrthreads;

@@ -24,7 +24,6 @@
 #include <fstream>
 #include <set>
 #include <vector>
-#include <omp.h>
 #include <boost/filesystem.hpp>
 
 #include "den2obj_math.h"
