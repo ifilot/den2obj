@@ -20,6 +20,8 @@
 
 #include "test_isosurface.h"
 
+#include <fstream>
+
 CPPUNIT_TEST_SUITE_REGISTRATION( TestIsosurface );
 
 void TestIsosurface::setUp() {
@@ -139,9 +141,24 @@ void TestIsosurface::test_obj() {
     ism.write_obj(fname, "test", "test");
     CPPUNIT_ASSERT(std::filesystem::exists(fname));
 
-    // .obj files can vary a little bit in size, so we have to sample for a range
-    CPPUNIT_ASSERT_GREATEREQUAL((size_t)900000, std::filesystem::file_size(fname));
-    CPPUNIT_ASSERT_LESSEQUAL((size_t)1000000, std::filesystem::file_size(fname));
+    // MinGW translates newlines to CRLF in text mode. Compare the size after
+    // removing carriage returns so the same content has the same bounds on
+    // Windows and Unix-like systems.
+    std::ifstream objfile(fname, std::ios::binary);
+    CPPUNIT_ASSERT(objfile.good());
+
+    size_t normalized_size = 0;
+    char byte = 0;
+    while(objfile.get(byte)) {
+        if(byte != '\r') {
+            normalized_size++;
+        }
+    }
+    CPPUNIT_ASSERT(objfile.eof());
+
+    // .obj files can vary a little bit in size, so sample for a range.
+    CPPUNIT_ASSERT_GREATEREQUAL((size_t)900000, normalized_size);
+    CPPUNIT_ASSERT_LESSEQUAL((size_t)1000000, normalized_size);
 }
 
 void TestIsosurface::test_ply() {

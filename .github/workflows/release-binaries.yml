@@ -297,17 +297,48 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install build and bundling dependencies
-        run: brew install cmake tclap boost cppunit eigen xz zstd c-blosc pkgconf dylibbundler
+      - name: Install build dependencies
+        run: brew install cmake tclap cppunit eigen pkgconf
 
-      - name: Configure portable build
+      # Homebrew bottles target the macOS version on which they were built.
+      # Compile the libraries embedded in the executable ourselves so every
+      # object file uses the advertised macOS 12 deployment target.
+      - name: Restore macOS 12 static dependencies
+        id: macos-dependencies
+        uses: actions/cache@v4
+        with:
+          path: macos-deps
+          key: macos12-static-v1-${{ matrix.arch }}-boost1.90.0-blosc1.21.6-xz5.8.3-zstd1.5.7-lz4-1.10.0-snappy1.2.2
+
+      - name: Build macOS 12 static dependencies
+        if: steps.macos-dependencies.outputs.cache-hit != 'true'
         run: |
+          bash .github/scripts/build-macos-static-dependencies.sh \
+            "${{ matrix.arch }}" \
+            "$PWD/macos-deps"
+
+      - name: Configure portable static build
+        run: |
+          cppunit_prefix="$(brew --prefix cppunit)"
           cmake -S src -B build-portable \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DCMAKE_PREFIX_PATH="$PWD/macos-deps;$cppunit_prefix;$(brew --prefix eigen);$(brew --prefix tclap)" \
             -DPORTABLE_BUILD=ON \
-            -DHAS_OPENMP=OFF
+            -DSTATIC_DEPENDENCIES=ON \
+            -DHAS_OPENMP=OFF \
+            -DBoost_ROOT="$PWD/macos-deps" \
+            -DBoost_USE_STATIC_LIBS=ON \
+            -DLIBLZMA_LIBRARY="$PWD/macos-deps/lib/liblzma.a" \
+            -DLIBLZMA_INCLUDE_DIR="$PWD/macos-deps/include" \
+            -DZSTD_LIBRARY="$PWD/macos-deps/lib/libzstd.a" \
+            -DBLOSC_INCLUDE_DIR="$PWD/macos-deps/include" \
+            -DBLOSC_LIBRARY="$PWD/macos-deps/lib/libblosc.a" \
+            -DLZ4_LIBRARY="$PWD/macos-deps/lib/liblz4.a" \
+            -DSNAPPY_LIBRARY="$PWD/macos-deps/lib/libsnappy.a" \
+            -DCPPUNIT_INCLUDE_DIR="$cppunit_prefix/include" \
+            -DCPPUNIT_LIBRARY="$cppunit_prefix/lib/libcppunit.a"
 
       - name: Build executable and tests
         run: |
@@ -322,25 +353,19 @@ jobs:
         working-directory: build-portable
         run: ctest --output-on-failure
 
-      - name: Bundle non-system libraries
+      - name: Stage macOS binary
         run: |
           package_dir="package/den2obj-macos-${{ matrix.arch }}"
-          mkdir -p "$package_dir/lib"
+          mkdir -p "$package_dir"
           cp build-portable/den2obj "$package_dir/"
           cp LICENSE README.md "$package_dir/"
-          dylibbundler \
-            -od \
-            -b \
-            -x "$package_dir/den2obj" \
-            -d "$package_dir/lib" \
-            -p @executable_path/lib/
 
-      - name: Audit and sign bundle
+      - name: Audit and sign executable
         run: |
           package_dir="package/den2obj-macos-${{ matrix.arch }}"
           : > macos-dependencies.txt
           : > macos-build-versions.txt
-          for binary in "$package_dir/den2obj" "$package_dir"/lib/*.dylib; do
+          for binary in "$package_dir/den2obj"; do
             otool -L "$binary" | tee -a macos-dependencies.txt
             vtool -show-build "$binary" | tee -a macos-build-versions.txt
 
@@ -362,22 +387,19 @@ jobs:
           done
 
           unexpected_dependencies="$(awk '/^[[:space:]]/ { print $1 }' macos-dependencies.txt \
-            | grep -Ev '^(@executable_path/lib/|/usr/lib/|/System/Library/)' || true)"
+            | grep -Ev '^(/usr/lib/|/System/Library/)' || true)"
           if [[ -n "$unexpected_dependencies" ]]; then
-            echo "The macOS bundle still has external non-system dependencies:"
+            echo "The macOS executable still has non-system dynamic dependencies:"
             echo "$unexpected_dependencies"
             exit 1
           fi
 
-          find "$package_dir/lib" -type f -name '*.dylib' \
-            -exec codesign --force --sign - {} \;
           codesign --force --sign - "$package_dir/den2obj"
-          find "$package_dir/lib" -type f -name '*.dylib' \
-            -exec codesign --verify --strict {} \;
           codesign --verify --strict "$package_dir/den2obj"
           "$package_dir/den2obj" --version
           cp macos-dependencies.txt "$package_dir/DEPENDENCIES.txt"
           cp macos-build-versions.txt "$package_dir/BUILD-VERSIONS.txt"
+          cp macos-deps/VERSIONS.txt "$package_dir/STATIC-DEPENDENCIES.txt"
 
       - name: Package macOS binary
         run: |
