@@ -47,8 +47,6 @@ extracts an isosurface at isovalue 0.5 and writes a Wavefront `.obj` mesh that
 can be opened directly in Blender or MeshLab. See
 [Built-in datasets](#built-in-dataset-generation) for the full list.
 
-## Compilation instructions
-
 ### Debian-based systems (Ubuntu, Debian)
 
 Tested on Ubuntu 24.04 LTS (Noble) and Debian 12 (Bookworm). Install the

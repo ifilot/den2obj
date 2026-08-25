@@ -1,0 +1,303 @@
+name: Portable binaries
+
+on:
+  # Validate that downloadable binaries can be produced for every commit on
+  # the main development branches. Version tags additionally publish a release.
+  push:
+    branches: [ "master", "develop" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux x86-64 (Ubuntu 20.04 baseline)
+    runs-on: ubuntu-24.04
+    container: ubuntu:20.04
+
+    steps:
+      - name: Install build dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            cmake \
+            file \
+            git \
+            libblosc-dev \
+            libboost-filesystem-dev \
+            libboost-iostreams-dev \
+            libboost-regex-dev \
+            libbz2-dev \
+            libcppunit-dev \
+            libeigen3-dev \
+            liblzma-dev \
+            libtclap-dev \
+            libzstd-dev \
+            pkg-config \
+            tar \
+            zlib1g-dev
+
+      - uses: actions/checkout@v4
+
+      - name: Configure portable static build
+        run: |
+          cmake -S src -B build-portable \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPORTABLE_BUILD=ON \
+            -DBoost_USE_STATIC_LIBS=ON \
+            -DCMAKE_FIND_LIBRARY_SUFFIXES=.a \
+            -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++"
+
+      # Build only the executable and static-library-based tests. The normal
+      # shared library remains covered by build.yml and is not part of this bundle.
+      - name: Build executable and tests
+        run: |
+          cmake --build build-portable --parallel --target \
+            den2obj_exec \
+            TestIsosurface \
+            TestScalarField \
+            TestD2OFileFormat \
+            TestGenerator
+
+      - name: Run tests
+        run: ctest --test-dir build-portable --output-on-failure
+
+      - name: Verify binary is static
+        run: |
+          file build-portable/den2obj
+          if readelf -d build-portable/den2obj 2>/dev/null | grep -q NEEDED; then
+            echo "The Linux executable still has dynamic library dependencies."
+            readelf -d build-portable/den2obj
+            exit 1
+          fi
+          build-portable/den2obj --version
+
+      - name: Package Linux binary
+        run: |
+          mkdir -p package/den2obj-linux-x86_64
+          cp build-portable/den2obj package/den2obj-linux-x86_64/
+          cp LICENSE README.md package/den2obj-linux-x86_64/
+          tar -C package -czf den2obj-linux-x86_64.tar.gz den2obj-linux-x86_64
+
+      - name: Upload Linux binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: den2obj-linux-x86_64
+          path: den2obj-linux-x86_64.tar.gz
+          if-no-files-found: error
+
+  windows:
+    name: Windows x86-64 (MSYS2 MinGW-w64)
+    runs-on: windows-2025
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            curl
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-cppunit
+            mingw-w64-x86_64-eigen3
+            mingw-w64-x86_64-xz
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-bzip2
+            mingw-w64-x86_64-zstd
+            mingw-w64-x86_64-blosc
+
+      # TCLAP is header-only and is not packaged in the MSYS2 MinGW repository.
+      - name: Fetch pinned TCLAP headers
+        shell: msys2 {0}
+        run: |
+          curl --fail --location --retry 3 \
+            --output tclap-v1.2.5.tar.gz \
+            https://github.com/mirror/tclap/archive/58c5c8ef24111072fc21fb723f8ab45d23395809.tar.gz
+          echo "8e02340d1ca762f9b7c49c62c8f07a37fc9f9f87d58051987ce7e73a95921871  tclap-v1.2.5.tar.gz" \
+            | sha256sum --check
+          tar -xzf tclap-v1.2.5.tar.gz
+
+      - name: Configure portable static build
+        shell: msys2 {0}
+        run: |
+          cmake -S src -B build-portable -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPORTABLE_BUILD=ON \
+            -DTCLAP_INCLUDE_DIR="$PWD/tclap-58c5c8ef24111072fc21fb723f8ab45d23395809/include" \
+            -DBoost_USE_STATIC_LIBS=ON \
+            -DCMAKE_FIND_LIBRARY_SUFFIXES=.a \
+            -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++"
+
+      - name: Build executable and tests
+        shell: msys2 {0}
+        run: |
+          cmake --build build-portable --parallel --target \
+            den2obj_exec \
+            TestIsosurface \
+            TestScalarField \
+            TestD2OFileFormat \
+            TestGenerator
+
+      - name: Run tests
+        shell: msys2 {0}
+        run: ctest --test-dir build-portable --output-on-failure
+
+      - name: Verify and package Windows binary
+        shell: msys2 {0}
+        run: |
+          build-portable/den2obj.exe --version
+          objdump -p build-portable/den2obj.exe | sed -n 's/^[[:space:]]*DLL Name: /DLL: /p'
+          if objdump -p build-portable/den2obj.exe | grep -Eqi \
+            'DLL Name: (libgcc|libstdc\+\+|libwinpthread|libboost|libbz2|liblzma|libzstd|libblosc|zlib)'; then
+            echo "The Windows executable still depends on a bundled-toolchain DLL."
+            exit 1
+          fi
+          mkdir -p package/den2obj-windows-x86_64
+          cp build-portable/den2obj.exe package/den2obj-windows-x86_64/
+          cp LICENSE README.md package/den2obj-windows-x86_64/
+          powershell.exe -NoProfile -Command \
+            "Compress-Archive -Path 'package/den2obj-windows-x86_64' -DestinationPath 'den2obj-windows-x86_64.zip'"
+
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: den2obj-windows-x86_64
+          path: den2obj-windows-x86_64.zip
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build and bundling dependencies
+        run: brew install cmake tclap boost cppunit eigen xz zstd c-blosc pkgconf dylibbundler
+
+      - name: Configure portable build
+        run: |
+          cmake -S src -B build-portable \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DPORTABLE_BUILD=ON \
+            -DHAS_OPENMP=OFF
+
+      - name: Build executable and tests
+        run: |
+          cmake --build build-portable --parallel --target \
+            den2obj_exec \
+            TestIsosurface \
+            TestScalarField \
+            TestD2OFileFormat \
+            TestGenerator
+
+      - name: Run tests
+        run: ctest --test-dir build-portable --output-on-failure
+
+      - name: Bundle non-system libraries
+        run: |
+          package_dir="package/den2obj-macos-${{ matrix.arch }}"
+          mkdir -p "$package_dir/lib"
+          cp build-portable/den2obj "$package_dir/"
+          cp LICENSE README.md "$package_dir/"
+          dylibbundler \
+            -od \
+            -b \
+            -x "$package_dir/den2obj" \
+            -d "$package_dir/lib" \
+            -p @executable_path/lib/
+
+      - name: Audit and sign bundle
+        run: |
+          package_dir="package/den2obj-macos-${{ matrix.arch }}"
+          : > macos-dependencies.txt
+          for binary in "$package_dir/den2obj" "$package_dir"/lib/*.dylib; do
+            otool -L "$binary" | tee -a macos-dependencies.txt
+          done
+
+          unexpected_dependencies="$(awk '/^[[:space:]]/ { print $1 }' macos-dependencies.txt \
+            | grep -Ev '^(@executable_path/lib/|/usr/lib/|/System/Library/)' || true)"
+          if [[ -n "$unexpected_dependencies" ]]; then
+            echo "The macOS bundle still has external non-system dependencies:"
+            echo "$unexpected_dependencies"
+            exit 1
+          fi
+
+          find "$package_dir/lib" -type f -name '*.dylib' \
+            -exec codesign --force --sign - {} \;
+          codesign --force --sign - "$package_dir/den2obj"
+          codesign --verify --strict "$package_dir/den2obj"
+          "$package_dir/den2obj" --version
+          cp macos-dependencies.txt "$package_dir/DEPENDENCIES.txt"
+
+      - name: Package macOS binary
+        run: |
+          tar -C package -czf "den2obj-macos-${{ matrix.arch }}.tar.gz" \
+            "den2obj-macos-${{ matrix.arch }}"
+
+      - name: Upload macOS binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: den2obj-macos-${{ matrix.arch }}
+          path: den2obj-macos-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+
+  release:
+    name: Attach binaries to GitHub release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download binary archives
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create release and upload binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version_tag="${{ github.ref_name }}"
+          if [[ ! "$version_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Version tags must use the form vX.X.X; got: $version_tag"
+            exit 1
+          fi
+
+          release_title="Patch $version_tag"
+          if gh release view "$version_tag" >/dev/null 2>&1; then
+            gh release edit "$version_tag" --title "$release_title"
+            gh release upload "$version_tag" release-assets/* --clobber
+          else
+            gh release create "$version_tag" release-assets/* \
+              --title "$release_title" \
+              --generate-notes \
+              --verify-tag
+          fi

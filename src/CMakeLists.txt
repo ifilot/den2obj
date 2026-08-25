@@ -25,6 +25,7 @@ option(USE_GCOV "Build with gcov coverage instrumentation" OFF)
 option(MOD_OPENVDB "Enable OpenVDB support" OFF)
 option(HAS_OPENMP "Enable OpenMP support when available" ON)
 option(DISABLE_TEST "Disable building tests" OFF)
+option(PORTABLE_BUILD "Build without host-specific CPU instructions" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -54,7 +55,7 @@ find_package(Boost REQUIRED COMPONENTS regex iostreams filesystem)
 find_package(LibLZMA REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
-pkg_check_modules(TCLAP REQUIRED IMPORTED_TARGET tclap)
+find_path(TCLAP_INCLUDE_DIR NAMES tclap/CmdLine.h REQUIRED)
 pkg_check_modules(EIGEN REQUIRED IMPORTED_TARGET eigen3)
 pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
 pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
@@ -108,13 +109,15 @@ set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
 foreach(target den2objsources den2obj den2obj_exec)
     target_compile_features(${target} PUBLIC cxx_std_17)
-    target_compile_options(${target} PRIVATE -march=native)
+    if(NOT PORTABLE_BUILD)
+        target_compile_options(${target} PRIVATE -march=native)
+    endif()
     target_include_directories(${target}
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}
             ${Boost_INCLUDE_DIRS}
-            ${TCLAP_INCLUDE_DIRS}
+            ${TCLAP_INCLUDE_DIR}
             ${EIGEN_INCLUDE_DIRS}
     )
 
