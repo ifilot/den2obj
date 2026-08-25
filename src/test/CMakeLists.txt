@@ -18,10 +18,25 @@
  #                                                                        *
  #*************************************************************************/
 
-pkg_check_modules(CPPUNIT REQUIRED IMPORTED_TARGET cppunit)
+if(STATIC_DEPENDENCIES)
+    find_path(CPPUNIT_INCLUDE_DIR NAMES cppunit/TestFixture.h REQUIRED)
+    find_library(CPPUNIT_LIBRARY NAMES cppunit)
+    if(NOT CPPUNIT_LIBRARY)
+        message(FATAL_ERROR "Could not locate static dependency CPPUNIT_LIBRARY")
+    endif()
+    add_library(Den2ObjCppUnit UNKNOWN IMPORTED)
+    set_target_properties(Den2ObjCppUnit PROPERTIES
+        IMPORTED_LOCATION "${CPPUNIT_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${CPPUNIT_INCLUDE_DIR}")
+    set(CPPUNIT_TARGET Den2ObjCppUnit ${CMAKE_DL_LIBS})
+else()
+    pkg_check_modules(CPPUNIT REQUIRED IMPORTED_TARGET cppunit)
+    set(CPPUNIT_TARGET PkgConfig::CPPUNIT)
+endif()
+
 add_library(unittest STATIC unittest.cpp)
 target_compile_features(unittest PUBLIC cxx_std_17)
-target_link_libraries(unittest PRIVATE PkgConfig::CPPUNIT)
+target_link_libraries(unittest PRIVATE ${CPPUNIT_TARGET})
 
 set(EXECUTABLES TestIsosurface TestScalarField TestD2OFileFormat TestGenerator)
 
@@ -38,7 +53,7 @@ if(USE_GCOV)
     add_executable(TestFileCreation test_file_creation.cpp)
 endif()
 
-add_test(NAME DatasetSetup COMMAND tar -xvjf dataset.tar.bz2)
+add_test(NAME DatasetSetup COMMAND tar --no-same-owner -xvjf dataset.tar.bz2)
 add_test(NAME DatasetCleanup COMMAND rm -rvf CHGCAR_* PARCHG_* *.d2o *.cub)
 set_tests_properties(DatasetSetup PROPERTIES FIXTURES_SETUP Dataset)
 set_tests_properties(DatasetCleanup PROPERTIES FIXTURES_CLEANUP Dataset)
@@ -54,7 +69,7 @@ foreach(testexec ${EXECUTABLES})
         PRIVATE
             unittest
             den2objsources
-            PkgConfig::CPPUNIT
+            ${CPPUNIT_TARGET}
     )
 
     add_test(NAME ${testexec} COMMAND ${testexec})

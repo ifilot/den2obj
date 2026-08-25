@@ -24,7 +24,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( TestD2OFileFormat );
 
 void TestD2OFileFormat::setUp() {
     ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
-    CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(0u, sf.get_size());
 
     static const std::string filename = basefile;
     sf.read();
@@ -54,7 +54,7 @@ void TestD2OFileFormat::test_blosc_compression() {
 void TestD2OFileFormat::test_autocompression() {
     // create scalar field
     ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(1000000u, sf.get_size());
 
     static const std::string filename = "chgcar_ch4_auto.d2o";
 
@@ -79,7 +79,7 @@ void TestD2OFileFormat::assert_compression_roundtrip(D2OFormat::CompressionAlgo 
                                                      const std::string& filename) {
     // create scalar field
     ScalarField sf(basefile, ScalarFieldInputFileType::SFF_D2O);
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(1000000u, sf.get_size());
 
     sf.write_d2o_binary(filename, algo_id);
     CPPUNIT_ASSERT_EQUAL(protocol_id, this->get_protocol_id(filename));

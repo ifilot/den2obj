@@ -29,6 +29,7 @@ jobs:
             build-essential \
             ca-certificates \
             cmake \
+            curl \
             file \
             git \
             libblosc-dev \
@@ -39,6 +40,8 @@ jobs:
             libcppunit-dev \
             libeigen3-dev \
             liblzma-dev \
+            liblz4-dev \
+            libsnappy-dev \
             libtclap-dev \
             libzstd-dev \
             pkg-config \
@@ -47,13 +50,42 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      # Ubuntu 20.04's static liblzma omits the multithreaded encoder symbols
+      # required by Boost.Iostreams. Build a pinned, complete static archive.
+      - name: Build static XZ dependency
+        run: |
+          curl --fail --location --retry 3 \
+            --output xz-5.8.3.tar.gz \
+            https://github.com/tukaani-project/xz/releases/download/v5.8.3/xz-5.8.3.tar.gz
+          echo "3d3a1b973af218114f4f889bbaa2f4c037deaae0c8e815eec381c3d546b974a0  xz-5.8.3.tar.gz" \
+            | sha256sum --check
+          tar -xzf xz-5.8.3.tar.gz
+          cd xz-5.8.3
+          ./configure \
+            --prefix=/opt/xz-static \
+            --disable-shared \
+            --enable-static \
+            --disable-doc
+          make -j"$(nproc)"
+          make install
+
       - name: Configure portable static build
         run: |
           cmake -S src -B build-portable \
             -DCMAKE_BUILD_TYPE=Release \
             -DPORTABLE_BUILD=ON \
+            -DSTATIC_DEPENDENCIES=ON \
+            -DHAS_OPENMP=OFF \
             -DBoost_USE_STATIC_LIBS=ON \
-            -DCMAKE_FIND_LIBRARY_SUFFIXES=.a \
+            -DLIBLZMA_LIBRARY=/opt/xz-static/lib/liblzma.a \
+            -DLIBLZMA_INCLUDE_DIR=/opt/xz-static/include \
+            -DZLIB_LIBRARY=/usr/lib/x86_64-linux-gnu/libz.a \
+            -DBZIP2_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libbz2.a \
+            -DZSTD_LIBRARY=/usr/lib/x86_64-linux-gnu/libzstd.a \
+            -DBLOSC_LIBRARY=/usr/lib/libblosc.a \
+            -DLZ4_LIBRARY=/usr/lib/x86_64-linux-gnu/liblz4.a \
+            -DSNAPPY_LIBRARY=/usr/lib/x86_64-linux-gnu/libsnappy.a \
+            -DCPPUNIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libcppunit.a \
             -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++"
 
       # Build only the executable and static-library-based tests. The normal
@@ -68,7 +100,8 @@ jobs:
             TestGenerator
 
       - name: Run tests
-        run: ctest --test-dir build-portable --output-on-failure
+        working-directory: build-portable
+        run: ctest --output-on-failure
 
       - name: Verify binary is static
         run: |
@@ -137,9 +170,18 @@ jobs:
           cmake -S src -B build-portable -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DPORTABLE_BUILD=ON \
+            -DSTATIC_DEPENDENCIES=ON \
+            -DHAS_OPENMP=OFF \
             -DTCLAP_INCLUDE_DIR="$PWD/tclap-58c5c8ef24111072fc21fb723f8ab45d23395809/include" \
             -DBoost_USE_STATIC_LIBS=ON \
-            -DCMAKE_FIND_LIBRARY_SUFFIXES=.a \
+            -DLIBLZMA_LIBRARY="$MINGW_PREFIX/lib/liblzma.a" \
+            -DZLIB_LIBRARY="$MINGW_PREFIX/lib/libz.a" \
+            -DBZIP2_LIBRARY_RELEASE="$MINGW_PREFIX/lib/libbz2.a" \
+            -DZSTD_LIBRARY="$MINGW_PREFIX/lib/libzstd.a" \
+            -DBLOSC_LIBRARY="$MINGW_PREFIX/lib/libblosc.a" \
+            -DLZ4_LIBRARY="$MINGW_PREFIX/lib/liblz4.a" \
+            -DSNAPPY_LIBRARY="$MINGW_PREFIX/lib/libsnappy.a" \
+            -DCPPUNIT_LIBRARY="$MINGW_PREFIX/lib/libcppunit.a" \
             -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++"
 
       - name: Build executable and tests
@@ -154,7 +196,8 @@ jobs:
 
       - name: Run tests
         shell: msys2 {0}
-        run: ctest --test-dir build-portable --output-on-failure
+        working-directory: build-portable
+        run: ctest --output-on-failure
 
       - name: Verify and package Windows binary
         shell: msys2 {0}
@@ -216,7 +259,8 @@ jobs:
             TestGenerator
 
       - name: Run tests
-        run: ctest --test-dir build-portable --output-on-failure
+        working-directory: build-portable
+        run: ctest --output-on-failure
 
       - name: Bundle non-system libraries
         run: |

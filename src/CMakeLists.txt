@@ -26,6 +26,7 @@ option(MOD_OPENVDB "Enable OpenVDB support" OFF)
 option(HAS_OPENMP "Enable OpenMP support when available" ON)
 option(DISABLE_TEST "Disable building tests" OFF)
 option(PORTABLE_BUILD "Build without host-specific CPU instructions" OFF)
+option(STATIC_DEPENDENCIES "Link third-party dependencies from static archives" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -46,8 +47,8 @@ execute_process(
     ERROR_QUIET
 )
 
-message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_BINARY_DIR}/config.h")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
+message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_BINARY_DIR}/den2obj_config.h")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/den2obj_config.h @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_CURRENT_BINARY_DIR}/den2obj.pc @ONLY)
 
 find_package(PkgConfig REQUIRED)
@@ -57,8 +58,40 @@ find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
 find_path(TCLAP_INCLUDE_DIR NAMES tclap/CmdLine.h REQUIRED)
 pkg_check_modules(EIGEN REQUIRED IMPORTED_TARGET eigen3)
-pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
-pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
+
+if(STATIC_DEPENDENCIES)
+    find_path(ZSTD_INCLUDE_DIR NAMES zstd.h REQUIRED)
+    find_path(BLOSC_INCLUDE_DIR NAMES blosc.h REQUIRED)
+    find_library(ZSTD_LIBRARY NAMES zstd)
+    find_library(BLOSC_LIBRARY NAMES blosc)
+    find_library(LZ4_LIBRARY NAMES lz4)
+    find_library(SNAPPY_LIBRARY NAMES snappy)
+    foreach(required_library ZSTD_LIBRARY BLOSC_LIBRARY LZ4_LIBRARY SNAPPY_LIBRARY)
+        if(NOT ${required_library})
+            message(FATAL_ERROR "Could not locate static dependency ${required_library}")
+        endif()
+    endforeach()
+    find_package(Threads REQUIRED)
+
+    add_library(Den2ObjZstd UNKNOWN IMPORTED)
+    set_target_properties(Den2ObjZstd PROPERTIES
+        IMPORTED_LOCATION "${ZSTD_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIR}")
+    add_library(Den2ObjBlosc UNKNOWN IMPORTED)
+    set_target_properties(Den2ObjBlosc PROPERTIES
+        IMPORTED_LOCATION "${BLOSC_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${BLOSC_INCLUDE_DIR}")
+
+    set(ZSTD_TARGET Den2ObjZstd)
+    set(BLOSC_TARGET Den2ObjBlosc)
+    set(BLOSC_TRANSITIVE_LIBS ${LZ4_LIBRARY} ${SNAPPY_LIBRARY} Threads::Threads)
+else()
+    pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
+    pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
+    set(ZSTD_TARGET PkgConfig::ZSTD)
+    set(BLOSC_TARGET PkgConfig::BLOSC)
+    set(BLOSC_TRANSITIVE_LIBS "")
+endif()
 
 if(HAS_OPENMP)
     find_package(OpenMP)
@@ -114,11 +147,13 @@ foreach(target den2objsources den2obj den2obj_exec)
     endif()
     target_include_directories(${target}
         PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}
             ${Boost_INCLUDE_DIRS}
             ${TCLAP_INCLUDE_DIR}
             ${EIGEN_INCLUDE_DIRS}
+            ${ZSTD_INCLUDE_DIR}
+            ${BLOSC_INCLUDE_DIR}
     )
 
     if(OpenMP_CXX_FOUND)
@@ -143,10 +178,11 @@ target_link_libraries(den2objsources
         Boost::iostreams
         Boost::filesystem
         LibLZMA::LibLZMA
-        ZLIB::ZLIB
         BZip2::BZip2
-        PkgConfig::ZSTD
-        PkgConfig::BLOSC
+        ${BLOSC_TARGET}
+        ${ZSTD_TARGET}
+        ZLIB::ZLIB
+        ${BLOSC_TRANSITIVE_LIBS}
         ${OPENVDB_LIBS}
 )
 

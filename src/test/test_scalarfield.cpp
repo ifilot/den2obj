@@ -31,11 +31,11 @@ void TestScalarField::tearDown() {
 void TestScalarField::testReadingCHGCAR() {
     // create scalar field
     ScalarField sf("CHGCAR_CH4", ScalarFieldInputFileType::SFF_CHGCAR);
-    CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(0u, sf.get_size());
 
     // read atoms and check this
     sf.read_header_and_atoms();
-    CPPUNIT_ASSERT_EQUAL( (uint)0, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(0u, sf.get_size());
     auto p = sf.get_atom_position(0);
     CPPUNIT_ASSERT_EQUAL( (fpt)5.0, p(0) );
     CPPUNIT_ASSERT_EQUAL( (fpt)5.0, p(1) );
@@ -44,7 +44,7 @@ void TestScalarField::testReadingCHGCAR() {
     // read scalar field and test this
     sf.read();
     fpt V = sf.get_volume();
-    CPPUNIT_ASSERT_EQUAL( (uint)1000000, sf.get_size() );
+    CPPUNIT_ASSERT_EQUAL(1000000u, sf.get_size());
     CPPUNIT_ASSERT_DOUBLES_EQUAL( (fpt)-0.276298 / V, sf.get_min(), 1e-8 );
     CPPUNIT_ASSERT_DOUBLES_EQUAL( (fpt)2047.064424 / V, sf.get_max(), 1e-4 );
 
