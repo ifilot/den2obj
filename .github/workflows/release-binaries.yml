@@ -305,7 +305,7 @@ jobs:
       # object file uses the advertised macOS 12 deployment target.
       - name: Restore macOS 12 static dependencies
         id: macos-dependencies
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: macos-deps
           key: macos12-static-v1-${{ matrix.arch }}-boost1.90.0-blosc1.21.6-xz5.8.3-zstd1.5.7-lz4-1.10.0-snappy1.2.2
@@ -317,13 +317,23 @@ jobs:
             "${{ matrix.arch }}" \
             "$PWD/macos-deps"
 
+      - name: Save macOS 12 static dependencies
+        if: steps.macos-dependencies.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: macos-deps
+          key: macos12-static-v1-${{ matrix.arch }}-boost1.90.0-blosc1.21.6-xz5.8.3-zstd1.5.7-lz4-1.10.0-snappy1.2.2
+
       - name: Configure portable static build
         run: |
           cppunit_prefix="$(brew --prefix cppunit)"
+          # Boost's generated static target records LZMA and Zstd as -l names.
+          # Search our static-only prefix before Homebrew's dynamic libraries.
           cmake -S src -B build-portable \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DCMAKE_EXE_LINKER_FLAGS="-L$PWD/macos-deps/lib -Wl,-search_paths_first" \
             -DCMAKE_PREFIX_PATH="$PWD/macos-deps;$cppunit_prefix;$(brew --prefix eigen);$(brew --prefix tclap)" \
             -DPORTABLE_BUILD=ON \
             -DSTATIC_DEPENDENCIES=ON \
