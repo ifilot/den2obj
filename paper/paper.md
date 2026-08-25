@@ -112,8 +112,10 @@ files requires the presence of the OpenVDB library
 [@museth:2013]. The user can select during
 compilation whether they want to include this functionality or not. `Den2Obj`
 is designed to be used by researchers and students working in computational
-materials modelling and quantum chemistry. It has already been used in a number
-of scientific publications. [@filot:2016; @su:2016; @su:2018]
+materials modelling and quantum chemistry. The present package builds on an
+earlier command-line implementation of the same workflow. That earlier
+implementation was used in the studies reported in [@filot:2016; @su:2016;
+@su:2018].
 
 An extensive user guide including examples, compilation instructions, tutorials
 (including a rendering tutorial in Blender) and documentation of the
