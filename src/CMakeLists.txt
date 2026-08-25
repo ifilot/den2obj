@@ -54,13 +54,26 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_CURRENT_BINARY_
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS regex iostreams filesystem)
 
-# Boost.Iostreams links the generic zstd::libzstd target. On MSYS2 that
-# target selects the DLL import library even when static Boost was requested.
-# Point the generic target at the package's static variant for portable builds.
-if(STATIC_DEPENDENCIES AND WIN32 AND
-   TARGET zstd::libzstd AND TARGET zstd::libzstd_static)
-    set_property(TARGET zstd::libzstd PROPERTY
-        INTERFACE_LINK_LIBRARIES zstd::libzstd_static)
+# MSYS2's static Boost.Iostreams target directly references Zstandard's DLL
+# import target. Replace that one dependency with the exported static target.
+if(STATIC_DEPENDENCIES AND WIN32)
+    if(NOT TARGET zstd::libzstd_static)
+        message(FATAL_ERROR "Static Boost.Iostreams requires zstd::libzstd_static")
+    endif()
+
+    get_target_property(BOOST_IOSTREAMS_LINK_LIBS
+        Boost::iostreams INTERFACE_LINK_LIBRARIES)
+    set(BOOST_IOSTREAMS_STATIC_LINK_LIBS "")
+    foreach(dependency IN LISTS BOOST_IOSTREAMS_LINK_LIBS)
+        string(REPLACE "zstd::libzstd_shared" "zstd::libzstd_static"
+            dependency "${dependency}")
+        list(APPEND BOOST_IOSTREAMS_STATIC_LINK_LIBS "${dependency}")
+    endforeach()
+    set_property(TARGET Boost::iostreams PROPERTY
+        INTERFACE_LINK_LIBRARIES "${BOOST_IOSTREAMS_STATIC_LINK_LIBS}")
+    if("${BOOST_IOSTREAMS_STATIC_LINK_LIBS}" MATCHES "zstd::libzstd_shared")
+        message(FATAL_ERROR "Boost.Iostreams still references shared Zstandard")
+    endif()
 endif()
 
 find_package(LibLZMA REQUIRED)

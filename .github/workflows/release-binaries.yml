@@ -48,7 +48,7 @@ jobs:
             tar \
             zlib1g-dev
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Ubuntu 20.04's static liblzma omits the multithreaded encoder symbols
       # required by Boost.Iostreams. Build a pinned, complete static archive.
@@ -132,7 +132,7 @@ jobs:
     runs-on: windows-2025
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -180,6 +180,8 @@ jobs:
           sed -i \
             '/Include the win32\/pthread.h library/{n;s/#if defined(_WIN32)/#if defined(_WIN32) \&\& !defined(__MINGW32__)/;}' \
             c-blosc-1.21.6/blosc/blosc.c
+          grep -A1 'Include the win32/pthread.h library' c-blosc-1.21.6/blosc/blosc.c \
+            | grep -qF '#if defined(_WIN32) && !defined(__MINGW32__)'
           cmake -S c-blosc-1.21.6 -B blosc-build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -196,6 +198,11 @@ jobs:
             -DPREFER_EXTERNAL_ZSTD=ON
           cmake --build blosc-build --parallel
           cmake --install blosc-build
+          if nm --defined-only blosc-static/lib/libblosc.a \
+            | grep -Eq ' [Tt] pthread_(create|cond_)'; then
+            echo "The patched Blosc archive still embeds pthread functions."
+            exit 1
+          fi
 
       - name: Configure portable static build
         shell: msys2 {0}
@@ -218,6 +225,15 @@ jobs:
             -DCPPUNIT_LIBRARY="$MINGW_PREFIX/lib/libcppunit.a" \
             -DCMAKE_EXE_LINKER_FLAGS="-static -static-libgcc -static-libstdc++"
 
+      - name: Audit static link plan
+        shell: msys2 {0}
+        run: |
+          if grep -Fq 'libzstd.dll.a' build-portable/build.ninja; then
+            echo "Boost.Iostreams still selected the Zstandard DLL import library."
+            grep -nF 'libzstd.dll.a' build-portable/build.ninja
+            exit 1
+          fi
+
       - name: Build executable and tests
         shell: msys2 {0}
         run: |
@@ -236,16 +252,26 @@ jobs:
       - name: Verify and package Windows binary
         shell: msys2 {0}
         run: |
-          build-portable/den2obj.exe --version
-          objdump -p build-portable/den2obj.exe | sed -n 's/^[[:space:]]*DLL Name: /DLL: /p'
-          if objdump -p build-portable/den2obj.exe | grep -Eqi \
-            'DLL Name: (libgcc|libstdc\+\+|libwinpthread|libboost|libbz2|liblzma|libzstd|libblosc|zlib)'; then
-            echo "The Windows executable still depends on a bundled-toolchain DLL."
+          dlls="$(objdump -p build-portable/den2obj.exe \
+            | sed -n 's/^[[:space:]]*DLL Name: //p')"
+          echo "$dlls" | sed 's/^/DLL: /'
+          unexpected_dlls="$(echo "$dlls" | grep -Eiv \
+            '^(ADVAPI32|bcrypt|COMCTL32|COMDLG32|CRYPT32|GDI32|IMM32|KERNEL32|msvcrt|ntdll|ole32|OLEAUT32|RPCRT4|SHELL32|SHLWAPI|USER32|VERSION|WINMM|WINSPOOL|WS2_32|api-ms-win-[A-Za-z0-9-]+)\.dll$' || true)"
+          if [[ -n "$unexpected_dlls" ]]; then
+            echo "The Windows executable has unexpected non-system dependencies:"
+            echo "$unexpected_dlls"
             exit 1
           fi
           mkdir -p package/den2obj-windows-x86_64
           cp build-portable/den2obj.exe package/den2obj-windows-x86_64/
           cp LICENSE README.md package/den2obj-windows-x86_64/
+          pacman -Q > package/den2obj-windows-x86_64/DEPENDENCIES.txt
+
+          # Run the packaged executable without MSYS2's DLL directory on PATH.
+          windows_system_path="$(cygpath -u "$WINDIR/System32")"
+          PATH="$windows_system_path" \
+            package/den2obj-windows-x86_64/den2obj.exe --version
+
           powershell.exe -NoProfile -Command \
             "Compress-Archive -Path 'package/den2obj-windows-x86_64' -DestinationPath 'den2obj-windows-x86_64.zip'"
 
@@ -269,7 +295,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install build and bundling dependencies
         run: brew install cmake tclap boost cppunit eigen xz zstd c-blosc pkgconf dylibbundler
@@ -313,8 +339,26 @@ jobs:
         run: |
           package_dir="package/den2obj-macos-${{ matrix.arch }}"
           : > macos-dependencies.txt
+          : > macos-build-versions.txt
           for binary in "$package_dir/den2obj" "$package_dir"/lib/*.dylib; do
             otool -L "$binary" | tee -a macos-dependencies.txt
+            vtool -show-build "$binary" | tee -a macos-build-versions.txt
+
+            minos_values="$(vtool -show-build "$binary" \
+              | awk '$1 == "minos" { print $2 }')"
+            if [[ -z "$minos_values" ]]; then
+              echo "Could not determine the minimum macOS version for $binary."
+              exit 1
+            fi
+            while IFS= read -r minos; do
+              if ! awk -v actual="$minos" -v maximum="12.0" 'BEGIN {
+                split(actual, a, "."); split(maximum, b, ".");
+                exit !((a[1] < b[1]) || (a[1] == b[1] && a[2] <= b[2]));
+              }'; then
+                echo "$binary requires macOS $minos, newer than the 12.0 baseline."
+                exit 1
+              fi
+            done <<< "$minos_values"
           done
 
           unexpected_dependencies="$(awk '/^[[:space:]]/ { print $1 }' macos-dependencies.txt \
@@ -328,9 +372,12 @@ jobs:
           find "$package_dir/lib" -type f -name '*.dylib' \
             -exec codesign --force --sign - {} \;
           codesign --force --sign - "$package_dir/den2obj"
+          find "$package_dir/lib" -type f -name '*.dylib' \
+            -exec codesign --verify --strict {} \;
           codesign --verify --strict "$package_dir/den2obj"
           "$package_dir/den2obj" --version
           cp macos-dependencies.txt "$package_dir/DEPENDENCIES.txt"
+          cp macos-build-versions.txt "$package_dir/BUILD-VERSIONS.txt"
 
       - name: Package macOS binary
         run: |
@@ -353,6 +400,8 @@ jobs:
       contents: write
 
     steps:
+      - uses: actions/checkout@v5
+
       - name: Download binary archives
         uses: actions/download-artifact@v4
         with:
@@ -368,6 +417,16 @@ jobs:
             echo "Version tags must use the form vX.X.X; got: $version_tag"
             exit 1
           fi
+
+          project_version="$(sed -nE \
+            's/^project\(den2obj VERSION ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' \
+            src/CMakeLists.txt)"
+          if [[ -z "$project_version" || "$version_tag" != "v$project_version" ]]; then
+            echo "Tag $version_tag does not match project version $project_version."
+            exit 1
+          fi
+
+          sha256sum release-assets/* > release-assets/SHA256SUMS
 
           release_title="Patch $version_tag"
           if gh release view "$version_tag" >/dev/null 2>&1; then
