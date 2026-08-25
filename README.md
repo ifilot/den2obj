@@ -27,6 +27,25 @@ supported compression algorithms (gzip, lzma, bzip2, zstd, blosc) and
 automatically selects the one that produces the smallest file, so no manual
 tuning is needed.
 
+## Download
+
+Pre-built executables for the latest release are available for the platforms
+below. These links always point to the newest published version.
+
+| Platform | Architecture | Download |
+|----------|--------------|----------|
+| Linux | x86-64 | [den2obj-linux-x86_64.tar.gz](https://github.com/ifilot/den2obj/releases/latest/download/den2obj-linux-x86_64.tar.gz) |
+| Windows | x86-64 | [den2obj-windows-x86_64.zip](https://github.com/ifilot/den2obj/releases/latest/download/den2obj-windows-x86_64.zip) |
+| macOS (Apple Silicon) | arm64 | [den2obj-macos-arm64.tar.gz](https://github.com/ifilot/den2obj/releases/latest/download/den2obj-macos-arm64.tar.gz) |
+| macOS (Intel) | x86-64 | [den2obj-macos-x86_64.tar.gz](https://github.com/ifilot/den2obj/releases/latest/download/den2obj-macos-x86_64.tar.gz) |
+
+The Linux binary is statically linked, the Windows binary is built with
+MSYS2/MinGW-w64, and the macOS binaries target macOS 12 or newer. Download the
+[SHA-256 checksums](https://github.com/ifilot/den2obj/releases/latest/download/SHA256SUMS)
+to verify the archives, or visit the
+[latest release page](https://github.com/ifilot/den2obj/releases/latest) for
+release notes.
+
 ## Example images
 
 ![Canonical valence orbitals of CH4](docs/_static/img/ch4_valence_orbitals.png)
@@ -46,8 +65,6 @@ The first command writes the `genus2` dataset to a `.d2o` file. The second
 extracts an isosurface at isovalue 0.5 and writes a Wavefront `.obj` mesh that
 can be opened directly in Blender or MeshLab. See
 [Built-in datasets](#built-in-dataset-generation) for the full list.
-
-## Compilation instructions
 
 ### Debian-based systems (Ubuntu, Debian)
 

@@ -22,7 +22,7 @@
 #include <tclap/CmdLine.h>
 #include <boost/filesystem.hpp>
 
-#include "config.h"
+#include "den2obj_config.h"
 #include "scalar_field.h"
 #include "generator.h"
 #include "isosurface.h"

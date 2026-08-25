@@ -25,6 +25,8 @@ option(USE_GCOV "Build with gcov coverage instrumentation" OFF)
 option(MOD_OPENVDB "Enable OpenVDB support" OFF)
 option(HAS_OPENMP "Enable OpenMP support when available" ON)
 option(DISABLE_TEST "Disable building tests" OFF)
+option(PORTABLE_BUILD "Build without host-specific CPU instructions" OFF)
+option(STATIC_DEPENDENCIES "Link third-party dependencies from static archives" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -45,19 +47,79 @@ execute_process(
     ERROR_QUIET
 )
 
-message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_BINARY_DIR}/config.h")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
+message(STATUS "Writing configuration file in: ${CMAKE_CURRENT_BINARY_DIR}/den2obj_config.h")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/den2obj_config.h @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_CURRENT_BINARY_DIR}/den2obj.pc @ONLY)
 
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS regex iostreams filesystem)
+
+# Some packaged Boost.Iostreams targets directly reference Zstandard's shared
+# target even when static Boost libraries were requested. Use Zstandard's
+# exported static target whenever that dependency appears.
+if(STATIC_DEPENDENCIES)
+    get_target_property(BOOST_IOSTREAMS_LINK_LIBS
+        Boost::iostreams INTERFACE_LINK_LIBRARIES)
+    if("${BOOST_IOSTREAMS_LINK_LIBS}" MATCHES "zstd::libzstd_shared")
+        if(NOT TARGET zstd::libzstd_static)
+            message(FATAL_ERROR
+                "Static Boost.Iostreams requires zstd::libzstd_static")
+        endif()
+
+        set(BOOST_IOSTREAMS_STATIC_LINK_LIBS "")
+        foreach(dependency IN LISTS BOOST_IOSTREAMS_LINK_LIBS)
+            string(REPLACE "zstd::libzstd_shared" "zstd::libzstd_static"
+                dependency "${dependency}")
+            list(APPEND BOOST_IOSTREAMS_STATIC_LINK_LIBS "${dependency}")
+        endforeach()
+        set_property(TARGET Boost::iostreams PROPERTY
+            INTERFACE_LINK_LIBRARIES "${BOOST_IOSTREAMS_STATIC_LINK_LIBS}")
+        if("${BOOST_IOSTREAMS_STATIC_LINK_LIBS}" MATCHES "zstd::libzstd_shared")
+            message(FATAL_ERROR
+                "Boost.Iostreams still references shared Zstandard")
+        endif()
+    endif()
+endif()
+
 find_package(LibLZMA REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)
-pkg_check_modules(TCLAP REQUIRED IMPORTED_TARGET tclap)
+find_path(TCLAP_INCLUDE_DIR NAMES tclap/CmdLine.h REQUIRED)
 pkg_check_modules(EIGEN REQUIRED IMPORTED_TARGET eigen3)
-pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
-pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
+
+if(STATIC_DEPENDENCIES)
+    find_path(ZSTD_INCLUDE_DIR NAMES zstd.h REQUIRED)
+    find_path(BLOSC_INCLUDE_DIR NAMES blosc.h REQUIRED)
+    find_library(ZSTD_LIBRARY NAMES zstd)
+    find_library(BLOSC_LIBRARY NAMES blosc)
+    find_library(LZ4_LIBRARY NAMES lz4)
+    find_library(SNAPPY_LIBRARY NAMES snappy)
+    foreach(required_library ZSTD_LIBRARY BLOSC_LIBRARY LZ4_LIBRARY SNAPPY_LIBRARY)
+        if(NOT ${required_library})
+            message(FATAL_ERROR "Could not locate static dependency ${required_library}")
+        endif()
+    endforeach()
+    find_package(Threads REQUIRED)
+
+    add_library(Den2ObjZstd UNKNOWN IMPORTED)
+    set_target_properties(Den2ObjZstd PROPERTIES
+        IMPORTED_LOCATION "${ZSTD_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIR}")
+    add_library(Den2ObjBlosc UNKNOWN IMPORTED)
+    set_target_properties(Den2ObjBlosc PROPERTIES
+        IMPORTED_LOCATION "${BLOSC_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${BLOSC_INCLUDE_DIR}")
+
+    set(ZSTD_TARGET Den2ObjZstd)
+    set(BLOSC_TARGET Den2ObjBlosc)
+    set(BLOSC_TRANSITIVE_LIBS ${LZ4_LIBRARY} ${SNAPPY_LIBRARY} Threads::Threads)
+else()
+    pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET libzstd)
+    pkg_check_modules(BLOSC REQUIRED IMPORTED_TARGET blosc)
+    set(ZSTD_TARGET PkgConfig::ZSTD)
+    set(BLOSC_TARGET PkgConfig::BLOSC)
+    set(BLOSC_TRANSITIVE_LIBS "")
+endif()
 
 if(HAS_OPENMP)
     find_package(OpenMP)
@@ -108,14 +170,18 @@ set_target_properties(den2obj PROPERTIES PUBLIC_HEADER "${DEN2OBJ_HEADERS}")
 
 foreach(target den2objsources den2obj den2obj_exec)
     target_compile_features(${target} PUBLIC cxx_std_17)
-    target_compile_options(${target} PRIVATE -march=native)
+    if(NOT PORTABLE_BUILD)
+        target_compile_options(${target} PRIVATE -march=native)
+    endif()
     target_include_directories(${target}
         PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}
             ${CMAKE_CURRENT_BINARY_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}
             ${Boost_INCLUDE_DIRS}
-            ${TCLAP_INCLUDE_DIRS}
+            ${TCLAP_INCLUDE_DIR}
             ${EIGEN_INCLUDE_DIRS}
+            ${ZSTD_INCLUDE_DIR}
+            ${BLOSC_INCLUDE_DIR}
     )
 
     if(OpenMP_CXX_FOUND)
@@ -140,10 +206,11 @@ target_link_libraries(den2objsources
         Boost::iostreams
         Boost::filesystem
         LibLZMA::LibLZMA
-        ZLIB::ZLIB
         BZip2::BZip2
-        PkgConfig::ZSTD
-        PkgConfig::BLOSC
+        ${BLOSC_TARGET}
+        ${ZSTD_TARGET}
+        ZLIB::ZLIB
+        ${BLOSC_TRANSITIVE_LIBS}
         ${OPENVDB_LIBS}
 )
 
