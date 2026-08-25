@@ -53,6 +53,16 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/den2obj.pc.in ${CMAKE_CURRENT_BINARY_
 
 find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS regex iostreams filesystem)
+
+# Boost.Iostreams links the generic zstd::libzstd target. On MSYS2 that
+# target selects the DLL import library even when static Boost was requested.
+# Point the generic target at the package's static variant for portable builds.
+if(STATIC_DEPENDENCIES AND WIN32 AND
+   TARGET zstd::libzstd AND TARGET zstd::libzstd_static)
+    set_property(TARGET zstd::libzstd PROPERTY
+        INTERFACE_LINK_LIBRARIES zstd::libzstd_static)
+endif()
+
 find_package(LibLZMA REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(BZip2 REQUIRED)

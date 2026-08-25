@@ -206,7 +206,6 @@ jobs:
             -DSTATIC_DEPENDENCIES=ON \
             -DHAS_OPENMP=OFF \
             -DTCLAP_INCLUDE_DIR="$PWD/tclap-58c5c8ef24111072fc21fb723f8ab45d23395809/include" \
-            -DBoost_NO_BOOST_CMAKE=ON \
             -DBoost_USE_STATIC_LIBS=ON \
             -DLIBLZMA_LIBRARY="$MINGW_PREFIX/lib/liblzma.a" \
             -DZLIB_LIBRARY="$MINGW_PREFIX/lib/libz.a" \
