@@ -151,7 +151,8 @@ jobs:
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-bzip2
             mingw-w64-x86_64-zstd
-            mingw-w64-x86_64-blosc
+            mingw-w64-x86_64-lz4
+            mingw-w64-x86_64-snappy
 
       # TCLAP is header-only and is not packaged in the MSYS2 MinGW repository.
       - name: Fetch pinned TCLAP headers
@@ -164,6 +165,38 @@ jobs:
             | sha256sum --check
           tar -xzf tclap-v1.2.5.tar.gz
 
+      # C-Blosc embeds a private pthread implementation for generic Windows
+      # builds. That collides with MinGW's libwinpthread when everything is
+      # linked statically, so build it with the native MinGW pthread API.
+      - name: Build MinGW-compatible static Blosc
+        shell: msys2 {0}
+        run: |
+          curl --fail --location --retry 3 \
+            --output blosc-1.21.6.tar.gz \
+            https://github.com/Blosc/c-blosc/archive/v1.21.6/blosc-1.21.6.tar.gz
+          echo "9fcd60301aae28f97f1301b735f966cc19e7c49b6b4321b839b4579a0c156f38  blosc-1.21.6.tar.gz" \
+            | sha256sum --check
+          tar -xzf blosc-1.21.6.tar.gz
+          sed -i \
+            '/Include the win32\/pthread.h library/{n;s/#if defined(_WIN32)/#if defined(_WIN32) \&\& !defined(__MINGW32__)/;}' \
+            c-blosc-1.21.6/blosc/blosc.c
+          cmake -S c-blosc-1.21.6 -B blosc-build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DCMAKE_INSTALL_PREFIX="$PWD/blosc-static" \
+            -DBUILD_STATIC=ON \
+            -DBUILD_SHARED=OFF \
+            -DBUILD_TESTS=OFF \
+            -DBUILD_BENCHMARKS=OFF \
+            -DBUILD_FUZZERS=OFF \
+            -DDEACTIVATE_AVX2=ON \
+            -DDEACTIVATE_SNAPPY=ON \
+            -DPREFER_EXTERNAL_LZ4=ON \
+            -DPREFER_EXTERNAL_ZLIB=ON \
+            -DPREFER_EXTERNAL_ZSTD=ON
+          cmake --build blosc-build --parallel
+          cmake --install blosc-build
+
       - name: Configure portable static build
         shell: msys2 {0}
         run: |
@@ -173,12 +206,14 @@ jobs:
             -DSTATIC_DEPENDENCIES=ON \
             -DHAS_OPENMP=OFF \
             -DTCLAP_INCLUDE_DIR="$PWD/tclap-58c5c8ef24111072fc21fb723f8ab45d23395809/include" \
+            -DBoost_NO_BOOST_CMAKE=ON \
             -DBoost_USE_STATIC_LIBS=ON \
             -DLIBLZMA_LIBRARY="$MINGW_PREFIX/lib/liblzma.a" \
             -DZLIB_LIBRARY="$MINGW_PREFIX/lib/libz.a" \
             -DBZIP2_LIBRARY_RELEASE="$MINGW_PREFIX/lib/libbz2.a" \
             -DZSTD_LIBRARY="$MINGW_PREFIX/lib/libzstd.a" \
-            -DBLOSC_LIBRARY="$MINGW_PREFIX/lib/libblosc.a" \
+            -DBLOSC_INCLUDE_DIR="$PWD/blosc-static/include" \
+            -DBLOSC_LIBRARY="$PWD/blosc-static/lib/libblosc.a" \
             -DLZ4_LIBRARY="$MINGW_PREFIX/lib/liblz4.a" \
             -DSNAPPY_LIBRARY="$MINGW_PREFIX/lib/libsnappy.a" \
             -DCPPUNIT_LIBRARY="$MINGW_PREFIX/lib/libcppunit.a" \
