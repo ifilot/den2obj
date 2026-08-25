@@ -164,7 +164,7 @@ for archive in "${required_archives[@]}"; do
         echo "Static dependency was not produced: $install_prefix/lib/$archive" >&2
         exit 1
     fi
-    if ! lipo -verify_arch "$architecture" "$install_prefix/lib/$archive"; then
+    if ! lipo "$install_prefix/lib/$archive" -verify_arch "$architecture"; then
         echo "$archive does not contain the required $architecture architecture." >&2
         exit 1
     fi
