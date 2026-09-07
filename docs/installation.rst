@@ -72,5 +72,5 @@ more output::
 
 .. note::
 
-    If the tests are continously failing for you, you are warmly invited
+    If the tests are continuously failing for you, you are warmly invited
     to `open an issue on the Github page <https://github.com/ifilot/den2obj/issues>`_.
