@@ -1,0 +1,4 @@
+# Keep this version aligned with codespell-project/actions-codespell above.
+# Permit only the universal wheel, avoiding package build-time code execution.
+codespell==2.4.3 \
+    --hash=sha256:af2505b335e8573dbd2d384d1c4ef498f4006f4ba2d6fceca01e55b91f52628a
