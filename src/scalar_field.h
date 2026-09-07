@@ -262,7 +262,7 @@ private:
      *
      * Read the scalar value from the 2nd line of the
      * CHGCAR file. Note that all read_* functions can
-     * be used seperately, although they may depend
+     * be used separately, although they may depend
      * on each other and have to be used in some
      * consecutive order as is done in the read()
      * wrapper function.
@@ -278,7 +278,7 @@ private:
      * is automatically constructed.
      *
      * Note that all read_* functions can
-     * be used seperately, although they may depend
+     * be used separately, although they may depend
      * on each other and have to be used in some
      * consecutive order as is done in the read()
      * wrapper function.
@@ -293,7 +293,7 @@ private:
      * direction.
      *
      * Note that all read_* functions can
-     * be used seperately, although they may depend
+     * be used separately, although they may depend
      * on each other and have to be used in some
      * consecutive order as is done in the read()
      * wrapper function.
@@ -309,7 +309,7 @@ private:
      * lines.
      *
      * Note that all read_* functions can
-     * be used seperately, although they may depend
+     * be used separately, although they may depend
      * on each other and have to be used in some
      * consecutive order as is done in the read()
      * wrapper function.
@@ -327,7 +327,7 @@ private:
      * read_grid_dimensions() function.
      *
      * Note that all read_* functions can
-     * be used seperately, although they may depend
+     * be used separately, although they may depend
      * on each other and have to be used in some
      * consecutive order as is done in the read()
      * wrapper function.

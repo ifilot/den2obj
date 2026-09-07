@@ -1,0 +1,33 @@
+name: codespell
+
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: codespell-project/actions-codespell@v2.4.3
+        with:
+          only_warn: 1
+          config: .codespellrc
+          ignore_words_file: .codespell-ignore
+
+      - name: Write codespell report
+        if: always()
+        run: |
+          pipx install codespell
+          codespell --config .codespellrc > codespell.txt 2>&1 || true
+          echo "--- findings: $(wc -l < codespell.txt)"
+          cat codespell.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codespell-report
+          path: codespell.txt

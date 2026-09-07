@@ -65,7 +65,7 @@ Thus the procedure is as follows:
 3. All polygons are gathered to form the threedimensional isosurface. 
 
 It should be noted that this algorithm can be executed in a highly efficient
-fashion using trivial parallellization as the result for each cube is
+fashion using trivial parallelization as the result for each cube is
 completely independent from all the other cubes. It turns out that the
 generation of the scalar field, which by itself is also a highly
 parallellizable step, is typically the most time-consuming.
