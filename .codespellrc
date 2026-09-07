@@ -1,0 +1,10 @@
+[codespell]
+skip = .git,build,*.svg,*.png,*.jats
+# Case-sensitive, so only these exact forms are exempt. A lowercase "collet"
+# or "nd" in prose is still reported as a typo.
+#   fpt     typedef in src/den2obj_math.h:26
+#   Collet  Yann Collet, Zstandard author (paper/paper.bib:53)
+#   Smoot   Michael E. Smoot, TCLAP author (paper/paper.bib:112)
+#   NWO     Dutch Research Council (paper/paper.md:127)
+#   Te, Nd  element symbols in src/periodic_table.cpp
+ignore-words = .codespell-ignore

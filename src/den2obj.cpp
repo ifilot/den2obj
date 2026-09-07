@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
         TCLAP::ValueArg<std::string> arg_generator("g","dataset","Dataset name",false,"","string");
         cmd.add(arg_generator);
 
-        // select algorithm for either compression or for tesselation
+        // select algorithm for either compression or for tessellation
         TCLAP::ValueArg<std::string> arg_algo("a","algo","Algorithm selection",false,"","string");
         cmd.add(arg_algo);
 

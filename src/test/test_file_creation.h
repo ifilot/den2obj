@@ -34,7 +34,7 @@
 /**
  * Test that verifies file creation (obj, stl and ply)
  *
- * Because the marching cubes algorithm uses OpenMP parallellization, we need
+ * Because the marching cubes algorithm uses OpenMP parallelization, we need
  * to set the number of threads to 1 to obtain consistent results. With
  * higher number of cores, the results are subject to race conditions, leading
  * to different (although not incorrect) results.
