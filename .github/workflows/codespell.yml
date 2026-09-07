@@ -18,8 +18,6 @@ jobs:
           config: .codespellrc
           ignore_words_file: .codespell-ignore
 
-      # Re-run for a saved report. The step above annotates the diff but its
-      # output only lives in the job log.
       - name: Write codespell report
         if: always()
         run: |
